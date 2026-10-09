@@ -1,0 +1,101 @@
+/* 商品管理页样式 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #fffdf8;
+  border-radius: 999rpx;
+  padding: 16rpx 24rpx;
+}
+.search-icon { font-size: 26rpx; margin-right: 12rpx; }
+.search-input { flex: 1; font-size: 28rpx; }
+.category-entry {
+  margin-left: 20rpx;
+  color: #9c4444;
+  font-size: 28rpx;
+  padding: 12rpx 8rpx;
+}
+
+.tabs {
+  display: flex;
+  background: #fffdf8;
+  border-radius: 999rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+}
+.goods-no { font-size: 23rpx; color: #a89a8c; margin-top: 4rpx; }
+
+.tab {
+  flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  color: #8a7d72;
+  padding: 20rpx 0;
+}
+.tab-active {
+  color: #7e2f2f;
+  font-weight: bold;
+}
+
+.goods-card { padding: 20rpx; }
+.goods-main { display: flex; }
+.goods-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  background: #efe9df;
+  flex-shrink: 0;
+}
+.goods-info { flex: 1; margin-left: 20rpx; overflow: hidden; }
+.goods-name { font-size: 30rpx; font-weight: bold; color: #33241f; }
+.goods-price { margin: 10rpx 0; font-size: 32rpx; }
+.origin-price {
+  color: #a89a8c;
+  font-size: 22rpx;
+  text-decoration: line-through;
+  margin-left: 12rpx;
+}
+.goods-meta {
+  font-size: 24rpx;
+  color: #8a7d72;
+  margin-bottom: 10rpx;
+  display: flex;
+  align-items: center;
+}
+.goods-meta text:first-child { margin-right: 12rpx; }
+.goods-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #ece5d8;
+}
+.goods-actions .btn-mini:first-child { margin-left: 0; }
+
+.loading-tip {
+  text-align: center;
+  color: #a89a8c;
+  font-size: 24rpx;
+  padding: 20rpx 0 160rpx;
+}
+
+/* 悬浮新增按钮 */
+.fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 60rpx;
+  width: 100rpx;
+  height: 100rpx;
+  line-height: 96rpx;
+  text-align: center;
+  background: linear-gradient(135deg, #7e2f2f 0%, #9c4444 100%);
+  color: #fff;
+  font-size: 56rpx;
+  border-radius: 50%;
+  box-shadow: 0 8rpx 20rpx rgba(126, 47, 47, 0.32);
+}

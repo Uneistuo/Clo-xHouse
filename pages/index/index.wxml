@@ -1,0 +1,82 @@
+<!--首页：今日店况（参考酒红+米色 UI）-->
+<view class="page home">
+  <!-- 顶部日期与标题 -->
+  <view class="head">
+    <view class="head-date">{{dateText}}</view>
+    <view class="head-title">今日店况</view>
+    <view class="head-logout" bindtap="handleLogout">退出</view>
+  </view>
+
+  <!-- 今日销售额主卡 -->
+  <view class="sales-card">
+    <view class="sales-label">今日销售额</view>
+    <view class="sales-num">￥{{todaySales}}</view>
+    <view class="sales-note">仅统计已收款与已完成 · 取消/退款不计入</view>
+  </view>
+
+  <!-- 今日订单 / 待收款 -->
+  <view class="duo-row">
+    <view class="duo-card" bindtap="goOrders">
+      <view class="duo-label">今日订单</view>
+      <view class="duo-num">{{todayOrders}}</view>
+    </view>
+    <view class="duo-card" bindtap="goOrders">
+      <view class="duo-label">待收款</view>
+      <view class="duo-num">{{pendingOrders}}</view>
+    </view>
+  </view>
+
+  <!-- 商品统计 -->
+  <view class="tri-row" bindtap="goGoods">
+    <view class="tri-item">
+      <view class="tri-num">{{goodsTotal}}</view>
+      <view class="tri-label">全部商品</view>
+    </view>
+    <view class="tri-item">
+      <view class="tri-num">{{goodsOnSale}}</view>
+      <view class="tri-label">在售</view>
+    </view>
+    <view class="tri-item">
+      <view class="tri-num">{{goodsOffSale}}</view>
+      <view class="tri-label">下架</view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="btn-row">
+    <view class="btn-billing" bindtap="goBilling">
+      <text class="btn-icon">⌂</text> 现场开单
+    </view>
+    <view class="btn-add" bindtap="goAddGoods">
+      <text class="btn-icon">＋</text> 录入商品
+    </view>
+  </view>
+
+  <!-- 今日单据 -->
+  <view class="section-head">
+    <view class="section-title">今日单据</view>
+    <view class="section-link" bindtap="goOrders">全部订单 ›</view>
+  </view>
+
+  <!-- 空状态（今天还没有开单） -->
+  <view wx:if="{{todayOrdersList.length === 0}}" class="empty-card">
+    <view class="empty-icon">👔</view>
+    <view class="empty-title">今天还没有开单</view>
+    <view class="empty-sub">顾客到店后，在开单页选款下单即可</view>
+  </view>
+
+  <!-- 今日订单列表 -->
+  <view wx:for="{{todayOrdersList}}" wx:key="id" class="order-card"
+        data-id="{{item.id}}" bindtap="goDetail">
+    <view class="oc-left">
+      <view class="oc-no">{{item.order_no}}</view>
+      <view class="oc-time">{{item.timeText}} · {{item.quantity_count}} 件商品</view>
+    </view>
+    <view class="oc-right">
+      <view class="oc-amount">￥{{item.amountText}}</view>
+      <view class="tag {{item.statusClass}}">{{item.statusText}}</view>
+    </view>
+  </view>
+
+  <view class="page-bottom-space"></view>
+</view>

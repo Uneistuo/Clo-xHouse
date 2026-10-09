@@ -1,0 +1,60 @@
+<!--订单详情页-->
+<view class="page" wx:if="{{order}}">
+  <!-- 订单状态 -->
+  <view class="card status-card">
+    <view class="tag {{statusClass}} status-tag">{{statusText}}</view>
+    <view class="status-amount">订单金额 <text class="price">￥{{amountText}}</text></view>
+    <view class="status-sub">收款方式：{{payText}}</view>
+  </view>
+
+  <!-- 商品明细 -->
+  <view class="card">
+    <view class="section-title">商品明细</view>
+    <view wx:for="{{items}}" wx:key="id" class="item-row">
+      <view class="item-info">
+        <view class="item-name ellipsis">{{item.goods_name}}</view>
+        <view class="item-spec">
+          <text wx:if="{{item.color}}" class="tag tag-blue">{{item.color}}</text>
+          <text wx:if="{{item.size}}" class="tag tag-blue">{{item.size}}</text>
+          <text class="item-price">￥{{item.price}} × {{item.quantity}}</text>
+        </view>
+      </view>
+      <view class="item-amount">￥{{item.amountText}}</view>
+    </view>
+    <view class="total-row">合计：<text class="price">￥{{amountText}}</text></view>
+  </view>
+
+  <!-- 订单信息 -->
+  <view class="card">
+    <view class="section-title">订单信息</view>
+    <view class="info-row"><text class="info-label">订单号</text><text class="info-value">{{order.order_no}}</text></view>
+    <view class="info-row"><text class="info-label">创建时间</text><text class="info-value">{{order.created_at}}</text></view>
+    <view class="info-row"><text class="info-label">客户手机</text><text class="info-value">{{order.customer_phone || '未填写'}}</text></view>
+    <view class="info-row"><text class="info-label">订单备注</text><text class="info-value">{{order.remark || '无'}}</text></view>
+  </view>
+
+  <!-- 订单操作按钮（按状态显示） -->
+  <view class="card action-card">
+    <!-- 待收款：可标记已收款、取消 -->
+    <block wx:if="{{order.status === 'pending'}}">
+      <button class="btn-primary action-btn" data-status="paid" bindtap="changeStatus">标记已收款</button>
+      <button class="btn-danger action-btn" bindtap="cancelOrder">取消订单</button>
+    </block>
+    <!-- 已收款：可完成交易、售后处理、取消 -->
+    <block wx:elif="{{order.status === 'paid'}}">
+      <button class="btn-primary action-btn" data-status="done" bindtap="changeStatus">完成交易</button>
+      <button class="btn-ghost action-btn" bindtap="refundOrder">售后处理</button>
+      <button class="btn-danger action-btn" bindtap="cancelOrder">取消订单</button>
+    </block>
+    <!-- 待售后：可售后处理 -->
+    <block wx:elif="{{order.status === 'done'}}">
+      <button class="btn-danger action-btn" bindtap="refundOrder">售后处理</button>
+    </block>
+    <!-- 已取消 / 已退款：无操作 -->
+    <view wx:else class="action-none">该订单已结束，无可用操作</view>
+  </view>
+</view>
+
+<!-- 加载中 / 不存在 -->
+<view wx:elif="{{loading}}" class="empty">加载中...</view>
+<view wx:else class="empty">订单不存在</view>

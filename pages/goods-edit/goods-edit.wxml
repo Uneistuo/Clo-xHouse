@@ -1,0 +1,117 @@
+<!--商品编辑页：新增/编辑-->
+<view class="page">
+  <view class="card">
+    <!-- 商品图片 -->
+    <view class="form-item">
+      <view class="form-label">商品图片</view>
+      <view class="img-list">
+        <view wx:for="{{imageUrls}}" wx:key="index" class="img-item">
+          <image src="{{item}}" mode="aspectFill" class="img-thumb" />
+          <view class="img-del" data-index="{{index}}" bindtap="removeImage">×</view>
+        </view>
+        <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage">＋</view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label required">商品名称</view>
+      <input class="form-input" placeholder="如：修身针织连衣裙" value="{{form.name}}"
+             bindinput="onNameInput" placeholder-class="ph" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">货号</view>
+      <input class="form-input" placeholder="选填，如：NZ-2026-001" value="{{form.goodsNo}}"
+             bindinput="onGoodsNoInput" placeholder-class="ph" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label required">售价(元)</view>
+      <input class="form-input" type="digit" placeholder="0.00" value="{{form.price}}"
+             bindinput="onPriceInput" placeholder-class="ph" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">原价(元)</view>
+      <input class="form-input" type="digit" placeholder="选填" value="{{form.originalPrice}}"
+             bindinput="onOriginPriceInput" placeholder-class="ph" />
+    </view>
+
+    <!-- 无颜色/尺码属性时，填写单一库存；有属性时在下方按规格填写 -->
+    <view class="form-item" wx:if="{{!hasSpec}}">
+      <view class="form-label required">库存数量</view>
+      <input class="form-input" type="number" placeholder="0" value="{{skus[0].stock}}"
+             data-index="{{0}}" bindinput="onSkuStockInput" placeholder-class="ph" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">商品分类</view>
+      <view class="cat-input-row">
+        <input class="form-input cat-input" placeholder="输入分类名"
+               value="{{categoryInput}}" bindinput="onCategoryInput" placeholder-class="ph" />
+        <view wx:if="{{showAddCategory}}" class="btn-ghost btn-mini cat-add-btn" bindtap="addCategory">新增</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 颜色 / 尺码 -->
+  <view class="card">
+    <view class="section-title">颜色<text class="section-tip">（点击选择或输入添加，开单时供选择）</text></view>
+    <!-- 常见颜色预设（色点 + 文字） -->
+    <view class="size-options">
+      <view wx:for="{{colorOptions}}" wx:key="value"
+            class="size-opt color-opt {{item.on ? 'size-opt-active' : ''}}"
+            data-value="{{item.value}}" bindtap="toggleColor">
+        <view class="color-dot" style="background: {{item.hex}};"></view>{{item.value}}
+      </view>
+    </view>
+    <!-- 自定义颜色 -->
+    <view class="tag-row">
+      <view wx:for="{{customColors}}" wx:key="*this" class="tag tag-blue tag-edit"
+            data-index="{{index}}" bindtap="removeColor">{{item}} ×</view>
+    </view>
+    <view class="tag-input-row">
+      <input class="form-input tag-input" placeholder="输入其他颜色后点添加，如：牛油果绿"
+             value="{{colorInput}}" bindinput="onColorInput" placeholder-class="ph" />
+      <view class="btn-ghost btn-mini" bindtap="addColor">添加</view>
+    </view>
+
+    <view class="section-title mt">尺码<text class="section-tip">（点击选择，开单时供选择）</text></view>
+    <view class="size-table">
+      <view wx:for="{{sizeOptions}}" wx:key="value"
+            class="size-cell {{item.on ? 'size-cell-active' : ''}}"
+            data-value="{{item.value}}" bindtap="toggleSize">{{item.value}}</view>
+    </view>
+
+    <!-- 规格库存：按"颜色+尺码"组合分别填写库存 -->
+    <view wx:if="{{hasSpec}}" class="sku-block">
+      <view class="section-title mt">规格库存<text class="section-tip">（每个规格单独计库存，开单按规格扣减）</text></view>
+      <view wx:for="{{skus}}" wx:key="index" class="sku-row">
+        <view class="sku-name">
+          <text wx:if="{{item.color}}">{{item.color}}</text>
+          <text wx:else>默认色</text>
+          <text class="sku-sep"> / </text>
+          <text wx:if="{{item.size}}">{{item.size}}</text>
+          <text wx:else>默认码</text>
+        </view>
+        <input class="form-input sku-input" type="number" placeholder="0"
+               value="{{item.stock}}" data-index="{{index}}"
+               bindinput="onSkuStockInput" placeholder-class="ph" />
+      </view>
+      <view class="sku-total">合计库存：{{totalStock}}</view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="card">
+    <view class="form-item">
+      <view class="form-label">备注</view>
+      <textarea class="form-textarea" placeholder="选填，如材质、风格、进货信息等"
+                value="{{form.description}}" bindinput="onDescInput" placeholder-class="ph"
+                maxlength="500" />
+    </view>
+  </view>
+
+  <button class="btn-primary submit-btn" bindtap="handleSubmit"
+          disabled="{{submitting}}">{{submitting ? '保存中...' : (isEdit ? '保存修改' : '立即上架')}}</button>
+</view>

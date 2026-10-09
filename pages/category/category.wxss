@@ -1,0 +1,99 @@
+/* 分类管理页样式 */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+}
+.cat-scroll {
+  flex: 1;
+  /* 底部固定栏高度 + 安全区，避免列表最后一项被遮住 */
+  padding-bottom: 180rpx;
+  box-sizing: border-box;
+}
+.ph { color: #ccc; }
+.section-title { font-size: 30rpx; font-weight: bold; color: #333; margin-bottom: 20rpx; }
+
+/* 页面顶部：标题 + 右上角管理按钮 */
+.cat-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 32rpx 12rpx;
+}
+.cat-page-title { font-size: 38rpx; font-weight: bold; color: #33241f; }
+.cat-manage-btn {
+  background: #7e2f2f;
+  color: #fff;
+  padding: 12rpx 32rpx;
+  border-radius: 999rpx;
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
+}
+
+/* 管理模式提示条 */
+.manage-hint {
+  margin: 0 24rpx 16rpx;
+  padding: 16rpx 24rpx;
+  font-size: 24rpx;
+  color: #7e2f2f;
+  background: #f7e9e9;
+  border-radius: 12rpx;
+}
+
+/* 新增分类行（位于页面底部，仅默认模式显示） */
+.add-row { display: flex; align-items: center; }
+
+/* 固定在页面最底部的新增分类栏（仅在有分类时显示） */
+.add-card-fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: #fffdf8;
+  border-top: 1rpx solid #e2dac9;
+  border-radius: 24rpx 24rpx 0 0;
+  box-shadow: 0 -6rpx 18rpx rgba(0, 0, 0, 0.06);
+  padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  margin: 0;
+  box-sizing: border-box;
+}
+.add-input {
+  flex: 1;
+  background: #f6f1e7;
+  border-radius: 10rpx;
+  padding: 14rpx 20rpx;
+  font-size: 28rpx;
+  margin-right: 16rpx;
+}
+
+/* 分类卡片行（统一固定高度，便于长按拖动时位移计算） */
+.cat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+  /* 默认在 manage 模式轻微缩进表示可拖动 */
+  will-change: transform;
+}
+.cat-info { flex: 1; min-width: 0; }
+.cat-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #33241f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cat-meta { font-size: 24rpx; color: #a89a8c; margin-top: 6rpx; }
+.cat-actions { display: flex; align-items: center; flex-shrink: 0; }
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  color: #a89a8c;
+  padding: 80rpx 0;
+}
+.empty-icon { font-size: 80rpx; margin-bottom: 20rpx; }

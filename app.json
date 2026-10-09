@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/goods/goods",
+    "pages/billing/billing",
+    "pages/orders/orders",
+    "pages/login/login",
+    "pages/goods-edit/goods-edit",
+    "pages/category/category",
+    "pages/order-detail/order-detail",
+    "pages/store/store",
+    "pages/platform/stores"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#F3EFE7",
+    "navigationBarTitleText": "服装店管理",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F3EFE7"
+  },
+  "tabBar": {
+    "color": "#a89a8c",
+    "selectedColor": "#7E2F2F",
+    "backgroundColor": "#FFFDF8",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/goods/goods", "text": "商品" },
+      { "pagePath": "pages/billing/billing", "text": "开单" },
+      { "pagePath": "pages/orders/orders", "text": "订单" },
+      { "pagePath": "pages/store/store", "text": "店铺" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

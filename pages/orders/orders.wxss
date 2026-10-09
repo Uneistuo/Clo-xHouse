@@ -1,0 +1,28 @@
+/* 订单管理页样式 */
+.order-page { padding-bottom: 60rpx; }
+
+.search-bar { display: flex; align-items: center; margin-bottom: 20rpx; }
+.search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #fffdf8;
+  border-radius: 999rpx;
+  padding: 16rpx 24rpx;
+}
+.search-icon { font-size: 26rpx; margin-right: 12rpx; }
+.search-input { flex: 1; font-size: 28rpx; }
+/* 搜索栏右侧状态筛选入口 */
+.filter-entry { margin-left: 20rpx; color: #9c4444; font-size: 26rpx; padding: 12rpx 4rpx; }
+
+.order-card { padding: 24rpx; }
+.order-no { font-size: 26rpx; color: #33241f; font-weight: bold; }
+.order-mid { margin-top: 16rpx; }
+.order-time { font-size: 24rpx; color: #a89a8c; }
+.order-amount { font-size: 34rpx; font-weight: bold; color: #9c4444; }
+.order-bottom { margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid #ece5d8; }
+.order-sub { font-size: 24rpx; color: #a89a8c; }
+.order-arrow { font-size: 24rpx; color: #9c4444; }
+
+.empty-btn { margin: 30rpx auto 0; }
+.loading-tip { text-align: center; color: #bbb; font-size: 24rpx; padding: 20rpx 0; }

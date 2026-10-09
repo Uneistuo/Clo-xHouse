@@ -1,0 +1,137 @@
+/* 首页样式：米色底 + 酒红主调 */
+.home {
+  background: #f3efe7;
+  padding: 20rpx 30rpx 0;
+}
+
+/* ===== 顶部日期与标题 ===== */
+.head { padding: 10rpx 6rpx 24rpx; position: relative; }
+.head-date { font-size: 24rpx; color: #8a7d72; }
+.head-title {
+  font-size: 52rpx;
+  font-weight: bold;
+  color: #33241f;
+  margin-top: 8rpx;
+  letter-spacing: 2rpx;
+}
+.head-logout {
+  position: absolute;
+  right: 6rpx;
+  bottom: 28rpx;
+  font-size: 24rpx;
+  color: #8a7d72;
+  border: 1rpx solid #d8cfbf;
+  border-radius: 999rpx;
+  padding: 6rpx 22rpx;
+  background: #fffdf8;
+}
+
+/* ===== 今日销售额主卡（酒红渐变） ===== */
+.sales-card {
+  background: linear-gradient(135deg, #7e2f2f 0%, #9c4444 100%);
+  border-radius: 28rpx;
+  padding: 40rpx 36rpx 34rpx;
+  color: #fff;
+  box-shadow: 0 10rpx 26rpx rgba(126, 47, 47, 0.28);
+}
+.sales-label { font-size: 26rpx; opacity: 0.85; }
+.sales-num {
+  font-size: 84rpx;
+  font-weight: bold;
+  line-height: 1.25;
+  margin: 6rpx 0 10rpx;
+}
+.sales-note { font-size: 22rpx; opacity: 0.7; }
+
+/* ===== 今日订单 / 待收款 双卡 ===== */
+.duo-row { display: flex; margin-top: 24rpx; }
+.duo-card {
+  flex: 1;
+  background: #fffdf8;
+  border-radius: 24rpx;
+  padding: 28rpx 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+}
+.duo-card:first-child { margin-right: 24rpx; }
+.duo-label { font-size: 24rpx; color: #8a7d72; }
+.duo-num { font-size: 52rpx; font-weight: bold; color: #33241f; margin-top: 8rpx; }
+
+/* ===== 商品统计三栏 ===== */
+.tri-row {
+  display: flex;
+  background: #fffdf8;
+  border-radius: 24rpx;
+  margin-top: 24rpx;
+  padding: 26rpx 0;
+  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+}
+.tri-item { flex: 1; text-align: center; }
+.tri-num { font-size: 38rpx; font-weight: bold; color: #33241f; }
+.tri-label { font-size: 24rpx; color: #8a7d72; margin-top: 6rpx; }
+
+/* ===== 操作按钮 ===== */
+.btn-row { display: flex; margin-top: 28rpx; }
+.btn-billing {
+  flex: 1;
+  background: linear-gradient(135deg, #7e2f2f 0%, #9c4444 100%);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: bold;
+  text-align: center;
+  padding: 26rpx 0;
+  border-radius: 999rpx;
+  box-shadow: 0 8rpx 20rpx rgba(126, 47, 47, 0.3);
+}
+.btn-add {
+  flex: 1;
+  margin-left: 24rpx;
+  background: #fffdf8;
+  color: #33241f;
+  border: 1.5rpx solid #d8cfbf;
+  font-size: 30rpx;
+  font-weight: bold;
+  text-align: center;
+  padding: 26rpx 0;
+  border-radius: 999rpx;
+}
+.btn-icon { margin-right: 6rpx; }
+
+/* ===== 今日单据标题行 ===== */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 40rpx 6rpx 20rpx;
+}
+.section-title { font-size: 34rpx; font-weight: bold; color: #33241f; }
+.section-link { font-size: 26rpx; color: #9c4444; }
+
+/* ===== 空状态卡片（虚线边框） ===== */
+.empty-card {
+  border: 2rpx dashed #d8cfbf;
+  border-radius: 24rpx;
+  background: rgba(255, 253, 248, 0.6);
+  text-align: center;
+  padding: 60rpx 0 50rpx;
+}
+.empty-icon { font-size: 64rpx; margin-bottom: 16rpx; }
+.empty-title { font-size: 30rpx; color: #33241f; font-weight: bold; }
+.empty-sub { font-size: 24rpx; color: #a89a8c; margin-top: 10rpx; }
+
+/* ===== 今日订单卡片 ===== */
+.order-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fffdf8;
+  border-radius: 20rpx;
+  padding: 26rpx 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+}
+.oc-no { font-size: 27rpx; font-weight: bold; color: #33241f; }
+.oc-time { font-size: 23rpx; color: #a89a8c; margin-top: 8rpx; }
+.oc-right { text-align: right; }
+.oc-amount { font-size: 32rpx; font-weight: bold; color: #9c4444; margin-bottom: 8rpx; }
+
+.page-bottom-space { height: 40rpx; }

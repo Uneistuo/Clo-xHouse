@@ -1,0 +1,112 @@
+<!--店铺页（tab）：店铺信息+成员合并板块；圆形图标弹窗切换店铺；底部注册店铺（店主，上限3家）-->
+<view class="store-page">
+  <view class="store-head">
+    <view class="store-title">我的店铺</view>
+  </view>
+
+  <!-- ===== 已绑定店铺：店铺信息（名称/店铺码）+ 店铺成员（合并板块） ===== -->
+  <view class="store-card" wx:if="{{storeId}}">
+    <!-- 店铺名称 + 改名按钮（浅色）+ 切换店铺圆形小图标 -->
+    <view class="store-name-row">
+      <view class="store-name">{{store.name}}</view>
+      <view class="rename-btn" wx:if="{{role === 'owner'}}" bindtap="handleRename">改名</view>
+      <view class="switch-icon" wx:if="{{role === 'owner' && myStores.length}}" bindtap="openSwitchPopup">⇄</view>
+    </view>
+    <view class="store-role">{{role === 'owner' ? '店主' : '员工'}}</view>
+
+    <view class="code-box">
+      <view class="code-head">
+        <view class="code-label">店铺码（分享给员工，绑定后数据自动同步）</view>
+        <view class="reset-icon" wx:if="{{role === 'owner'}}" bindtap="handleResetCode">↻</view>
+      </view>
+      <view class="code-value" bindtap="handleCopyCode">
+        {{store.bind_code}} <text class="code-copy">复制</text>
+      </view>
+    </view>
+
+    <view class="store-btns" wx:if="{{role !== 'owner'}}">
+      <button class="btn-ghost" bindtap="handleUnbind">退出店铺</button>
+    </view>
+    <!-- 店主改名频率提示：本月已改过时展示下次可改时间 -->
+    <view class="rename-tip" wx:if="{{role === 'owner' && !canRename && nextRenameAt}}">
+      店铺名称每月可修改一次，{{nextRenameAt}} 后可再次修改
+    </view>
+
+    <!-- 店铺成员（与店铺信息同一板块）：店主可移除员工，员工可自行退出 -->
+    <view class="member-section">
+      <view class="member-title">店铺成员（{{members.length}}）</view>
+      <view class="member-item" wx:for="{{members}}" wx:key="id">
+        <view class="member-info">
+          <view class="member-name">{{item.username}}</view>
+          <view class="member-role {{item.role === 'owner' ? 'role-owner' : ''}}">
+            {{item.role === 'owner' ? '店主' : '员工'}}
+          </view>
+        </view>
+        <view class="member-remove" wx:if="{{role === 'owner' && item.role !== 'owner'}}"
+              data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 未绑定店铺：创建 / 加入 ===== -->
+  <block wx:else>
+    <view class="action-tabs">
+      <view class="action-tab {{action === 'create' ? 'active' : ''}}" data-action="create" bindtap="switchAction">创建店铺</view>
+      <view class="action-tab {{action === 'join' ? 'active' : ''}}" data-action="join" bindtap="switchAction">加入店铺</view>
+    </view>
+
+    <!-- 创建店铺 -->
+    <view class="store-form" wx:if="{{action === 'create'}}">
+      <view class="form-item">
+        <text class="form-label">店铺名称</text>
+        <input class="form-input" placeholder="请输入店铺名称" value="{{storeName}}"
+               bindinput="onStoreNameInput" placeholder-class="placeholder" maxlength="30" />
+      </view>
+      <view class="form-tip">创建后您即店主，将获得专属店铺码供员工绑定</view>
+      <button class="btn-primary form-btn" bindtap="handleCreate"
+              disabled="{{loading}}">{{loading ? '创建中...' : '创建店铺'}}</button>
+    </view>
+
+    <!-- 加入店铺 -->
+    <view class="store-form" wx:else>
+      <view class="form-item">
+        <text class="form-label">店铺码</text>
+        <input class="form-input" placeholder="请输入8位店铺码" value="{{code}}"
+               bindinput="onCodeInput" placeholder-class="placeholder" maxlength="8" />
+      </view>
+      <view class="form-tip">绑定后该店铺的商品、订单数据自动同步到您的账号，修改实时互通</view>
+      <button class="btn-primary form-btn" bindtap="handleJoin"
+              disabled="{{loading}}">{{loading ? '绑定中...' : '加入店铺'}}</button>
+    </view>
+  </block>
+
+  <!-- ===== 平台管理入口：仅平台管理员可见（控制各店铺开单白名单时效） ===== -->
+  <view class="platform-card" wx:if="{{isPlatform}}" bindtap="goPlatform">
+    <view class="platform-info">
+      <view class="platform-title">平台管理</view>
+      <view class="platform-sub">控制各店铺开单授权时效</view>
+    </view>
+    <view class="platform-arrow">›</view>
+  </view>
+
+  <!-- ===== 注册店铺：店主名下不满 3 家时显示在页面最下方，满 3 家自动移除 ===== -->
+  <button class="btn-primary register-btn" wx:if="{{storeId && role === 'owner' && canCreateStore}}"
+          bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
+
+  <view class="page-bottom-space"></view>
+</view>
+
+<!-- ===== 切换店铺弹窗（店主名下店铺列表） ===== -->
+<view class="popup-mask" wx:if="{{showSwitchPopup}}" bindtap="closeSwitchPopup">
+  <view class="popup-panel" catchtap="noop">
+    <view class="popup-title">切换店铺</view>
+    <view class="popup-item {{item.id === storeId ? 'current' : ''}}"
+          wx:for="{{myStores}}" wx:key="id"
+          data-id="{{item.id}}" data-name="{{item.name}}" bindtap="handleSwitchStore">
+      <view class="popup-store-name">{{item.name}}</view>
+      <view class="popup-store-tag" wx:if="{{item.id === storeId}}">当前</view>
+      <view class="popup-store-arrow" wx:else>切换</view>
+    </view>
+    <view class="popup-cancel" bindtap="closeSwitchPopup">取消</view>
+  </view>
+</view>

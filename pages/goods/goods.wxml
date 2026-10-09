@@ -1,0 +1,62 @@
+<!--商品管理页-->
+<view class="page">
+  <!-- 搜索栏 + 分类管理入口 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索商品名称" value="{{keyword}}"
+             bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
+    </view>
+    <view class="category-entry" bindtap="goCategory">分类</view>
+  </view>
+
+  <!-- 上架状态筛选 -->
+  <view class="tabs">
+    <view wx:for="{{tabs}}" wx:key="key"
+          class="tab {{statusTab === item.key ? 'tab-active' : ''}}"
+          data-key="{{item.key}}" bindtap="switchTab">{{item.text}}</view>
+  </view>
+
+  <!-- 商品列表（空表时显示空状态，不报错） -->
+  <view wx:if="{{list.length === 0 && !loading}}" class="empty">
+    <view class="empty-icon">📦</view>
+    <view>{{keyword ? '未搜索到相关商品' : '暂无商品，点击右下角 + 新增'}}</view>
+  </view>
+
+  <view wx:for="{{list}}" wx:key="id" class="card goods-card">
+    <view class="goods-main">
+      <!-- 商品图片（无图时显示占位） -->
+      <image class="goods-img" src="{{item.cover}}" mode="aspectFill" />
+      <view class="goods-info">
+        <view class="goods-name ellipsis">{{item.name}}</view>
+        <view wx:if="{{item.goods_no}}" class="goods-no ellipsis">货号：{{item.goods_no}}</view>
+        <view class="goods-price">
+          <text class="price">￥{{item.priceText}}</text>
+          <text wx:if="{{item.original_price > 0}}" class="origin-price">￥{{item.originalPriceText}}</text>
+        </view>
+        <view class="goods-meta">
+          <text>库存 {{item.stock}}</text>
+          <text wx:if="{{item.category_name}}" class="tag tag-blue">{{item.category_name}}</text>
+        </view>
+        <view class="tag {{item.on_sale === 1 ? 'tag-green' : 'tag-gray'}}">
+          {{item.on_sale === 1 ? '上架中' : '已下架'}}
+        </view>
+      </view>
+    </view>
+    <!-- 操作按钮 -->
+    <view class="goods-actions">
+      <view class="btn-ghost btn-mini" data-id="{{item.id}}" bindtap="goEdit">编辑</view>
+      <view class="btn-ghost btn-mini" data-id="{{item.id}}" data-onsale="{{item.on_sale}}"
+            bindtap="toggleStatus">{{item.on_sale === 1 ? '下架' : '上架'}}</view>
+      <view class="btn-danger btn-mini" data-id="{{item.id}}" data-name="{{item.name}}"
+            bindtap="handleDelete">删除</view>
+    </view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+  <view wx:elif="{{hasMore && list.length > 0}}" class="loading-tip">上拉加载更多</view>
+
+  <!-- 新增商品悬浮按钮 -->
+  <view class="fab" bindtap="goAdd">＋</view>
+</view>

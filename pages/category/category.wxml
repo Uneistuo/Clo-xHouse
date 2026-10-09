@@ -1,0 +1,58 @@
+<!--分类管理页：默认按添加时间展示；右上角"管理"按钮进入管理模式（可拖动排序/删除）-->
+<view class="page">
+  <!-- 页面顶部：标题 + 右上角管理/退出管理 -->
+  <view class="cat-page-header">
+    <view class="cat-page-title">商品分类</view>
+    <view class="cat-manage-btn" hover-class="weui-active" bindtap="toggleManage">
+      {{manageMode ? '退出管理' : '管理'}}
+    </view>
+  </view>
+
+  <!-- 管理模式提示 -->
+  <view wx:if="{{manageMode}}" class="manage-hint">长按分类卡片可拖动调整顺序，点击右侧可删除</view>
+
+  <!-- 分类列表区域（用 scroll-view 包裹，长按拖动时关闭垂直滚动以固定整个页面） -->
+  <scroll-view scroll-y="{{!dragging}}" class="cat-scroll" enhanced show-scrollbar="{{false}}">
+    <!-- 新增分类卡片：空分类时置于首行（顶部） -->
+    <view wx:if="{{!manageMode && list.length === 0}}" class="card add-card">
+      <view class="section-title">新增分类</view>
+      <view class="add-row">
+        <input class="add-input" placeholder="分类名称，如：上衣" value="{{addName}}"
+               bindinput="onAddNameInput" placeholder-class="ph" />
+        <view class="btn-ghost" bindtap="handleAdd">添加</view>
+      </view>
+    </view>
+
+    <!-- 分类列表为空时的空状态（仅默认模式显示） -->
+    <view wx:if="{{list.length === 0 && !loading && !manageMode}}" class="empty">
+      <view class="empty-icon">🗂️</view>
+      <view>暂无分类，请在下方添加</view>
+    </view>
+
+    <view wx:for="{{list}}" wx:key="id" class="card cat-row"
+          data-index="{{index}}"
+          bindlongpress="{{manageMode ? 'onLongPress' : ''}}"
+          bindtouchmove="{{manageMode ? 'onTouchMove' : ''}}"
+          bindtouchend="{{manageMode ? 'onTouchEnd' : ''}}"
+          hover-class="{{manageMode ? '' : 'weui-active'}}"
+          style="height: {{itemHrpx}}rpx; transform: translateY({{item.shiftY || 0}}px) {{(dragging && dragIndex === index) ? 'scale(1.04)' : 'scale(1)'}}; transition: {{(dragging && dragIndex === index) ? 'box-shadow 0.2s ease' : 'transform 0.2s cubic-bezier(0.22, 0.8, 0.28, 1), box-shadow 0.2s ease'}}; z-index: {{(dragging && dragIndex === index) ? 10 : 1}}; box-shadow: {{(dragging && dragIndex === index) ? '0 12rpx 28rpx rgba(126,47,47,0.22)' : 'none'}};">
+      <view class="cat-info">
+        <view class="cat-name">{{item.name}}</view>
+        <view class="cat-meta">{{item.goods_count}} 个商品</view>
+      </view>
+      <view class="cat-actions" wx:if="{{manageMode}}">
+        <view class="btn-danger btn-mini" data-id="{{item.id}}" data-name="{{item.name}}"
+              catchtap="handleDelete">删除</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 新增分类卡片：有分类时固定在页面最底部（始终可见） -->
+  <view wx:if="{{!manageMode && list.length > 0}}" class="card add-card-fixed">
+    <view class="add-row">
+      <input class="add-input" placeholder="分类名称，如：上衣" value="{{addName}}"
+             bindinput="onAddNameInput" placeholder-class="ph" />
+      <view class="btn-ghost" bindtap="handleAdd">添加</view>
+    </view>
+  </view>
+</view>

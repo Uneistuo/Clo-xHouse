@@ -1,0 +1,145 @@
+/* app.wxss 全局样式（米色底 + 酒红主调，与首页风格统一） */
+
+/* ========== 主题色板 ==========
+   页面底色 #F3EFE7 | 卡片 #FFFDF8
+   主色（酒红）#7E2F2F / #9C4444
+   正文 #33241F | 次要 #8A7D72 | 弱化 #A89A8C
+   描边 #D8CFBF
+================================ */
+
+/* ========== 通用页面容器 ========== */
+.page {
+  min-height: 100vh;
+  background: #f3efe7;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+/* ========== 卡片 ========== */
+.card {
+  background: #fffdf8;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+}
+
+/* ========== 按钮 ========== */
+.btn-primary {
+  background: linear-gradient(135deg, #7e2f2f 0%, #9c4444 100%);
+  color: #fff;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  padding: 20rpx 0;
+  text-align: center;
+}
+.btn-primary::after { border: none; }
+.btn-primary[disabled] { background: #cfa9a9; color: #fff; }
+
+.btn-ghost {
+  background: #fffdf8;
+  color: #33241f;
+  border: 1.5rpx solid #d8cfbf;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  padding: 14rpx 28rpx;
+  display: inline-block;
+  text-align: center;
+}
+.btn-ghost::after { border: none; }
+
+.btn-danger {
+  background: #fffdf8;
+  color: #a33a3a;
+  border: 1.5rpx solid #dca8a8;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  padding: 14rpx 28rpx;
+  display: inline-block;
+}
+.btn-danger::after { border: none; }
+
+.btn-mini {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  display: inline-block;
+  margin-left: 16rpx;
+}
+
+/* ========== 表单 ========== */
+.form-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #ece5d8;
+}
+.form-item:last-child { border-bottom: none; }
+.form-label {
+  width: 170rpx;
+  font-size: 28rpx;
+  color: #33241f;
+  flex-shrink: 0;
+}
+.form-label.required::before {
+  content: "*";
+  color: #a33a3a;
+  margin-right: 4rpx;
+}
+.form-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #33241f;
+}
+.form-textarea {
+  flex: 1;
+  font-size: 28rpx;
+  color: #33241f;
+  height: 140rpx;
+}
+.form-arrow {
+  color: #c4b8a8;
+  font-size: 26rpx;
+}
+
+/* ========== 标签 ========== */
+.tag {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  margin-right: 12rpx;
+}
+.tag-blue { background: #f5e9e9; color: #9c4444; }
+.tag-green { background: #e9f2e6; color: #5e8c4a; }
+.tag-gray { background: #efe9df; color: #8a7d72; }
+.tag-red { background: #f9e3e3; color: #a33a3a; }
+.tag-orange { background: #f9efe0; color: #b8742a; }
+
+/* ========== 空状态（空商品表/无订单时展示，不崩溃） ========== */
+.empty {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #a89a8c;
+  font-size: 26rpx;
+}
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+/* ========== 价格 ========== */
+.price { color: #9c4444; font-weight: bold; }
+.price-symbol { font-size: 22rpx; }
+
+/* ========== 列表项通用 ========== */
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
