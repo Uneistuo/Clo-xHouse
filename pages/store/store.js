@@ -2,6 +2,7 @@
 // 店主可绑定多个店铺（上限 3 个）：在我的店铺卡片中注册新店铺 / 快捷切换当前店铺
 // 平台管理员在本页另有"平台管理"入口（控制各店铺开单白名单）
 const { request } = require('../../utils/api');
+const { printer } = require('../../utils/printer');
 
 Page({
   data: {
@@ -13,6 +14,7 @@ Page({
     canRename: false,     // 店主本月是否可修改店铺名称
     nextRenameAt: '',     // 下次可改名时间（本月已改过时展示）
     isPlatform: false,   // 平台管理员标记（显示"平台管理"入口）
+    printerHint: '未连接打印机', // 打印设置卡片副标题
     action: 'create',    // 未绑定时选择：create 创建 / join 加入
     storeName: '',
     code: '',
@@ -26,6 +28,17 @@ Page({
     if (!getApp().checkLogin()) return;
     this.setData({ isPlatform: !!(wx.getStorageSync('adminInfo') || {}).isPlatform });
     this.loadInfo();
+    this.refreshPrinterHint();
+  },
+
+  /** 更新打印设置卡片副标题（已配对/未配对） */
+  refreshPrinterHint() {
+    const saved = printer.loadSavedDevice();
+    if (!saved) {
+      this.setData({ printerHint: '未配对打印机（开单后将提示）' });
+    } else {
+      this.setData({ printerHint: `已配对：${saved.name || '打印机'}` });
+    }
   },
 
   /** 拉取当前绑定店铺信息 */
@@ -305,5 +318,10 @@ Page({
   // 平台管理：控制各店铺开单白名单（仅平台管理员可见入口）
   goPlatform() {
     wx.navigateTo({ url: '/pages/platform/stores' });
+  },
+
+  // 打印设置：跳转配对页
+  goPrinter() {
+    wx.navigateTo({ url: '/pages/printer-pair/printer-pair' });
   }
 });

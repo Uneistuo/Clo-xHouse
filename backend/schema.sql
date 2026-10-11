@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS order_item (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  -- 明细ID
   order_id   INT UNSIGNED NOT NULL,                   -- 订单ID
   goods_id   INT UNSIGNED NOT NULL,                   -- 商品ID
+  goods_no   VARCHAR(64)  NOT NULL DEFAULT '',       -- 商品货号快照（下单时的 goods.goods_no）
   goods_name VARCHAR(100) NOT NULL DEFAULT '',       -- 商品名称快照
   color      VARCHAR(60)  NOT NULL DEFAULT '',       -- 选择的颜色
   size       VARCHAR(60)  NOT NULL DEFAULT '',       -- 选择的尺码

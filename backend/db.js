@@ -76,7 +76,13 @@ async function init() {
       await conn.query("ALTER TABLE store ADD COLUMN renamed_at VARCHAR(19) NOT NULL DEFAULT '' AFTER billing_expire_at");
       console.log('[migrate] store 表已增加 renamed_at（店铺改名时间）列');
     }
-    // 2.2) 店铺名称全库唯一索引（存量重名时告警跳过，需人工处理）
+    // 2.2) order_item 表增加 goods_no（下单时商品货号快照，小票打印用）
+    const [itemCols] = await conn.query("SHOW COLUMNS FROM order_item LIKE 'goods_no'");
+    if (itemCols.length === 0) {
+      await conn.query("ALTER TABLE order_item ADD COLUMN goods_no VARCHAR(64) NOT NULL DEFAULT '' AFTER goods_id");
+      console.log('[migrate] order_item 表已增加 goods_no（商品货号快照）列');
+    }
+    // 2.3) 店铺名称全库唯一索引（存量重名时告警跳过，需人工处理）
     const [nameIdx] = await conn.query("SHOW INDEX FROM store WHERE Key_name = 'uniq_store_name'");
     if (nameIdx.length === 0) {
       try {

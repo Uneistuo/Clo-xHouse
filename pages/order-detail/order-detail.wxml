@@ -52,6 +52,9 @@
     </block>
     <!-- 已取消 / 已退款：无操作 -->
     <view wx:else class="action-none">该订单已结束，无可用操作</view>
+
+    <!-- 补打小票：所有有效订单都可补打 -->
+    <button class="btn-ghost action-btn" bindtap="reprintReceipt">补打小票</button>
   </view>
 </view>
 

@@ -3,6 +3,8 @@
 //      -> 填客户手机号/备注/收款方式 -> 提交（后端事务：生成订单 + 自动扣减库存）
 const { request, BASE_URL } = require('../../utils/api');
 const { fmtMoney, resolveImg } = require('../../utils/util');
+const { printer } = require('../../utils/printer');
+const { buildReceipt } = require('../../utils/receipt');
 
 Page({
   data: {
@@ -36,6 +38,119 @@ Page({
     if (!getApp().checkLogin()) return;
     this.checkBilling();
     this.loadGoods();
+    // 进入页面静默尝试连接已配对打印机
+    this._ensurePrinterConnected();
+  },
+
+  /**
+   * 静默连接已配对打印机（不阻塞页面；失败不打扰用户，开单时再提示）
+   */
+  _ensurePrinterConnected() {
+    const saved = printer.loadSavedDevice();
+    if (!saved || printer.connected) return;
+    printer.quickConnect(saved.deviceId).catch(() => {});
+  },
+
+  /**
+   * 检查打印机配对状态：未配对则弹 modal 并跳转配对页
+   * @returns {boolean} true=可以继续开单
+   */
+  _checkPrinterBeforeBill() {
+    const saved = printer.loadSavedDevice();
+    if (saved) return true;
+    wx.showModal({
+      title: '未连接打印机',
+      content: '检测到您还未配对蓝牙打印机，开单后将无法自动打印小票。是否前往配对？',
+      confirmText: '去配对',
+      cancelText: '暂不开单',
+      success: (res) => {
+        if (res.confirm) {
+          wx.redirectTo({ url: '/pages/printer-pair/printer-pair' });
+        }
+      }
+    });
+    return false;
+  },
+
+  /**
+   * 打印小票：订单成功后调用；失败弹 modal 询问重试/跳过
+   */
+  async _printReceipt(orderData) {
+    const { orderNo, totalAmount, customerPhone, remark, items } = orderData;
+    // 加载店铺信息（用于小票顶部）
+    let storeName = '';
+    let salesName = '';
+    try {
+      const admin = wx.getStorageSync('adminInfo') || {};
+      storeName = admin.storeName || '';
+      salesName = admin.username || '';
+      const storeInfo = await request({ url: '/api/store/info' });
+      if (storeInfo && storeInfo.store) {
+        storeName = storeInfo.store.name || storeName;
+      }
+    } catch (e) { /* 继续用已有信息 */ }
+
+    const receiptBytes = buildReceipt({
+      store: { name: storeName },
+      admin: { username: salesName },
+      order: { orderNo, totalAmount, customerPhone, remark },
+      items
+    });
+
+    // 如果未连接，先尝试静默连接
+    if (!printer.connected) {
+      const saved = printer.loadSavedDevice();
+      if (!saved) {
+        wx.showModal({
+          title: '未配对打印机',
+          content: '订单已生成，但无法打印小票。是否前往配对？',
+          confirmText: '去配对',
+          success: (r) => {
+            if (r.confirm) wx.navigateTo({ url: '/pages/printer-pair/printer-pair' });
+          }
+        });
+        return;
+      }
+      const ok = await printer.quickConnect(saved.deviceId);
+      if (!ok) {
+        this._showPrintFailModal(receiptBytes, orderNo);
+        return;
+      }
+    }
+
+    try {
+      await printer.writeBytes(receiptBytes);
+      wx.showToast({ title: '小票已打印', icon: 'success' });
+    } catch (e) {
+      console.error('[print]', e);
+      this._showPrintFailModal(receiptBytes, orderNo);
+    }
+  },
+
+  /** 打印失败 modal：让用户选择重试或跳过 */
+  _showPrintFailModal(receiptBytes, orderNo) {
+    const that = this;
+    wx.showModal({
+      title: '打印失败',
+      content: `订单 ${orderNo} 已生成，但小票打印失败。是否重试？`,
+      confirmText: '重试',
+      cancelText: '跳过',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            // 重试前重新连接
+            const saved = printer.loadSavedDevice();
+            if (saved && !printer.connected) {
+              await printer.quickConnect(saved.deviceId);
+            }
+            await printer.writeBytes(receiptBytes);
+            wx.showToast({ title: '小票已打印', icon: 'success' });
+          } catch (e2) {
+            wx.showToast({ title: '打印失败，已跳过', icon: 'none' });
+          }
+        }
+      }
+    });
   },
 
   /** 校验店铺开单授权时效（未授权/到期时整页展示受限提示；后端提交时同样实时校验） */
@@ -179,6 +294,7 @@ Page({
     } else {
       cart.push({
         goodsId: selGoods.id,
+        goodsNo: selGoods.goods_no || '',
         name: selGoods.name,
         cover: selGoods.cover,
         color: selColor,
@@ -253,6 +369,8 @@ Page({
       wx.showToast({ title: '请先选择商品', icon: 'none' });
       return;
     }
+    // 提交前检查打印机配对状态（未配对则提示并跳转，不阻塞后续二次点击）
+    this._checkPrinterBeforeBill();
     this.setData({ submitting: true });
     try {
       const data = await request({
@@ -272,6 +390,7 @@ Page({
       });
       this.setData({ cart: [], customerPhone: '', remark: '', paidNow: false });
       this.calcTotal();
+      // 弹成功提示的同时异步打印小票（不阻塞 UI）
       wx.showModal({
         title: '开单成功',
         content: `订单号 ${data.orderNo}\n应收金额 ￥${fmtMoney(data.totalAmount)}${paidNow ? '（已标记收款）' : '（待收款）'}`,
@@ -281,6 +400,22 @@ Page({
           this.loadGoods();
         }
       });
+      // 异步调用打印（不等待，弹 modal 同时打印）
+      this._printReceipt({
+        orderNo: data.orderNo,
+        totalAmount: data.totalAmount,
+        paidNow,
+        customerPhone: customerPhone.trim(),
+        remark: remark.trim(),
+        items: cart.map((c) => ({
+          goodsNo: c.goodsNo,
+          name: c.name,
+          color: c.color,
+          size: c.size,
+          price: c.price,
+          quantity: c.quantity
+        }))
+      }).catch((e) => console.error('[print]', e));
     } catch (e) {
       // 后端实时校验：授权被关闭/到期（1002）时同步切换为受限状态
       if (e && e.code === 1002) {

@@ -88,7 +88,7 @@ router.post('/', async (req, res) => {
           throw new Error(`商品【${g.name}】规格【${color || '默认'} / ${size || '默认'}】库存不足（当前库存 ${avail}）`);
         }
         total = r2(total + r2(g.price * qty));
-        rows.push({ goodsId: g.id, goodsName: g.name, color, size, quantity: qty, price: g.price, skuId: sku ? sku.id : null });
+        rows.push({ goodsId: g.id, goodsNo: g.goods_no || '', goodsName: g.name, color, size, quantity: qty, price: g.price, skuId: sku ? sku.id : null });
       }
       // 2. 写入订单主表
       const orderNo = genOrderNo();
@@ -99,8 +99,8 @@ router.post('/', async (req, res) => {
       const orderId = info.insertId;
       // 3. 写入订单明细 + 原子扣减规格（SKU）库存与商品总库存（WHERE stock >= ? 防止并发超卖）
       for (const r of rows) {
-        await tx.run('INSERT INTO order_item (order_id, goods_id, goods_name, color, size, quantity, price) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [orderId, r.goodsId, r.goodsName, r.color, r.size, r.quantity, r.price]);
+        await tx.run('INSERT INTO order_item (order_id, goods_id, goods_no, goods_name, color, size, quantity, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [orderId, r.goodsId, r.goodsNo, r.goodsName, r.color, r.size, r.quantity, r.price]);
         if (r.skuId) {
           const dr = await tx.run('UPDATE goods_sku SET stock = stock - ? WHERE id = ? AND stock >= ?',
             [r.quantity, r.skuId, r.quantity]);
