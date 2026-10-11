@@ -80,6 +80,15 @@
     </view>
   </block>
 
+  <!-- ===== 打印设置：已绑定店铺才显示（开单需要小票） ===== -->
+  <view class="platform-card" wx:if="{{storeId}}" bindtap="goPrinter">
+    <view class="platform-info">
+      <view class="platform-title">打印设置</view>
+      <view class="platform-sub">{{printerHint}}</view>
+    </view>
+    <view class="platform-arrow">›</view>
+  </view>
+
   <!-- ===== 平台管理入口：仅平台管理员可见（控制各店铺开单白名单时效） ===== -->
   <view class="platform-card" wx:if="{{isPlatform}}" bindtap="goPlatform">
     <view class="platform-info">

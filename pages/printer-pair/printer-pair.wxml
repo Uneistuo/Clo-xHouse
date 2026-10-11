@@ -1,0 +1,48 @@
+<view class="page">
+  <!-- 顶部状态卡片 -->
+  <view class="status-card {{stateClass}}">
+    <view class="status-icon">{{stateIcon}}</view>
+    <view class="status-title">{{stateTitle}}</view>
+    <view class="status-sub">{{stateSub}}</view>
+    <view wx:if="{{savedDevice}}" class="saved-device">
+      <text>已配对：{{savedDevice.name || '未知设备'}}</text>
+      <text wx:if="{{connected}}" class="dot dot-on"></text>
+      <text wx:else class="dot dot-off"></text>
+    </view>
+  </view>
+
+  <!-- 操作区 -->
+  <view class="actions">
+    <button wx:if="{{!scanning}}" class="btn btn-primary" bindtap="onScan">扫描附近打印机</button>
+    <button wx:else class="btn btn-warn" bindtap="onStopScan">停止扫描</button>
+
+    <button wx:if="{{savedDevice && !connected}}" class="btn btn-ghost" bindtap="onReconnect">重新连接已配对设备</button>
+    <button wx:if="{{savedDevice && connected}}" class="btn btn-ghost" bindtap="onTestPrint">打印测试页</button>
+    <button wx:if="{{savedDevice && connected}}" class="btn btn-danger" bindtap="onUnpair">解除配对</button>
+  </view>
+
+  <!-- 设备列表 -->
+  <view wx:if="{{devices.length > 0}}" class="device-list">
+    <view class="section-title">发现的设备（{{devices.length}}）</view>
+    <view wx:for="{{devices}}" wx:key="deviceId" class="device-item" data-id="{{item.deviceId}}" data-name="{{item.name}}" bindtap="onSelectDevice">
+      <view class="device-name">{{item.name || '未知设备'}}</view>
+      <view class="device-id">{{item.deviceId}}</view>
+      <view wx:if="{{item.RSSI !== undefined}}" class="device-rssi">信号 {{item.RSSI}} dBm</view>
+      <view class="device-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 扫描提示 -->
+  <view wx:if="{{scanning && devices.length === 0}}" class="empty-tip">
+    <text>正在搜索附近的蓝牙打印机...\n请确保打印机已开机并处于配对模式</text>
+  </view>
+
+  <!-- 步骤说明 -->
+  <view class="help">
+    <view class="help-title">使用说明</view>
+    <view class="help-step">1. 长按佳博 PT261 打印机的开关键 3 秒开机</view>
+    <view class="help-step">2. 短按一次 FEED（走纸）键进入配对模式（指示灯快闪）</view>
+    <view class="help-step">3. 点击上方"扫描附近打印机"，选择列表中的 PT261</view>
+    <view class="help-step">4. 点击"打印测试页"验证连接是否正常</view>
+  </view>
+</view>
