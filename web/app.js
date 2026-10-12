@@ -34,6 +34,25 @@ function clearAuth() {
   token = ''; admin = null;
   localStorage.removeItem('token');
   localStorage.removeItem('admin');
+  localStorage.removeItem('platFlagToken');
+}
+
+/**
+ * 平台权限探测：登录接口若未返回 isPlatform（旧版后端），用 /api/platform/stores 探测一次
+ * 结果缓存到 localStorage（按 token 失效，换号/重登自动重新探测）
+ */
+async function ensurePlatformFlag() {
+  if (!admin) return false;
+  if (localStorage.getItem('platFlagToken') === token) return !!admin.isPlatform;
+  let isPlat = false;
+  try {
+    const res = await fetch(BASE_URL + '/api/platform/stores', { headers: { Authorization: 'Bearer ' + token } });
+    isPlat = res.status === 200; // 200=平台管理员；401/403=普通账号
+  } catch (e) { isPlat = false; }
+  admin = Object.assign({}, admin, { isPlatform: isPlat });
+  localStorage.setItem('admin', JSON.stringify(admin));
+  localStorage.setItem('platFlagToken', token);
+  return isPlat;
 }
 
 /* ================= API 封装（含 502/503/504 自动重试，应对云托管冷启动） ================= */
@@ -102,7 +121,8 @@ function render() {
   const root = $('#app');
   if (!token || !admin) { renderAuth(root); return; }
   if (!admin.storeId) { renderSetup(root); return; }
-  renderMain(root);
+  // 先探测平台管理员身份（缓存），再渲染主导航
+  ensurePlatformFlag().then(() => renderMain(root));
 }
 
 window.addEventListener('hashchange', () => { if (token && admin && admin.storeId) render(); });
