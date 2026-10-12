@@ -94,7 +94,8 @@ const NAV_ITEMS = [
   { hash: '#/goods', icon: '🧥', label: '商品' },
   { hash: '#/billing', icon: '🧾', label: '开单' },
   { hash: '#/orders', icon: '📦', label: '订单' },
-  { hash: '#/store', icon: '🏪', label: '店铺' }
+  { hash: '#/store', icon: '🏪', label: '店铺' },
+  { hash: '#/platform', icon: '🛡️', label: '平台', platformOnly: true }
 ];
 
 function render() {
@@ -197,14 +198,15 @@ function renderSetup(root) {
 
 /* ================= 主框架（侧边栏 + 内容区） ================= */
 function renderMain(root) {
-  const cur = NAV_ITEMS.some((n) => n.hash === location.hash) ? location.hash : '#/dashboard';
+  const items = NAV_ITEMS.filter((n) => !n.platformOnly || admin.isPlatform);
+  const cur = items.some((n) => n.hash === location.hash) ? location.hash : '#/dashboard';
   if (location.hash !== cur) location.hash = cur;
   root.innerHTML = `
     <div class="layout">
       <aside class="sidebar">
         <div class="brand">服装店管理</div>
         <nav>
-          ${NAV_ITEMS.map((n) => `<a href="${n.hash}" class="${n.hash === cur ? 'active' : ''}"><span>${n.icon}</span>${n.label}</a>`).join('')}
+          ${items.map((n) => `<a href="${n.hash}" class="${n.hash === cur ? 'active' : ''}"><span>${n.icon}</span>${n.label}</a>`).join('')}
         </nav>
         <div class="side-user">
           <div class="store-name">${esc(admin.storeName || '我的店铺')}</div>
@@ -221,6 +223,7 @@ function renderMain(root) {
   else if (cur === '#/billing') renderBilling(view);
   else if (cur === '#/orders') renderOrders(view);
   else if (cur === '#/store') renderStore(view);
+  else if (cur === '#/platform') renderPlatform(view);
 }
 
 /* ================= 首页仪表盘 ================= */
@@ -798,6 +801,88 @@ async function renderStore(view) {
       render();
     } catch (e) {}
   });
+}
+
+/* ================= 平台管理（仅平台管理员可见） ================= */
+async function renderPlatform(view) {
+  if (!admin.isPlatform) { view.innerHTML = '<div class="empty">无权限：仅平台管理员可访问</div>'; return; }
+  view.innerHTML = `<div class="page-title">平台管理</div><div class="empty">加载中…</div>`;
+  let data;
+  try { data = await api('/api/platform/stores'); } catch (e) { return; }
+  const list = data.list || [];
+
+  view.innerHTML = `
+    <div class="page-title">平台管理 <span style="font-size:13px;color:#999;font-weight:400">共 ${list.length} 家店铺</span></div>
+    <div class="card">
+      ${list.length === 0
+        ? '<div class="empty">暂无店铺</div>'
+        : `<table>
+            <thead><tr><th>店铺</th><th>店铺码</th><th>店主</th><th>成员</th><th>订单数</th><th>创建时间</th><th>开单授权</th><th class="t-right">操作</th></tr></thead>
+            <tbody>${list.map((s) => `
+              <tr>
+                <td><b>${esc(s.name)}</b></td>
+                <td class="muted">${esc(s.bind_code)}</td>
+                <td class="muted">${esc(s.owner_name || '-')}</td>
+                <td class="t-center">${s.member_count}</td>
+                <td class="t-center">${s.order_count}</td>
+                <td class="muted">${esc(s.created_at)}</td>
+                <td>${s.enabled
+                  ? `<span class="badge on">剩余 ${s.daysLeft} 天</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
+                  : (s.expireAt
+                    ? `<span class="badge off">已到期</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
+                    : '<span class="badge cancelled">未授权</span>')}</td>
+                <td class="t-right"><button class="btn small ghost" data-bill="${s.id}" data-name="${esc(s.name)}">设置授权</button></td>
+              </tr>`).join('')}</tbody></table>`}
+    </div>`;
+
+  $$('[data-bill]').forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.bill;
+    const name = b.dataset.name;
+    openModal(`
+      <h3>开单授权 · ${esc(name)}</h3>
+      <label class="field"><span class="lbl">按天数授权（从现在起算）</span>
+        <div style="display:flex;gap:8px">
+          <input id="pl-days" type="number" min="1" placeholder="如：30" style="flex:1">
+          <button class="btn" id="pl-days-go">授权</button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          ${[30, 90, 365].map((d) => `<button class="btn small light pl-quick" data-days="${d}">${d === 365 ? '一年' : d + ' 天'}</button>`).join('')}
+        </div>
+      </label>
+      <label class="field"><span class="lbl">或自定义到期时间</span>
+        <div style="display:flex;gap:8px">
+          <input id="pl-expire" type="datetime-local" style="flex:1">
+          <button class="btn" id="pl-expire-go">设置</button>
+        </div>
+      </label>
+      <button class="btn danger" id="pl-close" style="width:100%">关闭该店铺开单权限</button>
+      <div class="modal-actions"><button class="btn ghost" id="modal-cancel">取消</button></div>`);
+
+    const doSet = async (body) => {
+      try {
+        const r = await api(`/api/platform/stores/${id}/billing`, { method: 'POST', data: body });
+        toast(r.message || '设置成功');
+        closeModal();
+        renderPlatform(view);
+      } catch (e) {}
+    };
+    $('#pl-days-go').addEventListener('click', () => {
+      const days = parseInt($('#pl-days').value, 10);
+      if (!(days > 0)) { toast('请输入大于 0 的天数', true); return; }
+      doSet({ days });
+    });
+    $$('.pl-quick').forEach((q) => q.addEventListener('click', () => doSet({ days: Number(q.dataset.days) })));
+    $('#pl-expire-go').addEventListener('click', () => {
+      const v = $('#pl-expire').value; // YYYY-MM-DDTHH:mm
+      if (!v) { toast('请选择到期时间', true); return; }
+      doSet({ expireAt: v.replace('T', ' ') + ':00' });
+    });
+    $('#pl-close').addEventListener('click', () => {
+      if (!confirm(`确定关闭店铺【${name}】的开单权限？关闭后立即生效，该店将无法开单`)) return;
+      doSet({ days: 0 });
+    });
+    $('#modal-cancel').addEventListener('click', closeModal);
+  }));
 }
 
 /* ================= 启动 ================= */
