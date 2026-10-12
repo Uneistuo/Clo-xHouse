@@ -51,28 +51,45 @@ function handleResponse(res, resolve, reject) {
 /**
  * 通用请求（Promise 封装）
  * 自动携带 Token；后端返回 401 时清除登录态并跳转登录页
+ * 遇到 502/503/504（云托管冷启动缩容）或网络失败时自动重试（间隔 1.5s，最多 2 次）
  */
 function request({ url, method = 'GET', data = {}, header = {} }) {
   return new Promise((resolve, reject) => {
-    wx.request({
-      url: BASE_URL + url,
-      method,
-      data,
-      header: Object.assign(
-        { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
-        header
-      ),
-      success(res) { handleResponse(res, resolve, reject); },
-      fail(err) {
-        const inDev = wx.getSystemInfoSync().platform === 'devtools';
-        wx.showToast({
-          title: inDev ? '网络错误，请确认后端服务已启动' : '云服务请求失败，请稍后重试',
-          icon: 'none',
-          duration: 2500
-        });
-        reject(err);
-      }
-    });
+    const RETRY_MAX = 2;
+    const RETRY_DELAY = 1500;
+    const doRequest = (remaining) => {
+      wx.request({
+        url: BASE_URL + url,
+        method,
+        data,
+        header: Object.assign(
+          { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
+          header
+        ),
+        success(res) {
+          // 云托管临时不可用（冷启动/重启）：延迟后自动重试
+          if ((res.statusCode === 502 || res.statusCode === 503 || res.statusCode === 504) && remaining > 0) {
+            setTimeout(() => doRequest(remaining - 1), RETRY_DELAY);
+            return;
+          }
+          handleResponse(res, resolve, reject);
+        },
+        fail(err) {
+          if (remaining > 0) {
+            setTimeout(() => doRequest(remaining - 1), RETRY_DELAY);
+            return;
+          }
+          const inDev = wx.getSystemInfoSync().platform === 'devtools';
+          wx.showToast({
+            title: inDev ? '网络错误，请确认后端服务已启动' : '云服务请求失败，请稍后重试',
+            icon: 'none',
+            duration: 2500
+          });
+          reject(err);
+        }
+      });
+    };
+    doRequest(RETRY_MAX);
   });
 }
 
