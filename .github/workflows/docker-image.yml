@@ -1,3 +1,5 @@
+# CI 工作流：push/PR 时构建 backend Docker 镜像进行验证
+
 name: Docker Image CI
 
 on:

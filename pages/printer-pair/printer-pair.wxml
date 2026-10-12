@@ -1,3 +1,7 @@
+<!--
+  打印机配对页结构：设备列表与配对操作
+-->
+
 <view class="page">
   <!-- 顶部状态卡片 -->
   <view class="status-card {{stateClass}}">

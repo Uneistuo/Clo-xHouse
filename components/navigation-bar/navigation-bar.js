@@ -1,3 +1,7 @@
+/**
+ * 自定义导航栏组件：适配胶囊按钮与安全区，支持返回、标题、加载态与显隐动画
+ */
+
 Component({
   options: {
     multipleSlots: true // 在组件定义时的选项中启用多slot支持
