@@ -10,6 +10,12 @@ Page({
     loading: false
   },
 
+  // 进入页面：回填上次登录的账号
+  onLoad() {
+    const saved = wx.getStorageSync('login_username');
+    if (saved) this.setData({ username: saved });
+  },
+
   // 切换 登录 / 注册
   switchMode(e) {
     this.setData({ mode: e.currentTarget.dataset.mode });
@@ -31,6 +37,10 @@ Page({
   saveLoginState(data) {
     wx.setStorageSync('token', data.token);
     wx.setStorageSync('adminInfo', data.admin);
+    // 记住账号，下次登录自动回填
+    if (data.admin && data.admin.username) {
+      wx.setStorageSync('login_username', data.admin.username);
+    }
     wx.showToast({
       title: this.data.mode === 'login' ? '登录成功' : '注册成功',
       icon: 'success'

@@ -110,7 +110,7 @@ Page({
     wx.showModal({
       title: '关闭开单授权',
       content: `确定关闭店铺【${name}】的开单权限？关闭后该店铺立即无法开单。`,
-      confirmColor: '#7E2F2F',
+      confirmColor: '#e1483c',
       success: async (r) => {
         if (!r.confirm) return;
         try {

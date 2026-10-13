@@ -1,10 +1,50 @@
-/* 服装店管理系统 Web 版 —— 与小程序一致的配色（米白 #F3EFE7 / 酒红 #7E2F2F） */
+/* ============================================================
+   服装店管理系统 Web 版 —— 设计变量与样式
+   与小程序 app.wxss 保持同一套 Token（新零售工作台 · 时尚红）
+   ============================================================ */
+:root {
+  /* 中性 */
+  --bg-app: #F4F5F7;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F0F1F4;
+  --border: #E6E8EC;
+  --border-strong: #D3D7DE;
+  --divider: #ECEEF1;
+
+  /* 文字 */
+  --text-1: #14161A;
+  --text-2: #5B616E;
+  --text-3: #9AA0AC;
+
+  /* 品牌主色（时尚红） */
+  --primary: #E1483C;
+  --primary-dark: #C5362C;
+  --primary-tint: #FDECEA;
+
+  /* 语义 */
+  --success: #16A34A;
+  --success-tint: #E7F6EC;
+  --warning: #B45309;
+  --warning-tint: #FEF3E2;
+  --danger: #DC2626;
+  --danger-tint: #FDECEA;
+  --info: #2563EB;
+  --info-tint: #E6EFFF;
+
+  /* 圆角 / 阴影 */
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --shadow-1: 0 2px 8px rgba(20, 22, 26, 0.05);
+  --shadow-2: 0 8px 24px rgba(20, 22, 26, 0.08);
+  --shadow-3: 0 16px 48px rgba(20, 22, 26, 0.18);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-  background: #F3EFE7;
-  color: #333;
+  background: var(--bg-app);
+  color: var(--text-1);
   font-size: 14px;
 }
 a { color: inherit; text-decoration: none; }
@@ -14,7 +54,7 @@ button { font-family: inherit; }
 #app { min-height: 100vh; }
 .layout { display: flex; min-height: 100vh; }
 .sidebar {
-  width: 220px; flex-shrink: 0; background: #7E2F2F; color: #F3EFE7;
+  width: 220px; flex-shrink: 0; background: var(--primary-dark); color: #fff;
   display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
 }
 .sidebar .brand {
@@ -23,132 +63,132 @@ button { font-family: inherit; }
 }
 .sidebar nav { flex: 1; padding: 12px 0; overflow-y: auto; }
 .sidebar nav a {
-  display: flex; align-items: center; gap: 10px; padding: 13px 22px; color: rgba(243,239,231,.8);
+  display: flex; align-items: center; gap: 10px; padding: 13px 22px; color: rgba(255,255,255,.78);
   border-left: 3px solid transparent; transition: all .15s;
 }
 .sidebar nav a:hover { background: rgba(255,255,255,.08); color: #fff; }
-.sidebar nav a.active { background: rgba(255,255,255,.14); color: #fff; border-left-color: #F3EFE7; font-weight: 600; }
-.sidebar .side-user { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.15); font-size: 13px; color: rgba(243,239,231,.85); }
+.sidebar nav a.active { background: rgba(255,255,255,.14); color: #fff; border-left-color: #fff; font-weight: 600; }
+.sidebar .side-user { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.15); font-size: 13px; color: rgba(255,255,255,.85); }
 .sidebar .side-user .store-name { font-weight: 600; color: #fff; margin-bottom: 4px; }
 .sidebar .side-user button { margin-top: 8px; }
 
 .main { flex: 1; padding: 24px 28px; max-width: 1200px; min-width: 0; }
-.page-title { font-size: 20px; font-weight: 600; color: #7E2F2F; margin-bottom: 18px; }
+.page-title { font-size: 20px; font-weight: 600; color: var(--text-1); margin-bottom: 18px; }
 
 /* ========== 通用组件 ========== */
 .card {
-  background: #fff; border-radius: 12px; padding: 20px;
-  box-shadow: 0 2px 8px rgba(126,47,47,.06); margin-bottom: 16px;
+  background: var(--bg-card); border-radius: var(--radius-card); padding: 20px;
+  box-shadow: var(--shadow-1); margin-bottom: 16px;
 }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border: none; border-radius: 8px; padding: 9px 18px; font-size: 14px; cursor: pointer;
-  background: #7E2F2F; color: #fff; transition: opacity .15s;
+  border: none; border-radius: var(--radius-input); padding: 9px 18px; font-size: 14px; cursor: pointer;
+  background: var(--primary); color: #fff; transition: opacity .15s;
 }
 .btn:hover { opacity: .88; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
-.btn.ghost { background: #fff; color: #7E2F2F; border: 1px solid #7E2F2F; }
+.btn.ghost { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
 .btn.small { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
-.btn.danger { background: #c0392b; }
-.btn.light { background: #EAE3D6; color: #5a4632; }
+.btn.danger { background: var(--danger); }
+.btn.light { background: var(--bg-subtle); color: var(--text-2); }
 
 input, select, textarea {
-  font-family: inherit; font-size: 14px; border: 1px solid #ddd; border-radius: 8px;
-  padding: 9px 12px; background: #fff; outline: none; width: 100%;
+  font-family: inherit; font-size: 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-input);
+  padding: 9px 12px; background: #fff; outline: none; width: 100%; color: var(--text-1);
 }
-input:focus, select:focus, textarea:focus { border-color: #7E2F2F; }
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 label.field { display: block; margin-bottom: 14px; }
-label.field .lbl { display: block; margin-bottom: 6px; color: #666; font-size: 13px; }
+label.field .lbl { display: block; margin-bottom: 6px; color: var(--text-2); font-size: 13px; }
 .row { display: flex; gap: 12px; flex-wrap: wrap; }
 .row > * { flex: 1; min-width: 120px; }
 
 table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid #f0ebe2; font-size: 13.5px; }
-th { color: #8a7a66; font-weight: 500; white-space: nowrap; }
+th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--divider); font-size: 13.5px; }
+th { color: var(--text-3); font-weight: 500; white-space: nowrap; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: #faf7f1; }
+tr:hover td { background: #fafbfc; }
 .t-center { text-align: center; }
 .t-right { text-align: right; }
-.muted { color: #999; }
-.empty { text-align: center; padding: 40px 0; color: #aaa; }
+.muted { color: var(--text-3); }
+.empty { text-align: center; padding: 40px 0; color: var(--text-3); }
 
 /* 状态徽标 */
 .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; }
-.badge.pending { background: #fdeeda; color: #c07d1a; }
-.badge.paid { background: #e2f0e4; color: #2e7d32; }
-.badge.done { background: #e3ecf7; color: #2a5d9c; }
-.badge.cancelled { background: #f2e6e6; color: #a05a5a; }
-.badge.refunded { background: #ece6f2; color: #6b4f8e; }
-.badge.on { background: #e2f0e4; color: #2e7d32; }
-.badge.off { background: #f0e9dd; color: #9a7b4f; }
+.badge.pending { background: var(--warning-tint); color: var(--warning); }
+.badge.paid { background: var(--success-tint); color: var(--success); }
+.badge.done { background: var(--info-tint); color: var(--info); }
+.badge.cancelled { background: var(--bg-subtle); color: var(--text-2); }
+.badge.refunded { background: var(--danger-tint); color: var(--danger); }
+.badge.on { background: var(--success-tint); color: var(--success); }
+.badge.off { background: var(--bg-subtle); color: var(--text-3); }
 
 /* ========== 登录页 ========== */
 .auth-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
-  background: linear-gradient(135deg, #F3EFE7 0%, #e9dfd0 100%);
+  background: linear-gradient(135deg, var(--bg-app) 0%, #e9eaee 100%);
 }
-.auth-card { background: #fff; border-radius: 16px; padding: 36px 34px; width: 380px; max-width: 100%; box-shadow: 0 8px 30px rgba(126,47,47,.12); }
-.auth-card h1 { font-size: 22px; color: #7E2F2F; margin-bottom: 6px; }
-.auth-card .sub { color: #999; font-size: 13px; margin-bottom: 24px; }
+.auth-card { background: #fff; border-radius: 16px; padding: 36px 34px; width: 380px; max-width: 100%; box-shadow: var(--shadow-2); }
+.auth-card h1 { font-size: 22px; color: var(--text-1); margin-bottom: 6px; }
+.auth-card .sub { color: var(--text-3); font-size: 13px; margin-bottom: 24px; }
 .auth-card .btn { width: 100%; padding: 11px; font-size: 15px; margin-top: 6px; }
-.auth-switch { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
-.auth-switch a { color: #7E2F2F; cursor: pointer; text-decoration: underline; }
+.auth-switch { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-2); }
+.auth-switch a { color: var(--primary); cursor: pointer; text-decoration: underline; }
 
 /* ========== 仪表盘 ========== */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.stat-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(126,47,47,.06); }
-.stat-card .num { font-size: 26px; font-weight: 700; color: #7E2F2F; margin-top: 6px; }
-.stat-card .num small { font-size: 13px; color: #999; font-weight: 400; margin-left: 4px; }
-.stat-card .label { color: #8a7a66; font-size: 13px; }
+.stat-card { background: #fff; border-radius: var(--radius-card); padding: 20px; box-shadow: var(--shadow-1); }
+.stat-card .num { font-size: 26px; font-weight: 700; color: var(--primary); margin-top: 6px; }
+.stat-card .num small { font-size: 13px; color: var(--text-3); font-weight: 400; margin-left: 4px; }
+.stat-card .label { color: var(--text-2); font-size: 13px; }
 
 /* ========== 商品 ========== */
 .goods-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .goods-toolbar input, .goods-toolbar select { width: auto; }
 .goods-toolbar .grow { flex: 1; min-width: 160px; }
-.goods-img { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; background: #f0ebe2; }
-.goods-img-placeholder { width: 46px; height: 46px; border-radius: 8px; background: #f0ebe2; display: flex; align-items: center; justify-content: center; color: #cbbfae; font-size: 18px; }
+.goods-img { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; background: var(--bg-subtle); }
+.goods-img-placeholder { width: 46px; height: 46px; border-radius: 8px; background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 18px; }
 
 /* ========== 开单 ========== */
 .billing-wrap { display: flex; gap: 16px; align-items: flex-start; }
 .billing-goods { flex: 1; min-width: 0; }
 .billing-goods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.g-item { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 2px 6px rgba(126,47,47,.05); cursor: pointer; transition: transform .12s; }
+.g-item { background: #fff; border-radius: var(--radius-card); padding: 12px; box-shadow: var(--shadow-1); cursor: pointer; transition: transform .12s; }
 .g-item:hover { transform: translateY(-2px); }
-.g-item img, .g-item .ph { width: 100%; height: 110px; border-radius: 8px; object-fit: cover; background: #f0ebe2; display: flex; align-items: center; justify-content: center; color: #cbbfae; font-size: 22px; }
+.g-item img, .g-item .ph { width: 100%; height: 110px; border-radius: 8px; object-fit: cover; background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 22px; }
 .g-item .g-name { margin-top: 8px; font-size: 13px; line-height: 1.35; height: 35px; overflow: hidden; }
-.g-item .g-price { color: #7E2F2F; font-weight: 700; margin-top: 4px; }
-.g-item .g-stock { font-size: 12px; color: #999; margin-top: 2px; }
+.g-item .g-price { color: var(--primary); font-weight: 700; margin-top: 4px; }
+.g-item .g-stock { font-size: 12px; color: var(--text-3); margin-top: 2px; }
 .cart-panel { width: 320px; flex-shrink: 0; position: sticky; top: 24px; }
-.cart-line { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px dashed #eee; }
+.cart-line { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--divider); }
 .cart-line .cl-info { flex: 1; min-width: 0; }
 .cart-line .cl-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cart-line .cl-sku { font-size: 12px; color: #999; }
+.cart-line .cl-sku { font-size: 12px; color: var(--text-3); }
 .cart-line .qty { display: flex; align-items: center; gap: 6px; }
-.cart-line .qty button { width: 22px; height: 22px; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer; line-height: 1; }
+.cart-line .qty button { width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border-strong); background: #fff; cursor: pointer; line-height: 1; }
 .cart-line .qty span { min-width: 26px; text-align: center; }
 .cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0 4px; font-size: 15px; }
-.cart-total .sum { color: #7E2F2F; font-size: 22px; font-weight: 700; }
+.cart-total .sum { color: var(--primary); font-size: 22px; font-weight: 700; }
 
 /* ========== 弹窗 ========== */
-.modal-mask { position: fixed; inset: 0; background: rgba(40,25,20,.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal { background: #fff; border-radius: 14px; width: 560px; max-width: 100%; max-height: 86vh; overflow-y: auto; padding: 24px; }
-.modal h3 { color: #7E2F2F; margin-bottom: 16px; font-size: 17px; }
+.modal-mask { position: fixed; inset: 0; background: rgba(20,22,26,.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal { background: #fff; border-radius: 14px; width: 560px; max-width: 100%; max-height: 86vh; overflow-y: auto; padding: 24px; box-shadow: var(--shadow-3); }
+.modal h3 { color: var(--text-1); margin-bottom: 16px; font-size: 17px; }
 .modal .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
 /* 订单明细 */
-.order-item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #f0ebe2; font-size: 13.5px; }
+.order-item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--divider); font-size: 13.5px; }
 
 /* 分页 */
-.pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 16px; color: #888; }
+.pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 16px; color: var(--text-2); }
 
 /* toast */
 .toast {
   position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-80px);
-  background: #333; color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 14px;
-  transition: transform .25s; z-index: 200; max-width: 90vw;
+  background: var(--text-1); color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 14px;
+  transition: transform .25s; z-index: 200; max-width: 90vw; box-shadow: var(--shadow-2);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
-.toast.err { background: #c0392b; }
+.toast.err { background: var(--danger); }
 
 /* ========== 响应式 ========== */
 @media (max-width: 768px) {
@@ -156,10 +196,35 @@ tr:hover td { background: #faf7f1; }
   .sidebar { width: 100%; height: auto; position: static; }
   .sidebar nav { display: flex; overflow-x: auto; padding: 0; }
   .sidebar nav a { padding: 12px 14px; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
-  .sidebar nav a.active { border-bottom-color: #F3EFE7; }
+  .sidebar nav a.active { border-bottom-color: #fff; }
   .sidebar .side-user { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
   .sidebar .side-user .store-name { margin-bottom: 0; }
   .main { padding: 16px 14px; }
   .billing-wrap { flex-direction: column; }
   .cart-panel { width: 100%; position: static; }
 }
+
+/* ========== 矢量图标（与小程序同一套） ========== */
+.icon { display: inline-block; width: 1em; height: 1em; background-color: currentColor; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; -webkit-mask-size: contain; mask-repeat: no-repeat; mask-position: center; mask-size: contain; vertical-align: -0.125em; }
+.icon-search { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iNyIvPjxwYXRoIGQ9Ik0yMSAyMWwtNC4zNS00LjM1Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iNyIvPjxwYXRoIGQ9Ik0yMSAyMWwtNC4zNS00LjM1Ii8+PC9zdmc+"); }
+.icon-package { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTIxIDhsLTktNS05IDUgOSA1IDktNXoiLz48cGF0aCBkPSJNMyA4djhsOSA1IDktNVY4Ii8+PHBhdGggZD0iTTEyIDEzdjgiLz48L3N2Zz4="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTIxIDhsLTktNS05IDUgOSA1IDktNXoiLz48cGF0aCBkPSJNMyA4djhsOSA1IDktNVY4Ii8+PHBhdGggZD0iTTEyIDEzdjgiLz48L3N2Zz4="); }
+.icon-receipt { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTYgMmgxMnYyMGwtMy0yLTMgMi0zLTItMyAyeiIvPjxwYXRoIGQ9Ik05IDdoNk05IDExaDZNOSAxNWg0Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTYgMmgxMnYyMGwtMy0yLTMgMi0zLTItMyAyeiIvPjxwYXRoIGQ9Ik05IDdoNk05IDExaDZNOSAxNWg0Ii8+PC9zdmc+"); }
+.icon-shopping-bag { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTYgN2gxMmwtMSAxNEg3TDYgN3oiLz48cGF0aCBkPSJNOSA3YTMgMyAwIDAgMSA2IDAiLz48L3N2Zz4="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTYgN2gxMmwtMSAxNEg3TDYgN3oiLz48cGF0aCBkPSJNOSA3YTMgMyAwIDAgMSA2IDAiLz48L3N2Zz4="); }
+.icon-folder { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTMgN2EyIDIgMCAwIDEgMi0yaDRsMiAyaDhhMiAyIDAgMCAxIDIgMnY5YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0yeiIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTMgN2EyIDIgMCAwIDEgMi0yaDRsMiAyaDhhMiAyIDAgMCAxIDIgMnY5YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0yeiIvPjwvc3ZnPg=="); }
+.icon-hourglass { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTcgM2gxME03IDIxaDEwTTggM3YzbDQgNCA0LTRWM004IDIxdi0zbDQtNCA0IDR2MyIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTcgM2gxME03IDIxaDEwTTggM3YzbDQgNCA0LTRWM004IDIxdi0zbDQtNCA0IDR2MyIvPjwvc3ZnPg=="); }
+.icon-lock { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHJlY3QgeD0iNSIgeT0iMTEiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxMCIgcng9IjIiLz48cGF0aCBkPSJNOCAxMVY4YTQgNCAwIDAgMSA4IDB2MyIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHJlY3QgeD0iNSIgeT0iMTEiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxMCIgcng9IjIiLz48cGF0aCBkPSJNOCAxMVY4YTQgNCAwIDAgMSA4IDB2MyIvPjwvc3ZnPg=="); }
+.icon-home { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTQgMTFsOC03IDggNyIvPjxwYXRoIGQ9Ik02IDEwdjEwaDEyVjEwIi8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTQgMTFsOC03IDggNyIvPjxwYXRoIGQ9Ik02IDEwdjEwaDEyVjEwIi8+PC9zdmc+"); }
+.icon-plus { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTEyIDV2MTRNNSAxMmgxNCIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTEyIDV2MTRNNSAxMmgxNCIvPjwvc3ZnPg=="); }
+.icon-shirt { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTggM2w0IDMgNC0zIDUgMy0zIDR2MTFINlYxMEwzIDZ6Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTggM2w0IDMgNC0zIDUgMy0zIDR2MTFINlYxMEwzIDZ6Ii8+PC9zdmc+"); }
+.icon-store { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTQgMTBsMS02aDE0bDEgNiIvPjxwYXRoIGQ9Ik01IDEwdjEwaDE0VjEwIi8+PHBhdGggZD0iTTkgMjB2LTZoNnY2Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTQgMTBsMS02aDE0bDEgNiIvPjxwYXRoIGQ9Ik01IDEwdjEwaDE0VjEwIi8+PHBhdGggZD0iTTkgMjB2LTZoNnY2Ii8+PC9zdmc+"); }
+.icon-shield { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTEyIDNsNyAzdjZjMCA0LTMgNy03IDktNC0yLTctNS03LTlWNnoiLz48L3N2Zz4="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTEyIDNsNyAzdjZjMCA0LTMgNy03IDktNC0yLTctNS03LTlWNnoiLz48L3N2Zz4="); }
+.icon-swap { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTQgOWgxM2wtMy0zTTIwIDE1SDdsMyAzIi8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTQgOWgxM2wtMy0zTTIwIDE1SDdsMyAzIi8+PC9zdmc+"); }
+.icon-refresh { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTIwIDEyYTggOCAwIDEgMS0yLjMtNS42Ii8+PHBhdGggZD0iTTIwIDR2NGgtNCIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTIwIDEyYTggOCAwIDEgMS0yLjMtNS42Ii8+PHBhdGggZD0iTTIwIDR2NGgtNCIvPjwvc3ZnPg=="); }
+.icon-chevron-right { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTkgNmw2IDYtNiA2Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTkgNmw2IDYtNiA2Ii8+PC9zdmc+"); }
+.icon-printer { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTcgOFY0aDEwdjQiLz48cmVjdCB4PSI1IiB5PSI4IiB3aWR0aD0iMTQiIGhlaWdodD0iOCIgcng9IjIiLz48cGF0aCBkPSJNOCAxNmg4djRIOHoiLz48L3N2Zz4="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTcgOFY0aDEwdjQiLz48cmVjdCB4PSI1IiB5PSI4IiB3aWR0aD0iMTQiIGhlaWdodD0iOCIgcng9IjIiLz48cGF0aCBkPSJNOCAxNmg4djRIOHoiLz48L3N2Zz4="); }
+.icon-clipboard { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHJlY3QgeD0iNiIgeT0iNCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjE3IiByeD0iMiIvPjxwYXRoIGQ9Ik05IDRWM2g2djEiLz48cGF0aCBkPSJNOSAxMGg2TTkgMTRoNiIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHJlY3QgeD0iNiIgeT0iNCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjE3IiByeD0iMiIvPjxwYXRoIGQ9Ik05IDRWM2g2djEiLz48cGF0aCBkPSJNOSAxMGg2TTkgMTRoNiIvPjwvc3ZnPg=="); }
+.icon-check-circle { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIvPjxwYXRoIGQ9Ik04IDEybDMgMyA1LTYiLz48L3N2Zz4="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIvPjxwYXRoIGQ9Ik04IDEybDMgMyA1LTYiLz48L3N2Zz4="); }
+.icon-x-circle { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIvPjxwYXRoIGQ9Ik05IDlsNiA2TTE1IDlsLTYgNiIvPjwvc3ZnPg=="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOSIvPjxwYXRoIGQ9Ik05IDlsNiA2TTE1IDlsLTYgNiIvPjwvc3ZnPg=="); }
+
+/* 低库存预警 */
+.stock-warn { color: #DC2626; font-weight: 600; }

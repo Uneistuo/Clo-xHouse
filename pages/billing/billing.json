@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "现场开单"
+  "navigationBarTitleText": "现场开单",
+  "enablePullDownRefresh": true
 }

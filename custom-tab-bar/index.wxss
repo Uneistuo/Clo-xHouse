@@ -1,0 +1,59 @@
+@import "../styles/icons.wxss";
+
+/* ============================================================
+   自定义底部导航
+   栏高 = 普通项高度（100rpx）+ 安全区；
+   中间"开单"为绝对定位的凸起圆钮，浮在栏上方，不影响栏高。
+   ============================================================ */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  height: 100rpx;                              /* 栏高只由普通项决定 */
+  padding-bottom: env(safe-area-inset-bottom); /* 安全区额外占位（content-box） */
+  box-sizing: content-box;
+  background: #ffffff;
+  box-shadow: 0 -2rpx 12rpx rgba(20, 22, 26, 0.06);
+}
+
+.tabbar-item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 12rpx;
+  box-sizing: border-box;
+  color: #9aa0ac;
+  font-size: 22rpx;
+}
+.tabbar-item.active { color: #e1483c; }
+
+.tabbar-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tabbar-icon { font-size: 44rpx; }
+.tabbar-text { margin-top: 4rpx; line-height: 1.1; }
+
+/* ===== 中间凸起"开单"：绝对定位，浮于栏上方 ===== */
+.tabbar-item-middle .tabbar-icon-wrap {
+  position: absolute;
+  top: -44rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96rpx;
+  height: 96rpx;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
+  border: 6rpx solid #f4f5f7;
+  box-shadow: 0 8rpx 20rpx rgba(225, 72, 60, 0.4);
+}
+.tabbar-item-middle .tabbar-icon { color: #ffffff; font-size: 48rpx; }
+.tabbar-item-middle .tabbar-text { color: #e1483c; font-weight: 600; }

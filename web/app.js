@@ -109,12 +109,12 @@ function closeModal() { $('#modal-root').innerHTML = ''; }
 
 /* ================= 渲染入口 ================= */
 const NAV_ITEMS = [
-  { hash: '#/dashboard', icon: '🏠', label: '首页' },
-  { hash: '#/goods', icon: '🧥', label: '商品' },
-  { hash: '#/billing', icon: '🧾', label: '开单' },
-  { hash: '#/orders', icon: '📦', label: '订单' },
-  { hash: '#/store', icon: '🏪', label: '店铺' },
-  { hash: '#/platform', icon: '🛡️', label: '平台', platformOnly: true }
+  { hash: '#/dashboard', icon: 'icon-home', label: '首页' },
+  { hash: '#/goods', icon: 'icon-shirt', label: '商品' },
+  { hash: '#/billing', icon: 'icon-receipt', label: '开单' },
+  { hash: '#/orders', icon: 'icon-package', label: '订单' },
+  { hash: '#/store', icon: 'icon-store', label: '店铺' },
+  { hash: '#/platform', icon: 'icon-shield', label: '平台', platformOnly: true }
 ];
 
 function render() {
@@ -226,7 +226,7 @@ function renderMain(root) {
       <aside class="sidebar">
         <div class="brand">服装店管理</div>
         <nav>
-          ${items.map((n) => `<a href="${n.hash}" class="${n.hash === cur ? 'active' : ''}"><span>${n.icon}</span>${n.label}</a>`).join('')}
+          ${items.map((n) => `<a href="${n.hash}" class="${n.hash === cur ? 'active' : ''}"><span class="icon ${n.icon}"></span>${n.label}</a>`).join('')}
         </nav>
         <div class="side-user">
           <div class="store-name">${esc(admin.storeName || '我的店铺')}</div>
@@ -262,7 +262,7 @@ async function renderDashboard(view) {
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <b>今日订单</b>
-        <a href="#/orders" style="color:#7E2F2F;font-size:13px">查看全部 →</a>
+        <a href="#/orders" style="color:#e1483c;font-size:13px">查看全部 →</a>
       </div>
       <div id="dash-orders"><div class="empty">加载中…</div></div>
     </div>`;
@@ -316,12 +316,12 @@ async function renderGoods(view) {
               <thead><tr><th></th><th>商品</th><th>货号</th><th>分类</th><th>售价</th><th>总库存</th><th>状态</th><th class="t-right">操作</th></tr></thead>
               <tbody>${data.list.map((g) => `
                 <tr>
-                  <td>${firstImg(g.image) ? `<img class="goods-img" src="${esc(fixImg(firstImg(g.image)))}">` : '<div class="goods-img-placeholder">🧥</div>'}</td>
+                  <td>${firstImg(g.image) ? `<img class="goods-img" src="${esc(fixImg(firstImg(g.image)))}">` : '<div class="goods-img-placeholder"><span class="icon icon-shirt"></span></div>'}</td>
                   <td><b>${esc(g.name)}</b>${g.skus && g.skus.length ? `<div class="muted" style="font-size:12px">${g.skus.map((s) => `${esc(s.color || '默认')}/${esc(s.size || '默认')}×${s.stock}`).join('，')}</div>` : ''}</td>
                   <td class="muted">${esc(g.goods_no || '-')}</td>
                   <td class="muted">${esc(g.category_name || '-')}</td>
-                  <td style="color:#7E2F2F;font-weight:700">¥${g.price}</td>
-                  <td>${g.stock}</td>
+                  <td style="color:#e1483c;font-weight:700">¥${g.price}</td>
+                  <td class="${g.stock <= 5 ? 'stock-warn' : ''}">${g.stock}</td>
                   <td><span class="badge ${g.on_sale ? 'on' : 'off'}">${g.on_sale ? '在售' : '下架'}</span></td>
                   <td class="t-right">
                     <button class="btn small ghost" data-edit="${g.id}">编辑</button>
@@ -510,7 +510,7 @@ async function renderBilling(view) {
             ? '<div class="empty">暂无在售商品，请先到「商品」页添加</div>'
             : `<div class="billing-goods-grid">${goodsList.map((g) => `
                 <div class="g-item" data-add="${g.id}">
-                  ${firstImg(g.image) ? `<img src="${esc(fixImg(firstImg(g.image)))}">` : '<div class="ph">🧥</div>'}
+                  ${firstImg(g.image) ? `<img src="${esc(fixImg(firstImg(g.image)))}">` : '<div class="ph"><span class="icon icon-shirt"></span></div>'}
                   <div class="g-name">${esc(g.name)}</div>
                   <div class="g-price">¥${g.price}</div>
                   <div class="g-stock">库存 ${g.stock}</div>
@@ -657,7 +657,7 @@ async function renderOrders(view) {
                 <tr>
                   <td><b>${esc(o.order_no)}</b></td>
                   <td>${o.quantity_count || 0} 件</td>
-                  <td style="color:#7E2F2F;font-weight:700">¥${o.total_amount}</td>
+                  <td style="color:#e1483c;font-weight:700">¥${o.total_amount}</td>
                   <td><span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span></td>
                   <td class="muted">${esc(o.customer_phone || '-')}</td>
                   <td class="muted">${esc(o.created_at)}</td>
@@ -695,7 +695,7 @@ window.showOrder = async function (id) {
   }
   openModal(`
     <h3>订单详情</h3>
-    <div class="card" style="box-shadow:none;border:1px solid #f0ebe2;margin-bottom:14px;padding:14px">
+    <div class="card" style="box-shadow:none;border:1px solid #eef0f3;margin-bottom:14px;padding:14px">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
         <b>${esc(o.order_no)}</b>
         <span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span>
@@ -748,7 +748,7 @@ async function renderStore(view) {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <div>
           <b style="font-size:17px">${esc(s ? s.name : '未绑定店铺')}</b>
-          <div class="muted" style="margin-top:4px">我的身份：${isOwner ? '店主' : '员工'}　${d.billingEnabled ? `开单授权至 ${esc(d.billingExpireAt)}` : '<span style="color:#c07d1a">开单功能未授权</span>'}</div>
+          <div class="muted" style="margin-top:4px">我的身份：${isOwner ? '店主' : '员工'}　${d.billingEnabled ? `开单授权至 ${esc(d.billingExpireAt)}` : '<span style="color:#b45309">开单功能未授权</span>'}</div>
         </div>
         ${isOwner && d.canRename ? '<button class="btn ghost" id="btn-rename">修改店铺名</button>' : ''}
       </div>
@@ -756,7 +756,7 @@ async function renderStore(view) {
 
     <div class="card">
       <b>店铺码（员工凭此码加入）</b>
-      <div style="font-size:26px;letter-spacing:6px;color:#7E2F2F;font-weight:700;margin:10px 0">${esc(s ? s.bind_code : '-')}</div>
+      <div style="font-size:26px;letter-spacing:6px;color:#e1483c;font-weight:700;margin:10px 0">${esc(s ? s.bind_code : '-')}</div>
       ${isOwner ? '<button class="btn small light" id="btn-code">重置店铺码</button>' : ''}
     </div>
 

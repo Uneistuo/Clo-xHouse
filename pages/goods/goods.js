@@ -1,9 +1,10 @@
-// 商品管理页：商品列表 + 名称搜索 + 上下架筛选 + 上下架/编辑/删除操作
+// 商品管理页：商品列表 + 名称搜索 + 上下架筛选 + 上下架/编辑/删除 + 批量操作 + 低库存预警
 // 全部数据来自后端 /api/goods 接口（实时读数据库），空表时显示空状态
 const { request, BASE_URL } = require('../../utils/api');
 const { fmtMoney, resolveImg } = require('../../utils/util');
 
 const PAGE_SIZE = 20;
+const LOW_STOCK = 5; // 低库存阈值（库存 <= 该值时高亮预警）
 
 Page({
   data: {
@@ -18,11 +19,20 @@ Page({
     total: 0,               // 商品总数
     page: 1,
     hasMore: false,
-    loading: false
+    loading: false,
+    loaded: false,          // 是否已完成首次加载（用于骨架屏判断）
+
+    // 批量管理模式
+    manageMode: false,
+    selectedIds: [],
+    allSelected: false
   },
 
   onShow() {
     if (!getApp().checkLogin()) return;
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 1 });
+    }
     // 从编辑页返回时刷新列表
     this.loadGoods(true);
   },
@@ -73,21 +83,27 @@ Page({
         }
       });
       if (seq !== this._seq) return; // 已有更新的请求，丢弃本次结果
+      const selectedIds = this.data.selectedIds;
       const list = (data.list || []).map((g) => ({
         ...g,
         priceText: fmtMoney(g.price),
         originalPriceText: fmtMoney(g.original_price),
-        cover: g.image ? resolveImg(g.image.split(',')[0], BASE_URL) : ''
+        cover: g.image ? resolveImg(g.image.split(',')[0], BASE_URL) : '',
+        stockWarn: g.stock <= LOW_STOCK,
+        selected: selectedIds.indexOf(g.id) > -1
       }));
+      const merged = reset ? list : this.data.list.concat(list);
       this.setData({
-        list: reset ? list : this.data.list.concat(list),
+        list: merged,
         total: data.total || 0,
         page,
         hasMore: list.length >= PAGE_SIZE,
-        loading: false
+        loading: false,
+        loaded: true,
+        allSelected: merged.length > 0 && merged.every((g) => g.selected)
       });
     } catch (e) {
-      if (seq === this._seq) this.setData({ loading: false });
+      if (seq === this._seq) this.setData({ loading: false, loaded: true });
     }
   },
 
@@ -101,6 +117,94 @@ Page({
     this.loadGoods(true).finally(() => wx.stopPullDownRefresh());
   },
 
+  // ============ 批量管理模式 ============
+  /** 进入/退出管理模式 */
+  toggleManage() {
+    const next = !this.data.manageMode;
+    const list = this.data.list.map((g) => ({ ...g, selected: false }));
+    this.setData({ manageMode: next, list, selectedIds: [], allSelected: false });
+  },
+
+  /** 卡片点击：管理模式下切换选中，否则无操作 */
+  onCardTap(e) {
+    if (!this.data.manageMode) return;
+    this.toggleSelect(e);
+  },
+
+  /** 单选/取消单个商品 */
+  toggleSelect(e) {
+    const id = e.currentTarget.dataset.id;
+    const list = this.data.list.map((g) => (g.id === id ? { ...g, selected: !g.selected } : g));
+    const selectedIds = list.filter((g) => g.selected).map((g) => g.id);
+    this.setData({ list, selectedIds, allSelected: list.length > 0 && selectedIds.length === list.length });
+  },
+
+  /** 全选/取消全选（当前已加载列表） */
+  toggleSelectAll() {
+    const next = !this.data.allSelected;
+    const list = this.data.list.map((g) => ({ ...g, selected: next }));
+    this.setData({ list, selectedIds: next ? list.map((g) => g.id) : [], allSelected: next });
+  },
+
+  /** 批量上下架 */
+  batchOnSale(e) {
+    const onSale = String(e.currentTarget.dataset.onsale) === '1' ? 1 : 0;
+    const ids = this.data.selectedIds;
+    if (!ids.length) {
+      wx.showToast({ title: '请先选择商品', icon: 'none' });
+      return;
+    }
+    wx.showModal({
+      title: '批量操作',
+      content: `确定将选中的 ${ids.length} 个商品${onSale ? '上架' : '下架'}吗？`,
+      success: async (res) => {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '处理中...', mask: true });
+        try {
+          for (const id of ids) {
+            await request({ url: `/api/goods/${id}/status`, method: 'PUT', data: { onSale } });
+          }
+          wx.hideLoading();
+          wx.showToast({ title: '操作完成', icon: 'success' });
+          this.toggleManage();
+          this.loadGoods(true);
+        } catch (e) {
+          wx.hideLoading();
+        }
+      }
+    });
+  },
+
+  /** 批量删除（逻辑删除，历史订单不受影响） */
+  batchDelete() {
+    const ids = this.data.selectedIds;
+    if (!ids.length) {
+      wx.showToast({ title: '请先选择商品', icon: 'none' });
+      return;
+    }
+    wx.showModal({
+      title: '批量删除',
+      content: `确定删除选中的 ${ids.length} 个商品吗？历史订单数据不受影响。`,
+      confirmColor: '#dc2626',
+      success: async (res) => {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '删除中...', mask: true });
+        try {
+          for (const id of ids) {
+            await request({ url: `/api/goods/${id}`, method: 'DELETE' });
+          }
+          wx.hideLoading();
+          wx.showToast({ title: '已删除', icon: 'success' });
+          this.toggleManage();
+          this.loadGoods(true);
+        } catch (e) {
+          wx.hideLoading();
+        }
+      }
+    });
+  },
+
+  // ============ 单条操作 ============
   /** 上架 / 下架切换 */
   toggleStatus(e) {
     const { id, onsale } = e.currentTarget.dataset;
@@ -148,7 +252,7 @@ Page({
     wx.showModal({
       title: '删除确认',
       content: `确定删除商品【${name}】吗？（历史订单数据不受影响）`,
-      confirmColor: '#e54d42',
+      confirmColor: '#dc2626',
       success: async (res) => {
         if (!res.confirm) return;
         try {

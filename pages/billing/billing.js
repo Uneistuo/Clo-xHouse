@@ -31,15 +31,42 @@ Page({
     submitting: false,
     restricted: false,       // 开单白名单：未授权/已到期不可开单（平台管理员控制时效）
     restrictedExpired: false, // true=授权已到期 / false=从未授权
-    billingExpireText: ''    // 授权到期时间（有效时页面顶部展示）
+    billingExpireText: '',   // 授权到期时间（有效时页面顶部展示）
+    successInfo: null        // 开单成功弹层数据 { orderId, orderNo, totalAmount, paid }
   },
 
   onShow() {
     if (!getApp().checkLogin()) return;
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 2 });
+    }
+    this.restoreCart();
     this.checkBilling();
     this.loadGoods();
     // 进入页面静默尝试连接已配对打印机
     this._ensurePrinterConnected();
+  },
+
+  /** 下拉刷新：重新拉取在售商品与授权状态 */
+  onPullDownRefresh() {
+    this.checkBilling();
+    this.loadGoods().finally(() => wx.stopPullDownRefresh());
+  },
+
+  /** 从本地缓存恢复购物车（防止误退出/跳转丢失已选商品） */
+  restoreCart() {
+    try {
+      const cart = wx.getStorageSync('billing_cart');
+      if (Array.isArray(cart) && cart.length) {
+        this.setData({ cart });
+        this.calcTotal();
+      }
+    } catch (e) { /* 忽略缓存读取异常 */ }
+  },
+
+  /** 持久化购物车到本地缓存（成功开单后写入空数组即清空） */
+  persistCart() {
+    try { wx.setStorageSync('billing_cart', this.data.cart); } catch (e) { /* 忽略缓存写入异常 */ }
   },
 
   /**
@@ -307,6 +334,7 @@ Page({
     }
     this.setData({ selectVisible: false, cart });
     this.calcTotal();
+    this.persistCart();
   },
 
   closeSelect() { this.setData({ selectVisible: false }); },
@@ -320,6 +348,7 @@ Page({
     cart[idx].subtotal = fmtMoney(cart[idx].price * cart[idx].quantity);
     this.setData({ cart });
     this.calcTotal();
+    this.persistCart();
   },
   cartPlus(e) {
     const idx = e.currentTarget.dataset.index;
@@ -332,12 +361,14 @@ Page({
     cart[idx].subtotal = fmtMoney(cart[idx].price * cart[idx].quantity);
     this.setData({ cart });
     this.calcTotal();
+    this.persistCart();
   },
   cartRemove(e) {
     const cart = this.data.cart.slice();
     cart.splice(e.currentTarget.dataset.index, 1);
     this.setData({ cart });
     this.calcTotal();
+    this.persistCart();
   },
 
   /** 计算订单总金额 / 总件数 */
@@ -369,8 +400,8 @@ Page({
       wx.showToast({ title: '请先选择商品', icon: 'none' });
       return;
     }
-    // 提交前检查打印机配对状态（未配对则提示并跳转，不阻塞后续二次点击）
-    this._checkPrinterBeforeBill();
+    // 提交前检查打印机配对状态：未配对时提示并中止本次开单（修复"提示了仍下单"）
+    if (!this._checkPrinterBeforeBill()) return;
     this.setData({ submitting: true });
     try {
       const data = await request({
@@ -388,20 +419,8 @@ Page({
           paidNow
         }
       });
-      this.setData({ cart: [], customerPhone: '', remark: '', paidNow: false });
-      this.calcTotal();
-      // 弹成功提示的同时异步打印小票（不阻塞 UI）
-      wx.showModal({
-        title: '开单成功',
-        content: `订单号 ${data.orderNo}\n应收金额 ￥${fmtMoney(data.totalAmount)}${paidNow ? '（已标记收款）' : '（待收款）'}`,
-        showCancel: false,
-        success: () => {
-          // 开单后刷新商品列表（库存已变化）
-          this.loadGoods();
-        }
-      });
-      // 异步调用打印（不等待，弹 modal 同时打印）
-      this._printReceipt({
+      // 记录本次小票数据（供成功弹层"补打小票"使用）
+      this._lastReceipt = {
         orderNo: data.orderNo,
         totalAmount: data.totalAmount,
         paidNow,
@@ -415,7 +434,25 @@ Page({
           price: c.price,
           quantity: c.quantity
         }))
-      }).catch((e) => console.error('[print]', e));
+      };
+      // 清空购物车并弹出成功卡片（含订单号/金额/收款状态）
+      this.setData({
+        cart: [],
+        customerPhone: '',
+        remark: '',
+        paidNow: false,
+        successInfo: {
+          orderId: data.id,
+          orderNo: data.orderNo,
+          totalAmount: fmtMoney(data.totalAmount),
+          paid: paidNow
+        }
+      });
+      this.calcTotal();
+      this.persistCart();
+      this.loadGoods();
+      // 异步打印小票（不阻塞成功弹层）
+      this._printReceipt(this._lastReceipt).catch((e) => console.error('[print]', e));
     } catch (e) {
       // 后端实时校验：授权被关闭/到期（1002）时同步切换为受限状态
       if (e && e.code === 1002) {
@@ -426,6 +463,28 @@ Page({
       this.loadGoods();
     } finally {
       this.setData({ submitting: false });
+    }
+  },
+
+  // ============ 开单成功弹层操作 ============
+  /** 关闭成功弹层，继续开单 */
+  closeSuccess() {
+    this.setData({ successInfo: null });
+  },
+
+  /** 查看刚开出的订单详情 */
+  goOrderFromSuccess() {
+    const info = this.data.successInfo;
+    this.setData({ successInfo: null });
+    if (info && info.orderId) {
+      wx.navigateTo({ url: `/pages/order-detail/order-detail?id=${info.orderId}` });
+    }
+  },
+
+  /** 补打小票（复用本次开单的小票数据） */
+  reprintFromSuccess() {
+    if (this._lastReceipt) {
+      this._printReceipt(this._lastReceipt).catch((e) => console.error('[print]', e));
     }
   }
 });

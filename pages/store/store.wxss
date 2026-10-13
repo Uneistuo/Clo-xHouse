@@ -1,8 +1,8 @@
 /* 店铺页样式（米色底 + 酒红主调，与登录页一致） */
 .store-page {
   min-height: 100vh;
-  background: #f3efe7;
-  padding: 40rpx 40rpx 80rpx;
+  background: #f4f5f7;
+  padding: 40rpx 40rpx 180rpx;
   box-sizing: border-box;
 }
 
@@ -12,29 +12,29 @@
   justify-content: space-between;
   margin-bottom: 32rpx;
 }
-.store-title { font-size: 38rpx; font-weight: bold; color: #33241f; }
-.store-back { font-size: 26rpx; color: #7e2f2f; padding: 8rpx 20rpx; border: 1rpx solid #7e2f2f; border-radius: 28rpx; }
+.store-title { font-size: 38rpx; font-weight: bold; color: #14161a; }
+.store-back { font-size: 26rpx; color: #e1483c; padding: 8rpx 20rpx; border: 1rpx solid #e1483c; border-radius: 28rpx; }
 
 /* 店铺信息卡（店铺信息 + 店铺成员 合并板块） */
 .store-card {
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 24rpx;
   padding: 48rpx 40rpx;
-  box-shadow: 0 8rpx 30rpx rgba(51, 36, 31, 0.08);
+  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
 }
 .store-name-row {
   display: flex;
   align-items: center;
   gap: 20rpx;
 }
-.store-name { font-size: 40rpx; font-weight: bold; color: #33241f; }
+.store-name { font-size: 40rpx; font-weight: bold; color: #14161a; }
 
 /* 改名按钮（店铺名称右侧，浅色小按钮，仅店主） */
 .rename-btn {
   font-size: 22rpx;
-  color: #7e2f2f;
-  background: rgba(126, 47, 47, 0.08);
-  border: 1rpx solid #e3cccc;
+  color: #e1483c;
+  background: rgba(225, 72, 60, 0.08);
+  border: 1rpx solid #f0b8b2;
   border-radius: 999rpx;
   padding: 6rpx 24rpx;
   line-height: 1.6;
@@ -46,9 +46,9 @@
   width: 52rpx;
   height: 52rpx;
   border-radius: 50%;
-  border: 1rpx solid #d8b3b3;
-  color: #7e2f2f;
-  background: rgba(126, 47, 47, 0.06);
+  border: 1rpx solid #f0b8b2;
+  color: #e1483c;
+  background: rgba(225, 72, 60, 0.06);
   font-size: 28rpx;
   line-height: 52rpx;
   text-align: center;
@@ -59,7 +59,7 @@
 .member-section {
   margin-top: 44rpx;
   padding-top: 32rpx;
-  border-top: 1rpx solid #ece5d8;
+  border-top: 1rpx solid #eceef1;
 }
 
 /* 注册店铺按钮（页面最下方，满 3 家时由 wx:if 移除） */
@@ -72,7 +72,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  background: rgba(51, 36, 31, 0.45);
+  background: rgba(20, 22, 26, 0.45);
   z-index: 999;
   display: flex;
   align-items: center;
@@ -80,14 +80,14 @@
 }
 .popup-panel {
   width: 580rpx;
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 24rpx;
   padding: 40rpx 36rpx 28rpx;
 }
 .popup-title {
   font-size: 30rpx;
   font-weight: bold;
-  color: #33241f;
+  color: #14161a;
   text-align: center;
   margin-bottom: 16rpx;
 }
@@ -96,25 +96,25 @@
   justify-content: space-between;
   align-items: center;
   padding: 26rpx 8rpx;
-  border-bottom: 1rpx solid #ece5d8;
+  border-bottom: 1rpx solid #eceef1;
   font-size: 28rpx;
-  color: #33241f;
+  color: #14161a;
 }
 .popup-item:last-of-type { border-bottom: none; }
-.popup-item.current .popup-store-name { color: #7e2f2f; font-weight: bold; }
+.popup-item.current .popup-store-name { color: #e1483c; font-weight: bold; }
 .popup-store-name { flex: 1; }
 .popup-store-tag {
   font-size: 22rpx;
   color: #fff;
-  background: #7e2f2f;
+  background: #e1483c;
   border-radius: 999rpx;
   padding: 4rpx 22rpx;
   line-height: 1.6;
 }
 .popup-store-arrow {
   font-size: 24rpx;
-  color: #7e2f2f;
-  border: 1rpx solid #d8b3b3;
+  color: #e1483c;
+  border: 1rpx solid #f0b8b2;
   border-radius: 999rpx;
   padding: 4rpx 26rpx;
   line-height: 1.6;
@@ -123,26 +123,26 @@
   margin-top: 24rpx;
   text-align: center;
   font-size: 28rpx;
-  color: #8a7d72;
+  color: #5b616e;
   padding: 12rpx 0;
 }
 .store-role {
   display: inline-block;
   margin-top: 16rpx;
   font-size: 24rpx;
-  color: #7e2f2f;
-  background: rgba(126, 47, 47, 0.1);
+  color: #e1483c;
+  background: rgba(225, 72, 60, 0.1);
   border-radius: 12rpx;
   padding: 6rpx 20rpx;
 }
 
 .code-box {
   margin-top: 40rpx;
-  background: #f7f2e9;
+  background: #f0f1f4;
   border-radius: 16rpx;
   padding: 28rpx 24rpx;
 }
-.code-label { font-size: 22rpx; color: #8a7d72; flex: 1; }
+.code-label { font-size: 22rpx; color: #5b616e; flex: 1; }
 
 /* 店铺码板块头部：说明文字 + 重置店铺码圆形小图标（仅店主） */
 .code-head { display: flex; align-items: center; }
@@ -150,9 +150,9 @@
   width: 44rpx;
   height: 44rpx;
   border-radius: 50%;
-  border: 1rpx solid #d8b3b3;
-  color: #7e2f2f;
-  background: #fffdf8;
+  border: 1rpx solid #f0b8b2;
+  color: #e1483c;
+  background: #ffffff;
   font-size: 26rpx;
   line-height: 44rpx;
   text-align: center;
@@ -164,7 +164,7 @@
   font-size: 44rpx;
   font-weight: bold;
   letter-spacing: 10rpx;
-  color: #7e2f2f;
+  color: #e1483c;
   display: flex;
   align-items: center;
 }
@@ -173,51 +173,44 @@
   font-size: 22rpx;
   letter-spacing: 0;
   color: #fff;
-  background: #7e2f2f;
+  background: #e1483c;
   border-radius: 10rpx;
   padding: 6rpx 16rpx;
 }
 
 .store-btns { margin-top: 40rpx; display: flex; flex-direction: column; gap: 20rpx; }
 .store-btns .btn-primary, .store-btns .btn-ghost { font-size: 28rpx; }
-
-.btn-ghost {
-  background: #fff;
-  color: #7e2f2f;
-  border: 1rpx solid #7e2f2f;
-  border-radius: 16rpx;
-  line-height: 2.6;
-}
+/* .btn-ghost 使用全局样式（app.wxss），此处不再重复定义 */
 
 /* 成员列表（合并进店铺信息卡） */
-.member-title { font-size: 28rpx; font-weight: bold; color: #33241f; margin-bottom: 12rpx; }
+.member-title { font-size: 28rpx; font-weight: bold; color: #14161a; margin-bottom: 12rpx; }
 .member-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 22rpx 0;
-  border-bottom: 1rpx solid #ece5d8;
+  border-bottom: 1rpx solid #eceef1;
   font-size: 28rpx;
-  color: #33241f;
+  color: #14161a;
 }
 /* 店主改名频率提示 */
 .rename-tip {
   margin-top: 16rpx;
   font-size: 22rpx;
-  color: #a09286;
+  color: #9aa0ac;
   text-align: center;
 }
 
 .member-item:last-child { border-bottom: none; }
-.member-role { font-size: 22rpx; color: #8a7d72; }
-.role-owner { color: #7e2f2f; font-weight: bold; }
+.member-role { font-size: 22rpx; color: #5b616e; }
+.role-owner { color: #e1483c; font-weight: bold; }
 
 /* 店主移除成员按钮 */
 .member-info { display: flex; align-items: center; gap: 16rpx; }
 .member-remove {
   font-size: 24rpx;
-  color: #7e2f2f;
-  border: 1rpx solid #d8b3b3;
+  color: #e1483c;
+  border: 1rpx solid #f0b8b2;
   border-radius: 999rpx;
   padding: 4rpx 26rpx;
   line-height: 1.6;
@@ -226,56 +219,66 @@
 /* 未绑定：创建 / 加入 */
 .action-tabs {
   display: flex;
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 24rpx 24rpx 0 0;
   padding: 24rpx 40rpx 0;
-  box-shadow: 0 8rpx 30rpx rgba(51, 36, 31, 0.08);
+  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
 }
 .action-tab {
   flex: 1;
   text-align: center;
   font-size: 30rpx;
-  color: #8a7d72;
+  color: #5b616e;
   padding-bottom: 24rpx;
   border-bottom: 4rpx solid transparent;
 }
 .action-tab.active {
-  color: #7e2f2f;
+  color: #e1483c;
   font-weight: bold;
-  border-bottom-color: #7e2f2f;
+  border-bottom-color: #e1483c;
 }
 
 .store-form {
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 0 0 24rpx 24rpx;
   padding: 40rpx;
 }
-.form-item {
-  display: flex;
-  align-items: center;
-  border-bottom: 1rpx solid #ece5d8;
-  padding: 28rpx 0;
-}
-.form-label { width: 150rpx; font-size: 30rpx; color: #33241f; }
-.form-input { flex: 1; font-size: 30rpx; color: #33241f; }
-.placeholder { color: #c4b8a8; }
+/* .form-item / .form-label / .form-input / .placeholder 使用全局样式（app.wxss） */
 
-.form-tip { margin-top: 32rpx; font-size: 24rpx; color: #a09286; text-align: center; }
+.form-tip { margin-top: 32rpx; font-size: 24rpx; color: #9aa0ac; text-align: center; }
 .form-btn { margin-top: 40rpx; font-size: 32rpx; }
 
 /* 平台管理入口（仅平台管理员可见） */
 .platform-card {
   margin-top: 28rpx;
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 24rpx;
   padding: 36rpx 40rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 8rpx 30rpx rgba(51, 36, 31, 0.08);
+  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
 }
-.platform-title { font-size: 30rpx; font-weight: bold; color: #33241f; }
-.platform-sub { font-size: 24rpx; color: #8a7d72; margin-top: 8rpx; }
-.platform-arrow { font-size: 44rpx; color: #c4b8a8; line-height: 1; }
+.platform-title { font-size: 30rpx; font-weight: bold; color: #14161a; }
+.platform-sub { font-size: 24rpx; color: #5b616e; margin-top: 8rpx; }
+.platform-arrow { font-size: 44rpx; color: #b9bfc9; line-height: 1; }
 
 .page-bottom-space { height: 40rpx; }
+
+/* ===== 设置区 ===== */
+.settings-card {
+  margin-top: 28rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 0 40rpx;
+  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
+}
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 34rpx 0;
+  font-size: 30rpx;
+  color: #14161a;
+}
+.settings-arrow { font-size: 34rpx; color: #b9bfc9; }

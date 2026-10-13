@@ -1,38 +1,27 @@
 /* 首页样式：米色底 + 酒红主调 */
 .home {
-  background: #f3efe7;
+  background: #f4f5f7;
   padding: 20rpx 30rpx 0;
 }
 
 /* ===== 顶部日期与标题 ===== */
 .head { padding: 10rpx 6rpx 24rpx; position: relative; }
-.head-date { font-size: 24rpx; color: #8a7d72; }
+.head-date { font-size: 24rpx; color: #5b616e; }
 .head-title {
   font-size: 52rpx;
   font-weight: bold;
-  color: #33241f;
+  color: #14161a;
   margin-top: 8rpx;
   letter-spacing: 2rpx;
-}
-.head-logout {
-  position: absolute;
-  right: 6rpx;
-  bottom: 28rpx;
-  font-size: 24rpx;
-  color: #8a7d72;
-  border: 1rpx solid #d8cfbf;
-  border-radius: 999rpx;
-  padding: 6rpx 22rpx;
-  background: #fffdf8;
 }
 
 /* ===== 今日销售额主卡（酒红渐变） ===== */
 .sales-card {
-  background: linear-gradient(135deg, #7e2f2f 0%, #9c4444 100%);
+  background: #e1483c;
   border-radius: 28rpx;
   padding: 40rpx 36rpx 34rpx;
   color: #fff;
-  box-shadow: 0 10rpx 26rpx rgba(126, 47, 47, 0.28);
+  box-shadow: 0 10rpx 26rpx rgba(225, 72, 60, 0.28);
 }
 .sales-label { font-size: 26rpx; opacity: 0.85; }
 .sales-num {
@@ -47,47 +36,47 @@
 .duo-row { display: flex; margin-top: 24rpx; }
 .duo-card {
   flex: 1;
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 24rpx;
   padding: 28rpx 30rpx;
-  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
 }
 .duo-card:first-child { margin-right: 24rpx; }
-.duo-label { font-size: 24rpx; color: #8a7d72; }
-.duo-num { font-size: 52rpx; font-weight: bold; color: #33241f; margin-top: 8rpx; }
+.duo-label { font-size: 24rpx; color: #5b616e; }
+.duo-num { font-size: 52rpx; font-weight: bold; color: #14161a; margin-top: 8rpx; }
 
 /* ===== 商品统计三栏 ===== */
 .tri-row {
   display: flex;
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 24rpx;
   margin-top: 24rpx;
   padding: 26rpx 0;
-  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
 }
 .tri-item { flex: 1; text-align: center; }
-.tri-num { font-size: 38rpx; font-weight: bold; color: #33241f; }
-.tri-label { font-size: 24rpx; color: #8a7d72; margin-top: 6rpx; }
+.tri-num { font-size: 38rpx; font-weight: bold; color: #14161a; }
+.tri-label { font-size: 24rpx; color: #5b616e; margin-top: 6rpx; }
 
 /* ===== 操作按钮 ===== */
 .btn-row { display: flex; margin-top: 28rpx; }
 .btn-billing {
   flex: 1;
-  background: linear-gradient(135deg, #7e2f2f 0%, #9c4444 100%);
+  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
   color: #fff;
   font-size: 30rpx;
   font-weight: bold;
   text-align: center;
   padding: 26rpx 0;
   border-radius: 999rpx;
-  box-shadow: 0 8rpx 20rpx rgba(126, 47, 47, 0.3);
+  box-shadow: 0 8rpx 20rpx rgba(225, 72, 60, 0.3);
 }
 .btn-add {
   flex: 1;
   margin-left: 24rpx;
-  background: #fffdf8;
-  color: #33241f;
-  border: 1.5rpx solid #d8cfbf;
+  background: #ffffff;
+  color: #14161a;
+  border: 1.5rpx solid #e6e8ec;
   font-size: 30rpx;
   font-weight: bold;
   text-align: center;
@@ -103,35 +92,118 @@
   align-items: center;
   margin: 40rpx 6rpx 20rpx;
 }
-.section-title { font-size: 34rpx; font-weight: bold; color: #33241f; }
-.section-link { font-size: 26rpx; color: #9c4444; }
+.section-head .section-title { font-size: 34rpx; font-weight: bold; color: #14161a; }
+.section-link { font-size: 26rpx; color: #c5362c; }
 
 /* ===== 空状态卡片（虚线边框） ===== */
 .empty-card {
-  border: 2rpx dashed #d8cfbf;
+  border: 2rpx dashed #e6e8ec;
   border-radius: 24rpx;
   background: rgba(255, 253, 248, 0.6);
   text-align: center;
   padding: 60rpx 0 50rpx;
 }
-.empty-icon { font-size: 64rpx; margin-bottom: 16rpx; }
-.empty-title { font-size: 30rpx; color: #33241f; font-weight: bold; }
-.empty-sub { font-size: 24rpx; color: #a89a8c; margin-top: 10rpx; }
+.empty-card .empty-icon { font-size: 64rpx; margin-bottom: 16rpx; }
+.empty-title { font-size: 30rpx; color: #14161a; font-weight: bold; }
+.empty-sub { font-size: 24rpx; color: #9aa0ac; margin-top: 10rpx; }
 
 /* ===== 今日订单卡片 ===== */
 .order-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fffdf8;
+  background: #ffffff;
   border-radius: 20rpx;
   padding: 26rpx 30rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(51, 36, 31, 0.05);
+  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
 }
-.oc-no { font-size: 27rpx; font-weight: bold; color: #33241f; }
-.oc-time { font-size: 23rpx; color: #a89a8c; margin-top: 8rpx; }
+.oc-no { font-size: 27rpx; font-weight: bold; color: #14161a; }
+.oc-time { font-size: 23rpx; color: #9aa0ac; margin-top: 8rpx; }
 .oc-right { text-align: right; }
-.oc-amount { font-size: 32rpx; font-weight: bold; color: #9c4444; margin-bottom: 8rpx; }
+.oc-amount { font-size: 32rpx; font-weight: bold; color: #c5362c; margin-bottom: 8rpx; }
 
-.page-bottom-space { height: 40rpx; }
+.page-bottom-space { height: 180rpx; }
+
+/* ===== 销售额卡片：书签式周期切换（合并为一个卡片，贴边无留空） ===== */
+.sales-card { padding: 0; overflow: hidden; }
+/* 标签条底为淡色；未选中透出淡色，选中用不透明卡片色并圆角上边（融入卡片） */
+.bookmark-tabs { display: flex; background: rgba(255, 255, 255, 0.18); }
+.bookmark-tab {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  font-size: 25rpx;
+  padding: 22rpx 0;
+  color: #ffffff;                 /* 书签字体白色 */
+  background: transparent;        /* 未选中：显示淡色条 */
+}
+.bookmark-tab.active {
+  color: #ffffff;
+  background: #e1483c;            /* 选中：与卡片背景一致 */
+  border-radius: 18rpx 18rpx 0 0; /* 上侧两个角为圆角 */
+  font-weight: 700;
+}
+/* 选中项与卡片连接处的平滑过渡（半径 16rpx，略小于顶角 18rpx；边缘柔化 2rpx） */
+.bookmark-tab.active::before,
+.bookmark-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 16rpx;
+  height: 16rpx;
+}
+.bookmark-tab.active::before {
+  left: -16rpx;
+  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, #e1483c 16rpx);
+}
+.bookmark-tab.active::after {
+  right: -16rpx;
+  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, #e1483c 16rpx);
+}
+.sales-body { padding: 26rpx 36rpx 34rpx; }
+
+/* 卡片内标题行去掉外边距 */
+.card .section-head { margin: 0 0 20rpx; }
+
+/* ===== 近 7 天销售趋势 ===== */
+.trend { display: flex; align-items: flex-end; justify-content: space-between; height: 200rpx; }
+.trend-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.trend-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.trend-bar {
+  width: 30rpx;
+  border-radius: 8rpx 8rpx 0 0;
+  background: #f0cfcb;
+  transition: background 0.15s;
+}
+.trend-bar.active {
+  background: linear-gradient(180deg, #e1483c 0%, #c5362c 100%);
+}
+.trend-date { font-size: 20rpx; color: #9aa0ac; margin-top: 10rpx; }
+.trend-date.active { color: #e1483c; font-weight: 600; }
+
+/* 趋势选中项详情 */
+.trend-info {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid #eceef1;
+}
+.trend-info-date { font-size: 24rpx; color: #5b616e; }
+.trend-info-amount { font-size: 36rpx; font-weight: bold; color: #e1483c; }
+.trend-info-orders { font-size: 22rpx; color: #9aa0ac; }
+
+/* ===== 低库存提醒 ===== */
+.low-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #eceef1;
+}
+.low-item:last-child { border-bottom: none; }
+.low-name { flex: 1; font-size: 28rpx; color: #14161a; margin-right: 20rpx; }
+.low-stock { font-size: 26rpx; color: #dc2626; font-weight: 600; }
+.low-arrow { font-size: 30rpx; color: #b9bfc9; margin-left: 12rpx; }

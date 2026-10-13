@@ -5,7 +5,7 @@
 <view class="page">
   <!-- 顶部状态卡片 -->
   <view class="status-card {{stateClass}}">
-    <view class="status-icon">{{stateIcon}}</view>
+    <view class="status-icon icon {{stateIconClass}}"></view>
     <view class="status-title">{{stateTitle}}</view>
     <view class="status-sub">{{stateSub}}</view>
     <view wx:if="{{savedDevice}}" class="saved-device">
@@ -27,12 +27,12 @@
 
   <!-- 设备列表 -->
   <view wx:if="{{devices.length > 0}}" class="device-list">
-    <view class="section-title">发现的设备（{{devices.length}}）</view>
+    <view class="device-list-title">发现的设备（{{devices.length}}）</view>
     <view wx:for="{{devices}}" wx:key="deviceId" class="device-item" data-id="{{item.deviceId}}" data-name="{{item.name}}" bindtap="onSelectDevice">
       <view class="device-name">{{item.name || '未知设备'}}</view>
       <view class="device-id">{{item.deviceId}}</view>
       <view wx:if="{{item.RSSI !== undefined}}" class="device-rssi">信号 {{item.RSSI}} dBm</view>
-      <view class="device-arrow">›</view>
+      <view class="device-arrow icon icon-chevron-right"></view>
     </view>
   </view>
 

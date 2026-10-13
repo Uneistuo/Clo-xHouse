@@ -1,0 +1,11 @@
+<!--自定义底部导航：中间"开单"凸起-->
+<view class="tabbar">
+  <view wx:for="{{list}}" wx:key="pagePath"
+        class="tabbar-item {{item.middle ? 'tabbar-item-middle' : ''}} {{selected === index ? 'active' : ''}}"
+        data-index="{{index}}" data-path="{{item.pagePath}}" bindtap="switchTab">
+    <view class="tabbar-icon-wrap">
+      <view class="icon {{item.icon}} tabbar-icon"></view>
+    </view>
+    <view class="tabbar-text">{{item.text}}</view>
+  </view>
+</view>

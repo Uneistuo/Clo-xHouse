@@ -10,14 +10,14 @@
     <view class="store-name-row">
       <view class="store-name">{{store.name}}</view>
       <view class="rename-btn" wx:if="{{role === 'owner'}}" bindtap="handleRename">改名</view>
-      <view class="switch-icon" wx:if="{{role === 'owner' && myStores.length}}" bindtap="openSwitchPopup">⇄</view>
+      <view class="switch-icon" wx:if="{{role === 'owner' && myStores.length}}" bindtap="openSwitchPopup"><view class="icon icon-swap"></view></view>
     </view>
     <view class="store-role">{{role === 'owner' ? '店主' : '员工'}}</view>
 
     <view class="code-box">
       <view class="code-head">
         <view class="code-label">店铺码（分享给员工，绑定后数据自动同步）</view>
-        <view class="reset-icon" wx:if="{{role === 'owner'}}" bindtap="handleResetCode">↻</view>
+        <view class="reset-icon" wx:if="{{role === 'owner'}}" bindtap="handleResetCode"><view class="icon icon-refresh"></view></view>
       </view>
       <view class="code-value" bindtap="handleCopyCode">
         {{store.bind_code}} <text class="code-copy">复制</text>
@@ -46,6 +46,10 @@
               data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
       </view>
     </view>
+
+    <!-- 注册店铺：店主名下不满 3 家时显示（满 3 家自动隐藏） -->
+    <button class="btn-primary register-btn" wx:if="{{role === 'owner' && canCreateStore}}"
+            bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
   </view>
 
   <!-- ===== 未绑定店铺：创建 / 加入 ===== -->
@@ -86,7 +90,7 @@
       <view class="platform-title">打印设置</view>
       <view class="platform-sub">{{printerHint}}</view>
     </view>
-    <view class="platform-arrow">›</view>
+    <view class="platform-arrow icon icon-chevron-right"></view>
   </view>
 
   <!-- ===== 平台管理入口：仅平台管理员可见（控制各店铺开单白名单时效） ===== -->
@@ -95,12 +99,16 @@
       <view class="platform-title">平台管理</view>
       <view class="platform-sub">控制各店铺开单授权时效</view>
     </view>
-    <view class="platform-arrow">›</view>
+    <view class="platform-arrow icon icon-chevron-right"></view>
   </view>
 
-  <!-- ===== 注册店铺：店主名下不满 3 家时显示在页面最下方，满 3 家自动移除 ===== -->
-  <button class="btn-primary register-btn" wx:if="{{storeId && role === 'owner' && canCreateStore}}"
-          bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
+  <!-- ===== 设置 ===== -->
+  <view class="settings-card">
+    <view class="settings-item" bindtap="handleLogout">
+      <text class="settings-label">退出登录</text>
+      <view class="settings-arrow icon icon-chevron-right"></view>
+    </view>
+  </view>
 
   <view class="page-bottom-space"></view>
 </view>

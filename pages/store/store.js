@@ -26,9 +26,17 @@ Page({
 
   onShow() {
     if (!getApp().checkLogin()) return;
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({ selected: 4 });
+    }
     this.setData({ isPlatform: !!(wx.getStorageSync('adminInfo') || {}).isPlatform });
     this.loadInfo();
     this.refreshPrinterHint();
+  },
+
+  /** 下拉刷新：重新拉取店铺信息 */
+  onPullDownRefresh() {
+    this.loadInfo().finally(() => wx.stopPullDownRefresh());
   },
 
   /** 更新打印设置卡片副标题（已配对/未配对） */
@@ -323,5 +331,14 @@ Page({
   // 打印设置：跳转配对页
   goPrinter() {
     wx.navigateTo({ url: '/pages/printer-pair/printer-pair' });
+  },
+
+  // 退出登录
+  handleLogout() {
+    wx.showModal({
+      title: '提示',
+      content: '确定退出登录吗？',
+      success: (res) => { if (res.confirm) getApp().logout(); }
+    });
   }
 });

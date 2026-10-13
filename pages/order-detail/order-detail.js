@@ -25,6 +25,11 @@ Page({
     if (this.data.id) this.loadOrder();
   },
 
+  /** 下拉刷新：重新拉取订单详情 */
+  onPullDownRefresh() {
+    this.loadOrder().finally(() => wx.stopPullDownRefresh());
+  },
+
   /** 加载订单详情（含商品明细快照） */
   async loadOrder() {
     this.setData({ loading: true });
@@ -73,7 +78,7 @@ Page({
     wx.showModal({
       title: '取消订单',
       content: '取消后订单不可恢复，商品库存将自动归还。确定取消吗？',
-      confirmColor: '#e54d42',
+      confirmColor: '#dc2626',
       success: async (res) => {
         if (!res.confirm) return;
         await request({ url: `/api/orders/${this.data.id}/cancel`, method: 'POST' });
@@ -90,7 +95,7 @@ Page({
     wx.showModal({
       title: '售后确认',
       content: '确认已完成售后（退款/换货）吗？商品库存将自动归还。',
-      confirmColor: '#e54d42',
+      confirmColor: '#dc2626',
       success: async (res) => {
         if (!res.confirm) return;
         await request({ url: `/api/orders/${this.data.id}/refund`, method: 'POST' });

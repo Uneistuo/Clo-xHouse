@@ -80,7 +80,7 @@ router.get('/', async (req, res) => {
     const { keyword = '', status = '', categoryId = '', page = 1, pageSize = 20 } = req.query;
     let where = ' WHERE g.is_deleted = 0 AND g.store_id = ?';
     const params = [req.admin.storeId];
-    if (keyword) { where += ' AND g.name LIKE ?'; params.push(`%${keyword}%`); }
+    if (keyword) { where += ' AND (g.name LIKE ? OR g.goods_no LIKE ?)'; params.push(`%${keyword}%`, `%${keyword}%`); }
     if (status === 'on' || status === 'off') { where += ' AND g.on_sale = ?'; params.push(status === 'on' ? 1 : 0); }
     if (categoryId) { where += ' AND g.category_id = ?'; params.push(parseInt(categoryId, 10)); }
 

@@ -23,6 +23,11 @@ Page({
     this.loadList();
   },
 
+  /** 下拉刷新：重新拉取分类列表 */
+  onPullDownRefresh() {
+    this.loadList().finally(() => wx.stopPullDownRefresh());
+  },
+
   /** 加载分类列表（含每个分类商品数） */
   async loadList() {
     this.setData({ loading: true });
@@ -78,7 +83,7 @@ Page({
     wx.showModal({
       title: '删除确认',
       content: `确定删除分类【${name}】吗？`,
-      confirmColor: '#e54d42',
+      confirmColor: '#dc2626',
       success: async (res) => {
         if (!res.confirm) return;
         try {

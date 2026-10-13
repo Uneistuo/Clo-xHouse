@@ -19,16 +19,17 @@
     "backgroundColor": "#F3EFE7"
   },
   "tabBar": {
-    "color": "#a89a8c",
-    "selectedColor": "#7E2F2F",
-    "backgroundColor": "#FFFDF8",
+    "custom": true,
+    "color": "#9AA0AC",
+    "selectedColor": "#E1483C",
+    "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       { "pagePath": "pages/index/index", "text": "首页" },
       { "pagePath": "pages/goods/goods", "text": "商品" },
       { "pagePath": "pages/billing/billing", "text": "开单" },
       { "pagePath": "pages/orders/orders", "text": "订单" },
-      { "pagePath": "pages/store/store", "text": "店铺" }
+      { "pagePath": "pages/store/store", "text": "我的" }
     ]
   },
   "style": "v2",

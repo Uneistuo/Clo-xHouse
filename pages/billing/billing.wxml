@@ -5,7 +5,7 @@
 
   <!-- 开单白名单受限：未授权/已到期店铺不可开单 -->
   <view wx:if="{{restricted}}" class="empty-card restricted-card">
-    <view class="empty-icon">{{restrictedExpired ? '⏳' : '🔒'}}</view>
+    <view class="empty-icon icon {{restrictedExpired ? 'icon-hourglass' : 'icon-lock'}}"></view>
     <view class="empty-title">{{restrictedExpired ? '开单授权已到期' : '开单功能未开通'}}</view>
     <view class="empty-sub" wx:if="{{restrictedExpired}}">您的店铺开单授权已到期，请联系平台管理员续期后再开单。商品与订单数据不受影响。</view>
     <view class="empty-sub" wx:else>您的店铺尚未获得开单授权，请联系平台管理员开通后再开单。商品与订单数据不受影响。</view>
@@ -14,14 +14,14 @@
   <block wx:else>
   <!-- 商品搜索 -->
   <view class="search-wrap">
-    <text class="search-icon">🔍</text>
+    <view class="icon icon-search search-icon"></view>
     <input class="search-input" placeholder="搜索在售商品" value="{{keyword}}"
            bindinput="onKeywordInput" placeholder-class="ph" />
   </view>
 
   <!-- 商品列表（仅上架商品；空表显示空状态） -->
   <view wx:if="{{goodsList.length === 0}}" class="empty-card">
-    <view class="empty-icon">🛍️</view>
+    <view class="empty-icon icon icon-shopping-bag"></view>
     <view class="empty-title">没有可开单的商品</view>
     <view class="empty-sub">请先在商品页录入并上架，有库存后即可选择。</view>
   </view>
@@ -33,7 +33,7 @@
       <view class="goods-price price">￥{{item.priceText}}</view>
       <view class="goods-stock {{item.stock <= 0 ? 'stock-warn' : ''}}">库存 {{item.stock}}</view>
     </view>
-    <view class="add-btn" data-id="{{item.id}}" bindtap="openSelect">＋</view>
+    <view class="add-btn" data-id="{{item.id}}" bindtap="openSelect"><view class="icon icon-plus"></view></view>
   </view>
 
   <!-- 已选订单商品 -->
@@ -78,7 +78,7 @@
       <view class="paid-title">当场已收款</view>
       <view class="paid-sub">现金 / 微信转账给店主</view>
     </view>
-    <switch checked="{{paidNow}}" bindchange="onPaidNowChange" color="#7E2F2F" />
+    <switch checked="{{paidNow}}" bindchange="onPaidNowChange" color="#e1483c" />
   </view>
 
   <view class="page-bottom-space"></view>
@@ -127,4 +127,22 @@
     </view>
   </view>
   </block>
+
+  <!-- 开单成功卡片（替代系统 modal：可继续开单 / 查看订单 / 补打小票） -->
+  <view wx:if="{{successInfo}}" class="mask" bindtap="closeSuccess">
+    <view class="modal success-modal" catchtap="">
+      <view class="success-icon icon icon-check-circle"></view>
+      <view class="success-title">开单成功</view>
+      <view class="success-order">{{successInfo.orderNo}}</view>
+      <view class="success-amount">￥{{successInfo.totalAmount}}</view>
+      <view class="success-status {{successInfo.paid ? 'paid' : 'pending'}}">
+        {{successInfo.paid ? '已标记收款' : '待收款'}}
+      </view>
+      <view class="modal-btns">
+        <button class="btn-ghost modal-btn" bindtap="closeSuccess">继续开单</button>
+        <button class="btn-primary modal-btn primary" bindtap="goOrderFromSuccess">查看订单</button>
+      </view>
+      <view class="success-reprint" bindtap="reprintFromSuccess">补打小票</view>
+    </view>
+  </view>
 </view>

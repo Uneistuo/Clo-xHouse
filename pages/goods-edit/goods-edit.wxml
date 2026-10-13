@@ -9,7 +9,7 @@
           <image src="{{item}}" mode="aspectFill" class="img-thumb" />
           <view class="img-del" data-index="{{index}}" bindtap="removeImage">×</view>
         </view>
-        <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage">＋</view>
+        <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage"><view class="icon icon-plus"></view></view>
       </view>
     </view>
 

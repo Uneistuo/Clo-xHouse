@@ -1,39 +1,58 @@
-<!--订单管理页-->
+<!--订单管理页：状态 tab + 时间范围 + 订单号搜索-->
 <view class="page order-page">
-  <!-- 搜索栏 + 状态筛选 -->
+  <!-- 搜索栏 + 时间范围 -->
   <view class="search-bar">
     <view class="search-input-wrap">
-      <text class="search-icon">🔍</text>
+      <view class="icon icon-search search-icon"></view>
       <input class="search-input" placeholder="搜索订单号" value="{{keyword}}"
              bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
     </view>
-    <picker range="{{filters}}" value="{{filterIndex}}" bindchange="onFilterChange">
-      <view class="filter-entry">{{filters[filterIndex]}} ▾</view>
+    <picker range="{{rangeTexts}}" value="{{rangeIndex}}" bindchange="onRangeChange">
+      <view class="filter-entry">{{ranges[rangeIndex].text}} ▾</view>
     </picker>
   </view>
 
-  <!-- 订单列表（无订单时显示空状态；状态显示在订单右侧） -->
-  <view wx:if="{{list.length === 0 && !loading}}" class="empty">
-    <view class="empty-icon">🧾</view>
+  <!-- 状态筛选 tab -->
+  <view class="status-tabs">
+    <view wx:for="{{tabs}}" wx:key="key"
+          class="status-tab {{statusKey === item.key ? 'active' : ''}}"
+          data-key="{{item.key}}" bindtap="switchStatus">{{item.text}}</view>
+  </view>
+
+  <!-- 骨架屏（首次加载） -->
+  <block wx:if="{{loading && !loaded}}">
+    <view wx:for="{{[1,2,3]}}" wx:key="*this" class="card order-card">
+      <view class="skeleton" style="width: 50%; height: 28rpx;"></view>
+      <view class="skeleton" style="width: 80%; height: 24rpx; margin-top: 24rpx;"></view>
+      <view class="skeleton" style="width: 35%; height: 24rpx; margin-top: 24rpx;"></view>
+    </view>
+  </block>
+
+  <!-- 空状态（无订单时显示） -->
+  <view wx:elif="{{list.length === 0}}" class="empty">
+    <view class="empty-icon icon icon-receipt"></view>
     <view>暂无订单</view>
     <view class="empty-btn btn-ghost" bindtap="goBilling">去开单</view>
   </view>
 
-  <view wx:for="{{list}}" wx:key="id" class="card order-card" data-id="{{item.id}}" bindtap="goDetail">
-    <view class="row-between">
-      <view class="order-no">{{item.order_no}}</view>
-      <view class="tag {{item.statusClass}}">{{item.statusText}}</view>
+  <!-- 订单列表（状态显示在订单右侧） -->
+  <block wx:else>
+    <view wx:for="{{list}}" wx:key="id" class="card order-card" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="row-between">
+        <view class="order-no">{{item.order_no}}</view>
+        <view class="tag {{item.statusClass}}">{{item.statusText}}</view>
+      </view>
+      <view class="row-between order-mid">
+        <view class="order-time">{{item.created_at}}</view>
+        <view class="order-amount">￥{{item.amountText}}</view>
+      </view>
+      <view class="row-between order-bottom">
+        <view class="order-sub">{{item.quantity_count}} 件商品 · {{item.payText}}</view>
+        <view class="order-arrow">详情<view class="icon icon-chevron-right"></view></view>
+      </view>
     </view>
-    <view class="row-between order-mid">
-      <view class="order-time">{{item.created_at}}</view>
-      <view class="order-amount">￥{{item.amountText}}</view>
-    </view>
-    <view class="row-between order-bottom">
-      <view class="order-sub">{{item.quantity_count}} 件商品 · {{item.payText}}</view>
-      <view class="order-arrow">详情 ›</view>
-    </view>
-  </view>
 
-  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
-  <view wx:elif="{{hasMore && list.length > 0}}" class="loading-tip">上拉加载更多</view>
+    <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+    <view wx:elif="{{hasMore && list.length > 0}}" class="loading-tip">上拉加载更多</view>
+  </block>
 </view>

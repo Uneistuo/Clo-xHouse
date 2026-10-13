@@ -8,7 +8,7 @@ Page({
     devices: [],
     savedDevice: null,
     connected: false,
-    stateIcon: '🖨',
+    stateIconClass: 'icon-printer',
     stateTitle: '尚未连接打印机',
     stateSub: '点击下方按钮开始扫描',
     stateClass: 'status-disconnected'
@@ -33,14 +33,14 @@ Page({
   _setState(kind) {
     // kind: 'saved' | 'scanning' | 'connected' | 'failed'
     const map = {
-      saved: { icon: '📋', title: '已配对打印机', sub: '点击"重新连接"以连接', cls: 'status-disconnected' },
-      scanning: { icon: '🔍', title: '正在扫描...', sub: '请确保打印机已开机并处于配对模式', cls: 'status-disconnected' },
-      connected: { icon: '✅', title: '打印机已连接', sub: '可以正常打印小票', cls: 'status-connected' },
-      failed: { icon: '❌', title: '操作失败', sub: '请重试或检查打印机状态', cls: 'status-disconnected' }
+      saved: { icon: 'icon-clipboard', title: '已配对打印机', sub: '点击"重新连接"以连接', cls: 'status-disconnected' },
+      scanning: { icon: 'icon-search', title: '正在扫描...', sub: '请确保打印机已开机并处于配对模式', cls: 'status-disconnected' },
+      connected: { icon: 'icon-check-circle', title: '打印机已连接', sub: '可以正常打印小票', cls: 'status-connected' },
+      failed: { icon: 'icon-x-circle', title: '操作失败', sub: '请重试或检查打印机状态', cls: 'status-disconnected' }
     };
     const s = map[kind] || map.saved;
     this.setData({
-      stateIcon: s.icon,
+      stateIconClass: s.icon,
       stateTitle: s.title,
       stateSub: s.sub,
       stateClass: s.cls,
