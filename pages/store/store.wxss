@@ -17,6 +17,7 @@
 
 /* 店铺信息卡（店铺信息 + 店铺成员 合并板块） */
 .store-card {
+  position: relative;          /* 为半圆折叠开关提供定位锚点 */
   background: #ffffff;
   border-radius: 24rpx;
   padding: 48rpx 40rpx;
@@ -197,20 +198,28 @@
   line-height: 1.6;
 }
 
-/* 折叠控制开关（卡片底侧，仅图标；贴底） */
+/* 折叠控制开关：卡片底部的灰色半圆把手（顶部圆弧、底部与卡片圆角过渡） */
 .fold-toggle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110rpx;
+  height: 28rpx;
+  border-top-left-radius: 55rpx;       /* 上半圆弧：宽度一半做圆角 */
+  border-top-right-radius: 55rpx;
+  border-bottom-left-radius: 10rpx;    /* 底部小圆角与卡片 24rpx 圆角平滑过渡 */
+  border-bottom-right-radius: 10rpx;
+  background: #eef0f3;                 /* 浅灰色 */
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 8rpx;
-  margin-bottom: -48rpx;   /* 贴到卡片底边，抵消 .store-card 的 padding-bottom */
-  padding: 12rpx 0 20rpx;  /* 底距让图标离卡片边缘留一点呼吸 */
-  border-top: 1rpx solid #eceef1;
+  z-index: 2;
 }
-.fold-toggle-hover { background: rgba(20, 22, 26, 0.03); }
+.fold-toggle-hover { background: #e2e5ea; }
 .fold-toggle-arrow {
   display: inline-block;
-  font-size: 28rpx;
+  font-size: 22rpx;
   color: #9aa0ac;
   line-height: 1;
   transform: rotate(0deg);
