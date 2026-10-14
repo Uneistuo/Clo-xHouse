@@ -199,10 +199,11 @@
 }
 
 /* 折叠开关：卡片底边的深色水滴形按钮（点击展开 / 收起店铺成员）
-   形状：顶部半圆（圆腹朝上）+ 底部平直与卡片底边齐平 */
+   形状：顶部半圆（圆腹朝上）+ 底部与卡片底边齐平，
+   两侧用 radial-gradient 凸耳覆盖卡片底边圆角，做平滑过渡 */
 .fold-toggle {
   position: absolute;
-  bottom: 0;                          /* 底部平直贴卡片底边 */
+  bottom: 0;                          /* 底部落在卡片底边 */
   left: 50%;
   transform: translateX(-50%);
   width: 40rpx;
@@ -217,6 +218,24 @@
   overflow: hidden;                   /* 防止旋转箭头溢出 */
 }
 .fold-toggle-hover { background: #4a4f58; }   /* hover 更深一档 */
+/* 两侧凸耳：用 radial-gradient 覆盖卡片底边圆角，让开关与卡片衔接平滑 */
+.fold-toggle::before,
+.fold-toggle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 14rpx;
+  height: 14rpx;
+  pointer-events: none;               /* 不挡 hover/click */
+}
+.fold-toggle::before {
+  left: -14rpx;
+  background: radial-gradient(circle 14rpx at 100% 100%, #5b616e 14rpx, transparent 14rpx);
+}
+.fold-toggle::after {
+  right: -14rpx;
+  background: radial-gradient(circle 14rpx at 0 100%, #5b616e 14rpx, transparent 14rpx);
+}
 .fold-toggle-arrow {
   position: relative;
   z-index: 1;
