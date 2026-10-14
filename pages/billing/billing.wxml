@@ -58,11 +58,24 @@
     </view>
   </view>
 
-  <!-- 顾客手机（选填） -->
+  <!-- 顾客手机（选填）：输入 11 位显示"添加"按钮，输入 4 位显示匹配的会员预选 -->
   <view class="field-block">
     <view class="field-label">顾客手机（选填）</view>
-    <input class="field-input" type="number" placeholder="方便售后联系" value="{{customerPhone}}"
-           bindinput="onPhoneInput" placeholder-class="ph" />
+    <view class="phone-input-wrap">
+      <input class="field-input phone-input" type="number" placeholder="方便售后联系" value="{{customerPhone}}"
+             bindinput="onPhoneInput" placeholder-class="ph" maxlength="11" />
+      <view class="add-customer-btn" wx:if="{{showAddCustomerBtn}}" bindtap="onAddCustomerTap">+ 添加会员</view>
+    </view>
+
+    <!-- 会员预选：输入 4 位后显示匹配的老客户 -->
+    <view class="customer-matches" wx:if="{{customerMatches.length > 0}}">
+      <view class="customer-matches-title">可能会员（{{customerMatches.length}}）</view>
+      <view class="customer-match-item" wx:for="{{customerMatches}}" wx:key="phone"
+            data-phone="{{item.phone}}" data-name="{{item.displayName}}" bindtap="onSelectCustomer">
+        <text class="match-name">{{item.displayName}}</text>
+        <text class="match-phone">{{item.phone}}</text>
+      </view>
+    </view>
   </view>
 
   <!-- 订单备注 -->
@@ -143,6 +156,35 @@
         <button class="btn-primary modal-btn primary" bindtap="goOrderFromSuccess">查看订单</button>
       </view>
       <view class="success-reprint" bindtap="reprintFromSuccess">补打小票</view>
+    </view>
+  </view>
+
+  <!-- 添加会员弹窗：输入姓氏 + 选择性别 -->
+  <view wx:if="{{addCustomerVisible}}" class="mask" bindtap="closeAddCustomer">
+    <view class="modal" catchtap="">
+      <view class="modal-title">添加会员</view>
+      <view class="modal-sub">手机号 {{customerPhone}}</view>
+
+      <view class="form-item">
+        <view class="form-label">姓氏</view>
+        <input class="form-input" placeholder="如：赵" value="{{newCustomerSurname}}"
+               bindinput="onNewCustomerSurnameInput" placeholder-class="ph" maxlength="10" />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">性别</view>
+        <view class="gender-options">
+          <view class="gender-option {{newCustomerGender === 1 ? 'active' : ''}}"
+                data-gender="1" bindtap="onNewCustomerGenderTap">先生</view>
+          <view class="gender-option {{newCustomerGender === 2 ? 'active' : ''}}"
+                data-gender="2" bindtap="onNewCustomerGenderTap">女士</view>
+        </view>
+      </view>
+
+      <view class="modal-btns">
+        <button class="btn-ghost modal-btn" bindtap="closeAddCustomer">取消</button>
+        <button class="btn-primary modal-btn primary" bindtap="confirmAddCustomer">确认添加</button>
+      </view>
     </view>
   </view>
 </view>

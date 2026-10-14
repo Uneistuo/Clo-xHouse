@@ -32,7 +32,16 @@ Page({
     restricted: false,       // 开单白名单：未授权/已到期不可开单（平台管理员控制时效）
     restrictedExpired: false, // true=授权已到期 / false=从未授权
     billingExpireText: '',   // 授权到期时间（有效时页面顶部展示）
-    successInfo: null        // 开单成功弹层数据 { orderId, orderNo, totalAmount, paid }
+    successInfo: null,       // 开单成功弹层数据 { orderId, orderNo, totalAmount, paid }
+
+    // 客户/会员管理（开单时添加 / 识别老客户）
+    showAddCustomerBtn: false,    // 输入 11 位手机号且未注册会员时，输入框末端显示"+ 添加会员"按钮
+    customerMatches: [],          // 输入 4 位后匹配到的会员预选列表 { phone, surname, gender, displayName }
+
+    // 添加会员弹窗
+    addCustomerVisible: false,
+    newCustomerSurname: '',      // 新会员姓氏输入
+    newCustomerGender: 0          // 新会员性别 0=未选 1=先生 2=女士
   },
 
   onShow() {
@@ -381,9 +390,105 @@ Page({
   },
 
   // ============ 提交订单 ============
-  onPhoneInput(e) { this.setData({ customerPhone: e.detail.value }); },
+  /** 顾客手机号输入：根据输入位数触发不同会员查询
+   *  - 11 位：检查是否已是本店会员，决定"添加"按钮显隐
+   *  - 4 位：按后 4 位查询匹配的会员，下方显示预选列表
+   *  - 其他：清空所有会员相关状态
+   *  - 输入变化：清空"添加"按钮与匹配列表，避免过期数据 */
+  onPhoneInput(e) {
+    const phone = String(e.detail.value || '').replace(/\D/g, '').slice(0, 11);
+    this.setData({
+      customerPhone: phone,
+      showAddCustomerBtn: false,
+      customerMatches: []
+    });
+    if (phone.length === 11) {
+      this.checkCustomerExists(phone);
+    } else if (phone.length === 4) {
+      this.matchCustomerByLast4(phone);
+    }
+  },
   onRemarkInput(e) { this.setData({ remark: e.detail.value }); },
   onPaidNowChange(e) { this.setData({ paidNow: e.detail.value }); },
+
+  /** 查询完整手机号是否已是本店会员 */
+  async checkCustomerExists(phone) {
+    try {
+      const data = await request({ url: `/api/customer/exists?phone=${phone}`, method: 'GET' });
+      this.setData({ showAddCustomerBtn: !data.exists });
+    } catch (e) {
+      // 错误提示已由 request 统一处理
+    }
+  },
+
+  /** 按手机号后 4 位查询匹配会员（用于预选） */
+  async matchCustomerByLast4(suffix) {
+    try {
+      const data = await request({ url: '/api/customer/match', method: 'POST', data: { suffix } });
+      this.setData({ customerMatches: data.list || [] });
+    } catch (e) {
+      this.setData({ customerMatches: [] });
+    }
+  },
+
+  /** 打开添加会员弹窗（默认重置姓氏/性别） */
+  onAddCustomerTap() {
+    this.setData({ addCustomerVisible: true, newCustomerSurname: '', newCustomerGender: 0 });
+  },
+
+  /** 关闭添加会员弹窗 */
+  closeAddCustomer() {
+    this.setData({ addCustomerVisible: false });
+  },
+
+  /** 弹窗内：姓氏输入 */
+  onNewCustomerSurnameInput(e) {
+    this.setData({ newCustomerSurname: e.detail.value });
+  },
+
+  /** 弹窗内：性别选择 */
+  onNewCustomerGenderTap(e) {
+    this.setData({ newCustomerGender: Number(e.currentTarget.dataset.gender) });
+  },
+
+  /** 弹窗内：确认添加（提交后端，已存在则覆盖姓氏/性别） */
+  async confirmAddCustomer() {
+    const { customerPhone, newCustomerSurname, newCustomerGender } = this.data;
+    if (!newCustomerSurname.trim()) {
+      wx.showToast({ title: '请输入姓氏', icon: 'none' });
+      return;
+    }
+    if (newCustomerGender !== 1 && newCustomerGender !== 2) {
+      wx.showToast({ title: '请选择性别', icon: 'none' });
+      return;
+    }
+    try {
+      const r = await request({
+        url: '/api/customer',
+        method: 'POST',
+        data: {
+          phone: customerPhone,
+          surname: newCustomerSurname.trim(),
+          gender: newCustomerGender
+        }
+      });
+      wx.showToast({ title: r.message || '已添加会员', icon: 'success' });
+      this.setData({ addCustomerVisible: false, showAddCustomerBtn: false });
+    } catch (e) {
+      // 错误提示已由 request 统一处理（重名/格式错误等）
+    }
+  },
+
+  /** 选择预选会员：将完整手机号回填到输入框 */
+  onSelectCustomer(e) {
+    const { phone, name } = e.currentTarget.dataset;
+    this.setData({
+      customerPhone: phone,
+      customerMatches: [],
+      showAddCustomerBtn: false
+    });
+    wx.showToast({ title: `已选择 ${name}`, icon: 'none' });
+  },
 
   /** 底部"收款并出单"按钮：校验后提交（后端事务生成订单并扣减库存） */
   async submitOrder() {

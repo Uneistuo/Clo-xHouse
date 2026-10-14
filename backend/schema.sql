@@ -108,3 +108,19 @@ CREATE TABLE IF NOT EXISTS order_item (
   price      DOUBLE       NOT NULL DEFAULT 0,        -- 单品价格快照（下单时售价）
   KEY idx_order_item_order (order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 6. 客户/会员表（多租户：按 store_id 隔离；下单时通过手机号识别老客户）
+-- gender: 0未知 / 1先生 / 2女士；显示规则：{surname}{先生|女士}
+-- phone_last4 冗余字段，用于按手机号后 4 位等值匹配（加速开单时的"老客户"预选）
+CREATE TABLE IF NOT EXISTS customer (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  -- 客户ID
+  store_id    INT UNSIGNED NOT NULL DEFAULT 0,         -- 所属店铺ID（多租户隔离）
+  phone       VARCHAR(20) NOT NULL DEFAULT '',         -- 完整手机号（11 位）
+  phone_last4 VARCHAR(4)  NOT NULL DEFAULT '',         -- 手机号后 4 位（冗余，用于快速匹配）
+  surname     VARCHAR(20) NOT NULL DEFAULT '',         -- 姓氏
+  gender      TINYINT     NOT NULL DEFAULT 0,           -- 性别：0未知 1先生 2女士
+  created_at  VARCHAR(19) NOT NULL DEFAULT '',         -- 创建时间
+  updated_at  VARCHAR(19) NOT NULL DEFAULT '',         -- 更新时间
+  UNIQUE KEY uniq_customer_store_phone (store_id, phone),
+  KEY idx_customer_store_last4 (store_id, phone_last4)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

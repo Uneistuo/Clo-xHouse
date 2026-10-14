@@ -17,6 +17,7 @@ const orderRoutes = require('./routes/orders');
 const statsRoutes = require('./routes/stats');
 const uploadRoutes = require('./routes/upload');
 const platformRoutes = require('./routes/platform');
+const customerRoutes = require('./routes/customer');
 
 init().then(() => {
   const app = express();
@@ -38,6 +39,7 @@ init().then(() => {
   app.use('/api/stats', statsRoutes);     // 统计
   app.use('/api/upload', uploadRoutes);   // 图片上传
   app.use('/api/platform', platformRoutes); // 平台管理（开单白名单）
+  app.use('/api/customer', customerRoutes); // 客户/会员（开单时添加/识别老客户）
 
   // 健康检查
   app.get('/api/health', (req, res) => res.json({ code: 0, message: 'ok' }));

@@ -110,6 +110,83 @@
   box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
 }
 
+/* 顾客手机：输入栏 + 末端"添加会员"按钮（flex 并排） */
+.phone-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.phone-input {
+  flex: 1;
+  width: auto;       /* 覆盖 .field-input 的默认 block 满宽 */
+  min-width: 0;
+}
+.add-customer-btn {
+  flex-shrink: 0;
+  padding: 14rpx 24rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  background: #e1483c;
+  border-radius: 999rpx;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.add-customer-btn:active { opacity: 0.7; }
+
+/* 会员预选列表：输入 4 位后下方显示 */
+.customer-matches {
+  margin-top: 16rpx;
+  background: #f8f9fb;
+  border-radius: 16rpx;
+  padding: 16rpx 20rpx;
+}
+.customer-matches-title {
+  font-size: 22rpx;
+  color: #9aa0ac;
+  margin-bottom: 10rpx;
+}
+.customer-match-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  font-size: 28rpx;
+  color: #14161a;
+  border-bottom: 1rpx solid #eceef1;
+}
+.customer-match-item:last-child { border-bottom: none; }
+.customer-match-item:active { background: rgba(0, 0, 0, 0.03); }
+.match-name { font-weight: 500; }
+.match-phone { color: #5b616e; font-size: 24rpx; letter-spacing: 1rpx; }
+
+/* 添加会员弹窗：姓氏输入 + 性别二选一 */
+.modal-sub {
+  text-align: center;
+  font-size: 26rpx;
+  color: #5b616e;
+  margin: -8rpx 0 24rpx;
+  letter-spacing: 1rpx;
+}
+.gender-options {
+  display: flex;
+  gap: 20rpx;
+}
+.gender-option {
+  flex: 1;
+  text-align: center;
+  padding: 22rpx 0;
+  border: 1rpx solid #e6e8ec;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  color: #5b616e;
+  background: #ffffff;
+}
+.gender-option.active {
+  border-color: #e1483c;
+  background: rgba(225, 72, 60, 0.06);
+  color: #e1483c;
+}
+
 /* ===== 当场已收款卡片 ===== */
 .paid-card {
   display: flex;
