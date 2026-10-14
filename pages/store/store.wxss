@@ -197,13 +197,14 @@
   line-height: 1.6;
 }
 
-/* 折叠控制开关（卡片底侧，仅图标） */
+/* 折叠控制开关（卡片底侧，仅图标；贴底） */
 .fold-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 8rpx;
-  padding: 12rpx 0;
+  margin-bottom: -48rpx;   /* 贴到卡片底边，抵消 .store-card 的 padding-bottom */
+  padding: 12rpx 0 20rpx;  /* 底距让图标离卡片边缘留一点呼吸 */
   border-top: 1rpx solid #eceef1;
 }
 .fold-toggle-hover { background: rgba(20, 22, 26, 0.03); }
