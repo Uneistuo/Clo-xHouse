@@ -198,32 +198,34 @@
   line-height: 1.6;
 }
 
-/* 折叠控制开关：卡片底部的灰色半圆把手（顶部圆弧、底部与卡片圆角过渡） */
+/* 折叠控制开关：卡片底部的灰色半圆把手（顶部圆弧、底部圆角与卡片圆角一致） */
 .fold-toggle {
   position: absolute;
-  bottom: 0;
+  bottom: -1rpx;                       /* 略伸出 1rpx 抹平与卡片底边的 1rpx 渲染缝 */
   left: 50%;
   transform: translateX(-50%);
-  width: 110rpx;
-  height: 28rpx;
-  border-top-left-radius: 55rpx;       /* 上半圆弧：宽度一半做圆角 */
-  border-top-right-radius: 55rpx;
-  border-bottom-left-radius: 10rpx;    /* 底部小圆角与卡片 24rpx 圆角平滑过渡 */
-  border-bottom-right-radius: 10rpx;
+  width: 140rpx;
+  height: 40rpx;
+  border-top-left-radius: 70rpx;       /* 上半圆弧：宽度一半 = 完美半圆 */
+  border-top-right-radius: 70rpx;
+  border-bottom-left-radius: 24rpx;    /* 底部圆角 = 卡片圆角 (24rpx)，衔接平滑 */
+  border-bottom-right-radius: 24rpx;
   background: #eef0f3;                 /* 浅灰色 */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
+  overflow: hidden;                    /* 防止半圆内的箭头溢出 */
 }
 .fold-toggle-hover { background: #e2e5ea; }
 .fold-toggle-arrow {
   display: inline-block;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #9aa0ac;
   line-height: 1;
   transform: rotate(0deg);
   transition: transform 0.2s ease;
+  margin-top: -4rpx;                   /* 箭头视觉居中（半圆顶端有圆弧上移） */
 }
 .fold-arrow-up { transform: rotate(180deg); }
 
