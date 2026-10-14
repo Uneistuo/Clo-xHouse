@@ -113,6 +113,7 @@ const NAV_ITEMS = [
   { hash: '#/goods', icon: 'icon-shirt', label: '商品' },
   { hash: '#/billing', icon: 'icon-receipt', label: '开单' },
   { hash: '#/orders', icon: 'icon-package', label: '订单' },
+  { hash: '#/customers', icon: 'icon-clipboard', label: '会员' },
   { hash: '#/store', icon: 'icon-store', label: '店铺' },
   { hash: '#/platform', icon: 'icon-shield', label: '平台', platformOnly: true }
 ];
@@ -242,6 +243,7 @@ function renderMain(root) {
   else if (cur === '#/goods') renderGoods(view);
   else if (cur === '#/billing') renderBilling(view);
   else if (cur === '#/orders') renderOrders(view);
+  else if (cur === '#/customers') renderCustomers(view);
   else if (cur === '#/store') renderStore(view);
   else if (cur === '#/platform') renderPlatform(view);
 }
@@ -500,6 +502,9 @@ async function renderBilling(view) {
   try { data = await api('/api/goods?status=on&page=1&pageSize=200'); } catch (e) { return; }
   const goodsList = data.list || [];
   const cart = []; // {goodsId, name, price, color, size, quantity, maxStock}
+  let selectedCustomerId = 0; // 已选/已添加的会员 ID（下单时随订单落库；手动改手机号即清零）
+  let blPhone = '';           // 手机号输入值（draw 重绘间保持，修复加购后输入丢失）
+  let blRemark = '';          // 备注输入值（同上）
 
   const draw = () => {
     view.innerHTML = `
@@ -531,8 +536,15 @@ async function renderBilling(view) {
               </div>`).join('')}
           </div>
           <div class="cart-total"><span>合计</span><span class="sum">¥${cart.reduce((s, it) => s + it.price * it.quantity, 0).toFixed(2)}</span></div>
-          <label class="field" style="margin-top:10px"><span class="lbl">顾客手机（选填）</span><input id="bl-phone" placeholder="用于售后联系"></label>
-          <label class="field"><span class="lbl">备注（选填）</span><input id="bl-remark" placeholder="如：打折、包邮"></label>
+          <div class="field" style="margin-top:10px">
+            <span class="lbl">顾客手机（选填）</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="bl-phone" maxlength="11" placeholder="售后联系；输 4 位识别会员" style="flex:1" value="${esc(blPhone)}">
+              <button class="btn small ghost" id="bl-add-customer" type="button" style="display:none;white-space:nowrap">+ 添加会员</button>
+            </div>
+            <div id="bl-matches" style="margin-top:8px"></div>
+          </div>
+          <label class="field"><span class="lbl">备注（选填）</span><input id="bl-remark" placeholder="如：打折、包邮" value="${esc(blRemark)}"></label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:#555;margin-bottom:6px">
             <input type="checkbox" id="bl-paid" style="width:auto">顾客已现场付款（直接记为已收款）
           </label>
@@ -562,6 +574,76 @@ async function renderBilling(view) {
     };
     bindQty();
 
+    // ===== 会员识别：输入 11 位检查是否已注册 / 输入 4 位查询预选 =====
+    const phoneEl = $('#bl-phone');
+    const matchesEl = $('#bl-matches');
+    const addBtn = $('#bl-add-customer');
+    phoneEl.addEventListener('input', async () => {
+      blPhone = phoneEl.value.replace(/\D/g, '').slice(0, 11);
+      phoneEl.value = blPhone;
+      selectedCustomerId = 0;          // 手动改手机号即取消会员关联
+      addBtn.style.display = 'none';
+      matchesEl.innerHTML = '';
+      try {
+        if (blPhone.length === 11) {
+          const d = await api(`/api/customer/exists?phone=${blPhone}`);
+          if (d && !d.exists) addBtn.style.display = '';
+        } else if (blPhone.length === 4) {
+          const d = await api('/api/customer/match', { method: 'POST', data: { suffix: blPhone } });
+          const list = (d && d.list) || [];
+          if (list.length) {
+            matchesEl.innerHTML = list.map((c) => `
+              <div class="bl-match" data-id="${c.id}" data-phone="${esc(c.phone)}" data-name="${esc(c.displayName)}"
+                   style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f6f7f9;border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:13px">
+                <b>${esc(c.displayName)}</b><span class="muted">${esc(c.phone)}</span>
+              </div>`).join('');
+            $$('.bl-match').forEach((el) => el.addEventListener('click', () => {
+              selectedCustomerId = Number(el.dataset.id);
+              blPhone = el.dataset.phone;
+              phoneEl.value = blPhone;
+              matchesEl.innerHTML = '';
+              addBtn.style.display = 'none';
+              toast(`已选择 ${el.dataset.name}`);
+            }));
+          }
+        }
+      } catch (e) {}
+    });
+
+    // 添加会员弹窗（输入姓氏 + 性别，成功后记住 ID 供本次开单关联）
+    addBtn.addEventListener('click', () => {
+      openModal(`
+        <h3>添加会员</h3>
+        <p class="muted" style="margin:4px 0 12px;font-size:13px">手机号 ${esc(blPhone)}</p>
+        <form id="add-customer-form">
+          <label class="field"><span class="lbl">姓氏</span><input name="surname" maxlength="10" placeholder="如：赵" required></label>
+          <label class="field"><span class="lbl">性别</span>
+            <select name="gender" style="width:100%">
+              <option value="1">先生</option>
+              <option value="2">女士</option>
+            </select>
+          </label>
+          <button class="btn" style="width:100%;margin-top:6px">确认添加</button>
+        </form>`);
+      $('#add-customer-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        try {
+          const r = await api('/api/customer', {
+            method: 'POST',
+            data: { phone: blPhone, surname: String(fd.get('surname') || '').trim(), gender: Number(fd.get('gender')) }
+          });
+          toast(r.message || '已添加会员');
+          selectedCustomerId = (r && r.id) || 0;
+          addBtn.style.display = 'none';
+          closeModal();
+        } catch (e2) {}
+      });
+    });
+
+    // 备注输入：重绘间保持
+    $('#bl-remark').addEventListener('input', (e) => { blRemark = e.target.value; });
+
     const addToCart = (item) => {
       const found = cart.find((x) => x.goodsId === item.goodsId && x.color === item.color && x.size === item.size);
       if (found) {
@@ -581,13 +663,15 @@ async function renderBilling(view) {
           method: 'POST',
           data: {
             items: cart.map((it) => ({ goodsId: it.goodsId, color: it.color, size: it.size, quantity: it.quantity })),
-            customerPhone: $('#bl-phone').value.trim(),
-            remark: $('#bl-remark').value.trim(),
+            customerPhone: blPhone.trim(),
+            customerId: selectedCustomerId || 0,
+            remark: blRemark.trim(),
             paidNow: $('#bl-paid').checked
           }
         });
         toast(`开单成功：${res.orderNo}（¥${res.totalAmount}）`);
         cart.length = 0;
+        selectedCustomerId = 0; blPhone = ''; blRemark = '';  // 清空本次开单输入
         // 重新拉取商品以刷新库存
         try { const d2 = await api('/api/goods?status=on&page=1&pageSize=200'); goodsList.length = 0; goodsList.push(...(d2.list || [])); } catch (e) {}
         draw();
@@ -659,7 +743,7 @@ async function renderOrders(view) {
                   <td>${o.quantity_count || 0} 件</td>
                   <td style="color:#e1483c;font-weight:700">¥${o.total_amount}</td>
                   <td><span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span></td>
-                  <td class="muted">${esc(o.customer_phone || '-')}</td>
+                  <td class="muted">${esc(o.customer_name ? `${o.customer_name} ${o.customer_phone || ''}` : (o.customer_phone || '-'))}</td>
                   <td class="muted">${esc(o.created_at)}</td>
                   <td class="t-right"><button class="btn small ghost" onclick="showOrder(${o.id})">详情</button></td>
                 </tr>`).join('')}</tbody></table>
@@ -675,6 +759,121 @@ async function renderOrders(view) {
     if ($('#o-prev')) $('#o-prev').addEventListener('click', () => { state.page--; load(); });
     if ($('#o-next')) $('#o-next').addEventListener('click', () => { state.page++; load(); });
   };
+  load();
+}
+
+/* ================= 会员管理 ================= */
+// 会员列表（搜索/分页）+ 新增/编辑/删除；消费次数/累计金额由后端 CRM 统计返回
+async function renderCustomers(view) {
+  const state = { keyword: '', page: 1, pageSize: 15 };
+  view.innerHTML = `<div class="page-title">会员管理</div><div class="empty">加载中…</div>`;
+  const load = async () => {
+    const q = `/api/customer/list?page=${state.page}&pageSize=${state.pageSize}` +
+      (state.keyword ? `&keyword=${encodeURIComponent(state.keyword)}` : '');
+    let data;
+    try { data = await api(q); } catch (e) { return; }
+    const totalPages = Math.max(1, Math.ceil(data.total / state.pageSize));
+    view.innerHTML = `
+      <div class="page-title">会员管理</div>
+      <div class="goods-toolbar">
+        <input class="grow" id="c-keyword" placeholder="搜索手机号 / 姓氏" value="${esc(state.keyword)}">
+        <button class="btn" id="c-add">+ 新增会员</button>
+      </div>
+      <div class="card">
+        ${!data.list || data.list.length === 0
+          ? '<div class="empty">暂无会员，可在开单页输入手机号添加，或点右上角「新增会员」</div>'
+          : `<table>
+              <thead><tr><th>会员</th><th>手机号</th><th>消费次数</th><th>累计金额</th><th>最近到店</th><th class="t-right">操作</th></tr></thead>
+              <tbody>${data.list.map((c) => `
+                <tr>
+                  <td><b>${esc(c.displayName)}</b></td>
+                  <td class="muted">${esc(c.phone)}</td>
+                  <td>${c.orderCount} 次</td>
+                  <td style="color:#e1483c;font-weight:700">¥${c.totalAmount}</td>
+                  <td class="muted">${esc(c.lastOrderAt || '-')}</td>
+                  <td class="t-right">
+                    <button class="btn small ghost" data-edit="${c.id}" data-surname="${esc(c.surname)}" data-gender="${c.gender}">编辑</button>
+                    <button class="btn small danger" data-del="${c.id}" data-name="${esc(c.displayName)}" style="margin-left:6px">删除</button>
+                  </td>
+                </tr>`).join('')}</tbody></table>
+              <div class="pager">
+                <button class="btn small ghost" id="c-prev" ${state.page <= 1 ? 'disabled' : ''}>上一页</button>
+                <span>第 ${data.page} 页 / 共 ${totalPages} 页（${data.total} 人）</span>
+                <button class="btn small ghost" id="c-next" ${state.page >= totalPages ? 'disabled' : ''}>下一页</button>
+              </div>`}
+      </div>`;
+    $('#c-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.keyword = e.target.value.trim(); state.page = 1; load(); } });
+    $('#c-add').addEventListener('click', openAddModal);
+    if ($('#c-prev')) $('#c-prev').addEventListener('click', () => { state.page--; load(); });
+    if ($('#c-next')) $('#c-next').addEventListener('click', () => { state.page++; load(); });
+    $$('[data-edit]').forEach((b) => b.addEventListener('click', () => openEditModal(b.dataset.edit, b.dataset.surname, b.dataset.gender)));
+    $$('[data-del]').forEach((b) => b.addEventListener('click', async () => {
+      if (!confirm(`确定删除会员【${b.dataset.name}】？历史订单中的姓名快照将保留。`)) return;
+      try { await api(`/api/customer/${b.dataset.del}`, { method: 'DELETE' }); toast('会员已删除'); load(); } catch (e) {}
+    }));
+  };
+
+  // 新增会员弹窗
+  function openAddModal() {
+    openModal(`
+      <h3>新增会员</h3>
+      <form id="c-form">
+        <label class="field"><span class="lbl">手机号</span><input name="phone" maxlength="11" placeholder="11 位手机号" required></label>
+        <label class="field"><span class="lbl">姓氏</span><input name="surname" maxlength="10" placeholder="如：赵" required></label>
+        <label class="field"><span class="lbl">性别</span>
+          <select name="gender" style="width:100%">
+            <option value="1">先生</option>
+            <option value="2">女士</option>
+          </select>
+        </label>
+        <button class="btn" style="width:100%;margin-top:6px">确认添加</button>
+      </form>`);
+    $('#c-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const phone = String(fd.get('phone') || '').replace(/\D/g, '');
+      if (!/^\d{11}$/.test(phone)) { toast('请输入 11 位手机号', true); return; }
+      try {
+        const r = await api('/api/customer', {
+          method: 'POST',
+          data: { phone, surname: String(fd.get('surname') || '').trim(), gender: Number(fd.get('gender')) }
+        });
+        toast(r.message || '已添加会员');
+        closeModal();
+        load();
+      } catch (e2) {}
+    });
+  }
+
+  // 编辑会员弹窗
+  function openEditModal(id, surname, gender) {
+    openModal(`
+      <h3>编辑会员</h3>
+      <form id="c-form">
+        <label class="field"><span class="lbl">姓氏</span><input name="surname" maxlength="10" value="${esc(surname)}" required></label>
+        <label class="field"><span class="lbl">性别</span>
+          <select name="gender" style="width:100%">
+            <option value="1" ${String(gender) === '1' ? 'selected' : ''}>先生</option>
+            <option value="2" ${String(gender) === '2' ? 'selected' : ''}>女士</option>
+          </select>
+        </label>
+        <button class="btn" style="width:100%;margin-top:6px">保存</button>
+      </form>`);
+    $('#c-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      try {
+        await api(`/api/customer/${id}`, {
+          method: 'PUT',
+          data: { surname: String(fd.get('surname') || '').trim(), gender: Number(fd.get('gender')) }
+        });
+        toast('已保存');
+        closeModal();
+        load();
+      } catch (e2) {}
+    });
+  }
+
   load();
 }
 

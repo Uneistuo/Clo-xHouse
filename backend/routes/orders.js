@@ -52,6 +52,21 @@ router.post('/', async (req, res) => {
 
     if (items.length === 0) return res.json({ code: 1, message: '订单商品不能为空' });
 
+    // 会员关联：customerId 必须属于本店；存在则快照"赵女士"式姓名（会员改名/删除不影响历史订单）
+    let customerId = parseInt(body.customerId, 10) || 0;
+    let customerName = '';
+    if (customerId) {
+      const c = await db.get(
+        'SELECT surname, gender FROM customer WHERE id = ? AND store_id = ?',
+        [customerId, req.admin.storeId]
+      );
+      if (c) {
+        customerName = `${c.surname}${c.gender === 1 ? '先生' : c.gender === 2 ? '女士' : ''}`;
+      } else {
+        customerId = 0; // 会员不存在或不属于本店 -> 忽略关联
+      }
+    }
+
     // 开单白名单时效校验（每次实时查库，管理员授权/关闭/到期即时生效）
     const store = await db.get('SELECT billing_expire_at FROM store WHERE id = ?', [req.admin.storeId]);
     const now = nowStr();
@@ -93,9 +108,9 @@ router.post('/', async (req, res) => {
       // 2. 写入订单主表
       const orderNo = genOrderNo();
       const info = await tx.run(`
-        INSERT INTO orders (order_no, total_amount, pay_method, status, customer_phone, remark, store_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `, [orderNo, total, payMethod, paidNow ? 'paid' : 'pending', customerPhone, remark, req.admin.storeId, now, now]);
+        INSERT INTO orders (order_no, total_amount, pay_method, status, customer_phone, customer_id, customer_name, remark, store_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [orderNo, total, payMethod, paidNow ? 'paid' : 'pending', customerPhone, customerId, customerName, remark, req.admin.storeId, now, now]);
       const orderId = info.insertId;
       // 3. 写入订单明细 + 原子扣减规格（SKU）库存与商品总库存（WHERE stock >= ? 防止并发超卖）
       for (const r of rows) {

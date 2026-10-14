@@ -1,0 +1,78 @@
+<!-- 会员列表页：搜索 + 分页列表（每项含 CRM 统计：消费次数/累计金额/最近到店） -->
+<view class="page">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <view class="icon icon-search search-icon"></view>
+      <input class="search-input" placeholder="搜索手机号 / 姓氏" value="{{keyword}}"
+             bindinput="onKeywordInput" confirm-type="search" placeholder-class="ph" />
+      <view class="search-clear icon icon-close" wx:if="{{keyword}}" bindtap="clearKeyword"></view>
+    </view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="customer-card" wx:for="{{list}}" wx:key="id"
+        data-id="{{item.id}}" bindtap="goDetail">
+    <view class="customer-main">
+      <view class="customer-avatar">{{item.displayName[0]}}</view>
+      <view class="customer-info">
+        <view class="customer-name-row">
+          <text class="customer-name">{{item.displayName}}</text>
+          <text class="customer-phone">{{item.phone}}</text>
+        </view>
+        <view class="customer-meta">
+          <text class="meta-item">消费 {{item.orderCount}} 次</text>
+          <text class="meta-item">累计 ￥{{item.totalAmount}}</text>
+          <text class="meta-item" wx:if="{{item.lastOrderAt}}">最近 {{item.lastOrderAt}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="customer-arrow icon icon-chevron-right"></view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{loaded && list.length === 0}}" class="empty">
+    <view class="empty-icon icon icon-package"></view>
+    <view>{{keyword ? '未找到相关会员' : '暂无会员，去开单页添加或点右上角 + 新增'}}</view>
+  </view>
+
+  <!-- 加载提示 -->
+  <view class="loading-tip" wx:if="{{list.length > 0}}">
+    {{loading ? '加载中...' : (hasMore ? '上拉加载更多' : '没有更多了')}}
+  </view>
+
+  <view class="page-bottom-space"></view>
+</view>
+
+<!-- 新增会员 FAB -->
+<view class="fab" bindtap="openAdd">+</view>
+
+<!-- 添加会员弹窗 -->
+<view wx:if="{{addVisible}}" class="mask" bindtap="closeAdd">
+  <view class="modal" catchtap="">
+    <view class="modal-title">添加会员</view>
+
+    <view class="form-item">
+      <view class="form-label required">手机号</view>
+      <input class="form-input" type="number" placeholder="11 位手机号" value="{{formPhone}}"
+             bindinput="onFormPhoneInput" placeholder-class="ph" maxlength="11" />
+    </view>
+    <view class="form-item">
+      <view class="form-label required">姓氏</view>
+      <input class="form-input" placeholder="如：赵" value="{{formSurname}}"
+             bindinput="onFormSurnameInput" placeholder-class="ph" maxlength="10" />
+    </view>
+    <view class="form-item">
+      <view class="form-label required">性别</view>
+      <view class="gender-options">
+        <view class="gender-option {{formGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onFormGenderTap">先生</view>
+        <view class="gender-option {{formGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onFormGenderTap">女士</view>
+      </view>
+    </view>
+
+    <view class="modal-btns">
+      <button class="btn-ghost modal-btn" bindtap="closeAdd">取消</button>
+      <button class="btn-primary modal-btn primary" bindtap="confirmAdd" disabled="{{saving}}">{{saving ? '保存中...' : '确认添加'}}</button>
+    </view>
+  </view>
+</view>

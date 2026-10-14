@@ -10,7 +10,9 @@
     "pages/order-detail/order-detail",
     "pages/store/store",
     "pages/platform/stores",
-    "pages/printer-pair/printer-pair"
+    "pages/printer-pair/printer-pair",
+    "pages/customer/list",
+    "pages/customer/detail"
   ],
   "window": {
     "navigationBarBackgroundColor": "#F3EFE7",

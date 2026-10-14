@@ -87,6 +87,15 @@
     </view>
   </block>
 
+  <!-- ===== 会员客户：已绑定店铺才显示（会员列表/消费记录/CRM） ===== -->
+  <view class="platform-card" wx:if="{{storeId}}" bindtap="goCustomers">
+    <view class="platform-info">
+      <view class="platform-title">会员客户</view>
+      <view class="platform-sub">管理会员信息与消费记录</view>
+    </view>
+    <view class="platform-arrow icon icon-chevron-right"></view>
+  </view>
+
   <!-- ===== 打印设置：已绑定店铺才显示（开单需要小票） ===== -->
   <view class="platform-card" wx:if="{{storeId}}" bindtap="goPrinter">
     <view class="platform-info">

@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS goods_sku (
 -- 4. 订单表
 -- status: pending待收款 / paid已收款 / done已完成 / cancelled已取消 / refunded已退款
 -- pay_method: offline 线下收款（现金/顾客微信转账给店主）
+-- customer_id / customer_name：会员关联与姓名快照（下单时由 customerId 解析；取消订单不计入会员消费统计）
 CREATE TABLE IF NOT EXISTS orders (
   id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, -- 订单ID
   order_no       VARCHAR(32) NOT NULL UNIQUE,            -- 订单号（SO+日期+随机码）
@@ -86,13 +87,16 @@ CREATE TABLE IF NOT EXISTS orders (
   pay_method     VARCHAR(16) NOT NULL DEFAULT 'offline', -- 收款方式
   status         VARCHAR(16) NOT NULL DEFAULT 'pending', -- 订单状态
   customer_phone VARCHAR(20) NOT NULL DEFAULT '',        -- 客户手机号
+  customer_id    INT UNSIGNED NOT NULL DEFAULT 0,        -- 会员ID（关联 customer.id，0=未关联会员）
+  customer_name  VARCHAR(30) NOT NULL DEFAULT '',        -- 会员姓名快照（如：赵女士，下单时快照）
   remark         VARCHAR(500) NOT NULL DEFAULT '',       -- 订单备注
   store_id       INT UNSIGNED NOT NULL DEFAULT 0,       -- 所属店铺ID
   created_at     VARCHAR(19) NOT NULL DEFAULT '',       -- 创建时间
   updated_at     VARCHAR(19) NOT NULL DEFAULT '',       -- 更新时间
   KEY idx_orders_status (status),
   KEY idx_orders_time (created_at),
-  KEY idx_orders_store (store_id)
+  KEY idx_orders_store (store_id),
+  KEY idx_orders_customer (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 5. 订单明细表（goods_name/price 为下单时快照，保证商品后续修改/删除不影响历史订单）

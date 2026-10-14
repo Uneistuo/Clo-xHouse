@@ -36,7 +36,8 @@ Page({
 
     // 客户/会员管理（开单时添加 / 识别老客户）
     showAddCustomerBtn: false,    // 输入 11 位手机号且未注册会员时，输入框末端显示"+ 添加会员"按钮
-    customerMatches: [],          // 输入 4 位后匹配到的会员预选列表 { phone, surname, gender, displayName }
+    customerMatches: [],          // 输入 4 位后匹配到的会员预选列表 { id, phone, surname, gender, displayName }
+    selectedCustomerId: 0,        // 已选中/已添加的会员 ID（下单时随订单落库；手动改手机号即清零）
 
     // 添加会员弹窗
     addCustomerVisible: false,
@@ -400,7 +401,8 @@ Page({
     this.setData({
       customerPhone: phone,
       showAddCustomerBtn: false,
-      customerMatches: []
+      customerMatches: [],
+      selectedCustomerId: 0  // 手动改手机号即取消会员关联
     });
     if (phone.length === 11) {
       this.checkCustomerExists(phone);
@@ -473,17 +475,23 @@ Page({
         }
       });
       wx.showToast({ title: r.message || '已添加会员', icon: 'success' });
-      this.setData({ addCustomerVisible: false, showAddCustomerBtn: false });
+      // 记住新会员 ID，本次下单自动关联该会员
+      this.setData({
+        addCustomerVisible: false,
+        showAddCustomerBtn: false,
+        selectedCustomerId: (r && r.id) || 0
+      });
     } catch (e) {
       // 错误提示已由 request 统一处理（重名/格式错误等）
     }
   },
 
-  /** 选择预选会员：将完整手机号回填到输入框 */
+  /** 选择预选会员：回填完整手机号并记住会员 ID（下单时落库） */
   onSelectCustomer(e) {
-    const { phone, name } = e.currentTarget.dataset;
+    const { id, phone, name } = e.currentTarget.dataset;
     this.setData({
       customerPhone: phone,
+      selectedCustomerId: parseInt(id, 10) || 0,
       customerMatches: [],
       showAddCustomerBtn: false
     });
@@ -492,7 +500,7 @@ Page({
 
   /** 底部"收款并出单"按钮：校验后提交（后端事务生成订单并扣减库存） */
   async submitOrder() {
-    const { cart, customerPhone, remark, paidNow, submitting, restricted } = this.data;
+    const { cart, customerPhone, remark, paidNow, submitting, restricted, selectedCustomerId } = this.data;
     if (submitting) return;
     if (restricted) {
       wx.showToast({
@@ -520,6 +528,7 @@ Page({
             quantity: c.quantity
           })),
           customerPhone: customerPhone.trim(),
+          customerId: selectedCustomerId || 0,
           remark: remark.trim(),
           paidNow
         }

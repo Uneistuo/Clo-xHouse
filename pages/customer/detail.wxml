@@ -1,0 +1,91 @@
+<!-- 会员详情：CRM 统计 + 编辑/删除 + 消费记录 -->
+<view class="page">
+  <!-- 骨架屏 -->
+  <block wx:if="{{!loaded}}">
+    <view class="skeleton" style="height: 240rpx; border-radius: 20rpx;"></view>
+    <view class="skeleton" style="height: 160rpx; border-radius: 20rpx; margin-top: 24rpx;"></view>
+  </block>
+
+  <block wx:else>
+    <!-- 会员信息卡 -->
+    <view class="card profile-card">
+      <view class="profile-top">
+        <view class="profile-avatar">{{customer.displayName[0]}}</view>
+        <view class="profile-info">
+          <view class="profile-name">{{customer.displayName}}</view>
+          <view class="profile-phone">{{customer.phone}}</view>
+        </view>
+      </view>
+      <view class="profile-actions">
+        <view class="action-btn" bindtap="openEdit">编辑</view>
+        <view class="action-btn danger" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+
+    <!-- CRM 统计卡 -->
+    <view class="card stats-card">
+      <view class="stat-item">
+        <view class="stat-value">{{customer.orderCount}}</view>
+        <view class="stat-label">消费次数</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value">￥{{customer.totalAmount}}</view>
+        <view class="stat-label">累计金额</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-value stat-time">{{customer.lastOrderAt || '—'}}</view>
+        <view class="stat-label">最近到店</view>
+      </view>
+    </view>
+
+    <!-- 消费记录 -->
+    <view class="section-title">消费记录（{{orderTotal}}）</view>
+    <view class="order-card" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="goOrder">
+      <view class="order-top">
+        <text class="order-no">{{item.orderNo}}</text>
+        <text class="order-status status-{{item.status}}">{{statusText(item.status)}}</text>
+      </view>
+      <view class="order-bottom">
+        <text class="order-time">{{item.createdAt}}</text>
+        <text class="order-amount">￥{{item.totalAmount}}</text>
+      </view>
+    </view>
+
+    <!-- 消费记录空状态 -->
+    <view wx:if="{{orderLoaded && orders.length === 0}}" class="empty">
+      <view class="empty-icon icon icon-package"></view>
+      <view>该会员暂无消费记录</view>
+    </view>
+    <view class="loading-tip" wx:if="{{orders.length > 0}}">
+      {{orderLoading ? '加载中...' : (orderHasMore ? '上拉加载更多' : '没有更多了')}}
+    </view>
+  </block>
+
+  <view class="page-bottom-space"></view>
+</view>
+
+<!-- 编辑会员弹窗 -->
+<view wx:if="{{editVisible}}" class="mask" bindtap="closeEdit">
+  <view class="modal" catchtap="">
+    <view class="modal-title">编辑会员</view>
+    <view class="modal-sub">{{customer.phone}}</view>
+
+    <view class="form-item">
+      <view class="form-label required">姓氏</view>
+      <input class="form-input" placeholder="如：赵" value="{{editSurname}}"
+             bindinput="onEditSurnameInput" placeholder-class="ph" maxlength="10" />
+    </view>
+    <view class="form-item">
+      <view class="form-label required">性别</view>
+      <view class="gender-options">
+        <view class="gender-option {{editGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onEditGenderTap">先生</view>
+        <view class="gender-option {{editGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onEditGenderTap">女士</view>
+      </view>
+    </view>
+
+    <view class="modal-btns">
+      <button class="btn-ghost modal-btn" bindtap="closeEdit">取消</button>
+      <button class="btn-primary modal-btn primary" bindtap="confirmEdit" disabled="{{saving}}">{{saving ? '保存中...' : '保存'}}</button>
+    </view>
+  </view>
+</view>

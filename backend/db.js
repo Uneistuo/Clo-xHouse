@@ -92,6 +92,16 @@ async function init() {
         console.warn('[migrate] store.name 存在重复名称，唯一索引未创建，请人工处理重复店铺:', e.message);
       }
     }
+    // 2.4) orders 表增加会员关联列（customer_id + customer_name 快照，会员消费统计用）
+    const [orderCols] = await conn.query("SHOW COLUMNS FROM orders LIKE 'customer_id'");
+    if (orderCols.length === 0) {
+      await conn.query(
+        "ALTER TABLE orders ADD COLUMN customer_id INT UNSIGNED NOT NULL DEFAULT 0 AFTER customer_phone, " +
+        "ADD COLUMN customer_name VARCHAR(30) NOT NULL DEFAULT '' AFTER customer_id, " +
+        "ADD KEY idx_orders_customer (customer_id)"
+      );
+      console.log('[migrate] orders 表已增加 customer_id / customer_name（会员关联）列');
+    }
 
     // 1) 确保存在默认店铺（首个启动时创建，长期授权）
     const [stores] = await conn.query('SELECT id FROM store ORDER BY id ASC LIMIT 1');

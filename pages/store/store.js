@@ -298,6 +298,11 @@ Page({
     wx.navigateTo({ url: '/pages/printer-pair/printer-pair' });
   },
 
+  // 会员客户：跳转会员列表页
+  goCustomers() {
+    wx.navigateTo({ url: '/pages/customer/list' });
+  },
+
   // 退出登录
   handleLogout() {
     wx.showModal({
