@@ -85,28 +85,6 @@ npm start            # 或双击 start.bat，日志写入 server.log
 
 `web/` 目录变更时由 GitHub Actions 自动发布到 GitHub Pages，无需手动部署。
 
-## AI 辅助设计：TypeUI 集成
-
-本项目已接入 [TypeUI](https://www.typeui.sh)（AI-first UI 设计资源平台），让 AI 编码助手在生成/重构 UI 时遵循规范的设计系统。
-
-### 集成内容
-| 文件 / 目录 | 作用 |
-|---|---|
-| `.vscode/mcp.json` | VS Code GitHub Copilot MCP 配置（指向 `https://mcp.typeui.sh`） |
-| `.mcp/server.json` | TypeUI 规范 MCP 服务声明（被其他支持 TypeUI 规范的工具读取） |
-| `docs/typeui/DESIGN.md` | 设计系统 Skill 编写蓝图（权威模板） |
-| `docs/typeui/llms-install.md` | 主流 AI 工具的安装指南（OpenClaw/Cline/Codex/Claude/Cursor/VS Code 等） |
-| `docs/typeui/REGISTRY.md` | 60+ 公共设计系统注册表索引 |
-| `docs/typeui/skills/fundamentals/SKILL.md` | 基础设计技能（UI/UX/排版/间距/可访问性） |
-| `docs/typeui/skills/fundamentals/*.md` | 各领域原则（ui/ux/typography/spacing/accessibility） |
-
-### 启用方式
-1. **VS Code + GitHub Copilot**：首次打开工作区时，Copilot 会提示发现 MCP 服务器 `typeui`，确认启用即可（OAuth 登录授权）。
-2. **其他 AI 工具**：参见 `docs/typeui/llms-install.md`（Claude / Codex / Cursor / Cline / Windsurf / Zed / JetBrains / Mistral / Qwen 等）。
-3. **离线参考**：将 `docs/typeui/skills/` 下的 SKILL.md 作为系统提示的一部分喂给任意 LLM。
-
-> TypeUI 是托管 MCP 服务（Streamable HTTP + OAuth），无需本地构建/克隆。详见 [TypeUI 官方文档](https://www.typeui.sh/docs)。
-
 ## CI / CD 工作流
 
 | 工作流 | 触发条件 | 作用 |
