@@ -49,7 +49,7 @@
               bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
     </block>
 
-    <!-- 折叠控制开关（卡片底侧，常驻） -->
+    <!-- 折叠控制开关（卡片底边，水滴形图标按钮，点击展开/收起店铺成员） -->
     <view class="fold-toggle" bindtap="toggleMembers" hover-class="fold-toggle-hover">
       <text class="fold-toggle-arrow {{membersExpanded ? 'fold-arrow-up' : ''}}">▾</text>
     </view>

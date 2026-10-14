@@ -17,7 +17,7 @@
 
 /* 店铺信息卡（店铺信息 + 店铺成员 合并板块） */
 .store-card {
-  position: relative;          /* 为半圆折叠开关提供定位锚点 */
+  position: relative;          /* 为水滴折叠开关提供定位锚点 */
   background: #ffffff;
   border-radius: 24rpx;
   padding: 48rpx 40rpx;
@@ -198,34 +198,35 @@
   line-height: 1.6;
 }
 
-/* 折叠控制开关：卡片底部的灰色半圆把手（顶部圆弧、底部圆角与卡片圆角一致） */
+/* 折叠开关：卡片底边的深色水滴形按钮（点击展开 / 收起店铺成员）
+   形状：顶部半圆（圆腹朝上）+ 底部平直与卡片底边齐平 */
 .fold-toggle {
   position: absolute;
-  bottom: -1rpx;                       /* 略伸出 1rpx 抹平与卡片底边的 1rpx 渲染缝 */
+  bottom: 0;                          /* 底部平直贴卡片底边 */
   left: 50%;
   transform: translateX(-50%);
-  width: 140rpx;
-  height: 40rpx;
-  border-top-left-radius: 70rpx;       /* 上半圆弧：宽度一半 = 完美半圆 */
-  border-top-right-radius: 70rpx;
-  border-bottom-left-radius: 24rpx;    /* 底部圆角 = 卡片圆角 (24rpx)，衔接平滑 */
-  border-bottom-right-radius: 24rpx;
-  background: #eef0f3;                 /* 浅灰色 */
+  width: 40rpx;
+  height: 36rpx;
+  background: #5b616e;                /* 深灰色（次级文字色） */
+  border-top-left-radius: 20rpx;      /* 顶部半圆：宽度一半 = 完美半圆 */
+  border-top-right-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  overflow: hidden;                    /* 防止半圆内的箭头溢出 */
+  overflow: hidden;                   /* 防止旋转箭头溢出 */
 }
-.fold-toggle-hover { background: #e2e5ea; }
+.fold-toggle-hover { background: #4a4f58; }   /* hover 更深一档 */
 .fold-toggle-arrow {
+  position: relative;
+  z-index: 1;
   display: inline-block;
-  font-size: 24rpx;
-  color: #9aa0ac;
+  color: #ffffff;                     /* 箭头白色，与深灰底形成对比 */
+  font-size: 20rpx;
   line-height: 1;
   transform: rotate(0deg);
   transition: transform 0.2s ease;
-  margin-top: -4rpx;                   /* 箭头视觉居中（半圆顶端有圆弧上移） */
+  margin-top: -2rpx;                  /* 视觉居中（半圆顶端上移） */
 }
 .fold-arrow-up { transform: rotate(180deg); }
 
