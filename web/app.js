@@ -750,7 +750,7 @@ async function renderStore(view) {
           <b style="font-size:17px">${esc(s ? s.name : '未绑定店铺')}</b>
           <div class="muted" style="margin-top:4px">我的身份：${isOwner ? '店主' : '员工'}　${d.billingEnabled ? `开单授权至 ${esc(d.billingExpireAt)}` : '<span style="color:#b45309">开单功能未授权</span>'}</div>
         </div>
-        ${isOwner && d.canRename ? '<button class="btn ghost" id="btn-rename">修改店铺名</button>' : ''}
+        ${admin.isPlatform && d.canRename ? '<button class="btn ghost" id="btn-rename">修改店铺名</button>' : ''}
       </div>
     </div>
 

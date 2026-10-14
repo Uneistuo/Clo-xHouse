@@ -11,7 +11,7 @@ Page({
     role: '',            // owner 店主 / staff 员工
     store: null,         // { name, bind_code, created_at }
     members: [],          // [{ id, username, role, created_at }]
-    canRename: false,     // 店主本月是否可修改店铺名称
+    canRename: false,     // 平台管理员本月是否可修改店铺名称
     nextRenameAt: '',     // 下次可改名时间（本月已改过时展示）
     isPlatform: false,   // 平台管理员标记（显示"平台管理"入口）
     printerHint: '未连接打印机', // 打印设置卡片副标题
@@ -233,7 +233,7 @@ Page({
     });
   },
 
-  // 修改店铺名称（仅店主，每月限一次，全小程序名称唯一）
+  // 修改店铺名称（仅平台管理员，每月限一次，全小程序名称唯一）
   handleRename() {
     const { canRename, nextRenameAt, store } = this.data;
     if (!canRename) {
