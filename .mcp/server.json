@@ -1,0 +1,14 @@
+{
+  "name": "typeui",
+  "description": "Connect AI coding tools to TypeUI for curated design systems, UI prompts, and layout variations.",
+  "version": "1.0.0",
+  "homepage": "https://www.typeui.sh",
+  "repository": "https://github.com/bergside/typeui",
+  "license": "MIT",
+  "mcpServers": {
+    "typeui": {
+      "serverUrl": "https://mcp.typeui.sh",
+      "timeout": 600000
+    }
+  }
+}
