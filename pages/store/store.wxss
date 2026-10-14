@@ -200,7 +200,7 @@
 
 /* 折叠开关：卡片底边的深色水滴形按钮（点击展开 / 收起店铺成员）
    形状：顶部半圆（圆腹朝上）+ 底部与卡片底边齐平，
-   两侧用 radial-gradient 凸耳覆盖卡片底边圆角，做平滑过渡 */
+   两侧用凹圆角与卡片底边平滑过渡（radial-gradient 实现） */
 .fold-toggle {
   position: absolute;
   bottom: 0;                          /* 底部落在卡片底边 */
@@ -215,10 +215,11 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
-  /* 不能 overflow:hidden，否则 ::before/::after 凸耳会被裁掉 */
+  /* 不能 overflow:hidden，否则 ::before/::after 凹圆角会被裁掉 */
 }
 .fold-toggle-hover { background: #4a4f58; }   /* hover 更深一档 */
-/* 两侧凸耳：用 radial-gradient 覆盖卡片底边圆角，让开关与卡片衔接平滑 */
+/* 两侧凹圆角：圆心在远角、圆内透明、圆外填充，
+   使水滴两侧平滑地"流入"卡片底边（与看板书签同一手法） */
 .fold-toggle::before,
 .fold-toggle::after {
   content: '';
@@ -230,11 +231,11 @@
 }
 .fold-toggle::before {
   left: -14rpx;
-  background: radial-gradient(circle 14rpx at 100% 100%, #5b616e 14rpx, transparent 14rpx);
+  background: radial-gradient(circle 14rpx at 0 0, transparent 13rpx, #5b616e 14rpx);
 }
 .fold-toggle::after {
   right: -14rpx;
-  background: radial-gradient(circle 14rpx at 0 100%, #5b616e 14rpx, transparent 14rpx);
+  background: radial-gradient(circle 14rpx at 100% 0, transparent 13rpx, #5b616e 14rpx);
 }
 .fold-toggle-arrow {
   position: relative;
