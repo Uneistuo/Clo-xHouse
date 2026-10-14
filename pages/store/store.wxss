@@ -197,6 +197,31 @@
   line-height: 1.6;
 }
 
+/* 折叠控制开关（卡片底侧，常驻） */
+.fold-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  margin-top: 16rpx;
+  padding: 18rpx 0 4rpx;
+  border-top: 1rpx solid #eceef1;
+  color: #5b616e;
+  font-size: 24rpx;
+}
+.fold-toggle:active { opacity: 0.55; }
+.fold-toggle-text { font-size: 24rpx; }
+.fold-count { color: #9aa0ac; font-size: 22rpx; margin-left: 2rpx; }
+.fold-toggle-arrow {
+  display: inline-block;
+  font-size: 24rpx;
+  color: #9aa0ac;
+  line-height: 1;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
+.fold-arrow-up { transform: rotate(180deg); }
+
 /* 未绑定：创建 / 加入 */
 .action-tabs {
   display: flex;

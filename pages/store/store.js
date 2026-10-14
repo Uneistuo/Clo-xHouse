@@ -21,7 +21,8 @@ Page({
     myStores: [],         // 店主名下店铺列表 [{ id, name, created_at }]
     storeLimit: 3,        // 店主最多可绑定店铺数
     canCreateStore: false, // 是否还能创建新店铺（名下店铺数 < 上限）
-    showSwitchPopup: false // 切换店铺弹窗显示标记
+    showSwitchPopup: false, // 切换店铺弹窗显示标记
+    membersExpanded: false  // 「店铺成员 / 注册店铺」折叠区开关（默认收起）
   },
 
   onShow() {
@@ -80,6 +81,11 @@ Page({
   // 切换 创建 / 加入
   switchAction(e) {
     this.setData({ action: e.currentTarget.dataset.action });
+  },
+
+  /** 切换「店铺成员 / 注册店铺」折叠区显隐 */
+  toggleMembers() {
+    this.setData({ membersExpanded: !this.data.membersExpanded });
   },
 
   onStoreNameInput(e) {

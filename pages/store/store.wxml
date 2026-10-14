@@ -27,24 +27,36 @@
       <button class="btn-ghost" bindtap="handleUnbind">退出店铺</button>
     </view>
 
-    <!-- 店铺成员（与店铺信息同一板块）：店主可移除员工，员工可自行退出 -->
-    <view class="member-section">
-      <view class="member-title">店铺成员（{{members.length}}）</view>
-      <view class="member-item" wx:for="{{members}}" wx:key="id">
-        <view class="member-info">
-          <view class="member-name">{{item.username}}</view>
-          <view class="member-role {{item.role === 'owner' ? 'role-owner' : ''}}">
-            {{item.role === 'owner' ? '店主' : '员工'}}
+    <!-- 折叠区：店铺成员 + 注册店铺（默认收起） -->
+    <block wx:if="{{membersExpanded}}">
+      <!-- 店铺成员（与店铺信息同一板块）：店主可移除员工，员工可自行退出 -->
+      <view class="member-section">
+        <view class="member-title">店铺成员（{{members.length}}）</view>
+        <view class="member-item" wx:for="{{members}}" wx:key="id">
+          <view class="member-info">
+            <view class="member-name">{{item.username}}</view>
+            <view class="member-role {{item.role === 'owner' ? 'role-owner' : ''}}">
+              {{item.role === 'owner' ? '店主' : '员工'}}
+            </view>
           </view>
+          <view class="member-remove" wx:if="{{role === 'owner' && item.role !== 'owner'}}"
+                data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
         </view>
-        <view class="member-remove" wx:if="{{role === 'owner' && item.role !== 'owner'}}"
-              data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
       </view>
-    </view>
 
-    <!-- 注册店铺：店主名下不满 3 家时显示（满 3 家自动隐藏） -->
-    <button class="btn-primary register-btn" wx:if="{{role === 'owner' && canCreateStore}}"
-            bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
+      <!-- 注册店铺：店主名下不满 3 家时显示（满 3 家自动隐藏） -->
+      <button class="btn-primary register-btn" wx:if="{{role === 'owner' && canCreateStore}}"
+              bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
+    </block>
+
+    <!-- 折叠控制开关（卡片底侧，常驻） -->
+    <view class="fold-toggle" bindtap="toggleMembers">
+      <text class="fold-toggle-text">
+        <block wx:if="{{membersExpanded}}">收起</block>
+        <block wx:else>展开成员<text wx:if="{{role === 'owner' && canCreateStore}}"> / 注册店铺</text><text class="fold-count">（{{members.length}}）</text></block>
+      </text>
+      <text class="fold-toggle-arrow {{membersExpanded ? 'fold-arrow-up' : ''}}">▾</text>
+    </view>
   </view>
 
   <!-- ===== 未绑定店铺：创建 / 加入 ===== -->
