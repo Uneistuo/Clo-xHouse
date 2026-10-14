@@ -6,7 +6,7 @@
  * POST  /api/store/bind              绑定店铺 { code }：凭店铺码加入，商品/订单数据自动同步可见
  * POST  /api/store/unbind            退出店铺（员工自行退出，店主不可退出、只能切换）
  * POST  /api/store/code              重置店铺码（仅店主）
- * POST  /api/store/rename            修改店铺名称 { storeName }（仅平台管理员，每月限一次，名称全库唯一）
+ * POST  /api/store/rename            修改店铺名称 { storeName }（仅平台管理员，无冷却，名称全库唯一）
  * POST  /api/store/member/remove     移除店铺成员 { memberId }（仅店主）
  */
 /** 店主可绑定店铺数量上限 */
@@ -24,16 +24,6 @@ router.use(auth);
 async function nameExists(name, excludeStoreId = 0) {
   const row = await db.get('SELECT id FROM store WHERE name = ? AND id != ?', [name, excludeStoreId]);
   return !!row;
-}
-
-/** 改名窗口计算：从未改过名可立即改，否则距上次改名满 1 个月（自然月） */
-function renameGate(renamedAt) {
-  if (!renamedAt) return { ok: true, next: '' };
-  const last = new Date(renamedAt.replace(' ', 'T'));
-  if (isNaN(last.getTime())) return { ok: true, next: '' };
-  const next = new Date(last);
-  next.setMonth(next.getMonth() + 1);
-  return { ok: Date.now() >= next.getTime(), next: nowStr(next) };
 }
 
 /** 生成唯一 8 位店铺码（大写字母+数字，去易混淆字符） */
@@ -80,14 +70,9 @@ router.get('/info', async (req, res) => {
     // 开单授权时效（实时计算：空=未授权，到期时间 > 当前时间 = 有效）
     const billingExpireAt = store.billing_expire_at || '';
     const billingEnabled = !!billingExpireAt && billingExpireAt > nowStr();
-    // 改名资格：仅平台管理员；从未改过名可立即改，否则距上次改名满 1 个月
-    let canRename = false;
-    let nextRenameAt = '';
-    if (req.admin.isPlatform) {
-      const gate = renameGate(store.renamed_at);
-      canRename = gate.ok;
-      nextRenameAt = gate.next;
-    }
+    // 改名资格：仅平台管理员（无冷却，任意时刻可改名）
+    const canRename = !!req.admin.isPlatform;
+    const nextRenameAt = '';
     res.json({
       code: 0,
       data: { storeId: store.id, role: req.admin.role, store, members, billingEnabled, billingExpireAt, canRename, nextRenameAt, myStores, storeLimit: STORE_LIMIT, canCreateStore }
@@ -223,7 +208,7 @@ router.post('/unbind', async (req, res) => {
   }
 });
 
-// ============ 修改店铺名称（仅平台管理员，每月限一次，全小程序名称唯一） ============
+// ============ 修改店铺名称（仅平台管理员，无冷却，名称全库唯一） ============
 router.post('/rename', async (req, res) => {
   try {
     if (!req.admin.storeId) {
@@ -234,10 +219,6 @@ router.post('/rename', async (req, res) => {
     }
     const store = await db.get('SELECT * FROM store WHERE id = ?', [req.admin.storeId]);
     if (!store) return res.json({ code: 1, message: '店铺不存在' });
-    const gate = renameGate(store.renamed_at);
-    if (!gate.ok) {
-      return res.json({ code: 1, message: `每月仅可修改一次店铺名称，${gate.next} 后可再次修改` });
-    }
     const storeName = String((req.body || {}).storeName || '').trim();
     if (!storeName) return res.json({ code: 1, message: '请填写新的店铺名称' });
     if (storeName === store.name) return res.json({ code: 1, message: '新名称与当前名称相同' });

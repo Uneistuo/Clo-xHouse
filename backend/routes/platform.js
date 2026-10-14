@@ -3,7 +3,7 @@
  * GET  /api/platform/stores              店铺列表（含店主/成员数/订单数/开单授权状态/改名资格）
  * POST /api/platform/stores/:id/billing  设置开单授权时效 { days: 天数 } 或 { expireAt: 'YYYY-MM-DD[ HH:mm[:ss]]' }
  *                                        days<=0 / 不传 -> 关闭授权（立即生效，开单请求实时校验）
- * POST /api/platform/stores/:id/rename   修改任意店铺名称 { storeName }（每月限一次，名称全库唯一）
+ * POST /api/platform/stores/:id/rename   修改任意店铺名称 { storeName }（无冷却，名称全库唯一）
  */
 const express = require('express');
 const router = express.Router();
@@ -17,16 +17,6 @@ router.use(auth, requirePlatform);
 async function nameExists(name, excludeStoreId = 0) {
   const row = await db.get('SELECT id FROM store WHERE name = ? AND id != ?', [name, excludeStoreId]);
   return !!row;
-}
-
-/** 改名窗口计算：从未改过名可立即改，否则距上次改名满 1 个月（自然月） */
-function renameGate(renamedAt) {
-  if (!renamedAt) return { ok: true, next: '' };
-  const last = new Date(renamedAt.replace(' ', 'T'));
-  if (isNaN(last.getTime())) return { ok: true, next: '' };
-  const next = new Date(last);
-  next.setMonth(next.getMonth() + 1);
-  return { ok: Date.now() >= next.getTime(), next: nowStr(next) };
 }
 
 /** 格式化时间：YYYY-MM-DD HH:mm:ss */
@@ -56,8 +46,6 @@ router.get('/stores', async (req, res) => {
       const expireAt = s.billing_expire_at || '';
       const ts = expireAt ? parseTs(expireAt) : 0;
       const enabled = ts > now;
-      // 改名资格：每店每月 1 次，平台管理员视角下返回真实可改状态
-      const gate = renameGate(s.renamed_at);
       return {
         id: s.id,
         name: s.name,
@@ -69,9 +57,7 @@ router.get('/stores', async (req, res) => {
         expireAt,                                                    // 到期时间（空=未授权）
         enabled,                                                     // 当前是否有效
         daysLeft: enabled ? Math.ceil((ts - now) / 86400000) : 0,    // 剩余天数（向上取整）
-        renamedAt: s.renamed_at || '',                               // 上次改名时间
-        canRename: gate.ok,                                          // 当前月是否可改名
-        nextRenameAt: gate.next                                      // 下次可改名时间
+        renamedAt: s.renamed_at || ''                                // 上次改名时间（仅审计，无冷却）
       };
     });
     res.json({ code: 0, data: { list } });
@@ -120,7 +106,7 @@ router.post('/stores/:id/billing', async (req, res) => {
   }
 });
 
-// ============ 修改任意店铺名称（仅平台管理员，每店每月限一次，名称全库唯一） ============
+// ============ 修改任意店铺名称（仅平台管理员，无冷却，名称全库唯一） ============
 router.post('/stores/:id/rename', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -128,10 +114,6 @@ router.post('/stores/:id/rename', async (req, res) => {
     const store = await db.get('SELECT * FROM store WHERE id = ?', [id]);
     if (!store) return res.json({ code: 1, message: '店铺不存在' });
 
-    const gate = renameGate(store.renamed_at);
-    if (!gate.ok) {
-      return res.json({ code: 1, message: `每月仅可修改一次店铺名称，${gate.next} 后可再次修改` });
-    }
     const storeName = String((req.body || {}).storeName || '').trim();
     if (!storeName) return res.json({ code: 1, message: '请填写新的店铺名称' });
     if (storeName === store.name) return res.json({ code: 1, message: '新名称与当前名称相同' });

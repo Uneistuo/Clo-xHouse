@@ -128,17 +128,9 @@ Page({
     });
   },
 
-  /** 修改店铺名称（仅平台管理员；每店每月限一次，名称全库唯一） */
+  /** 修改店铺名称（仅平台管理员；无冷却，名称全库唯一） */
   onRenameStore(e) {
-    const { id, name, canRename, nextRenameAt } = e.currentTarget.dataset;
-    if (!canRename) {
-      wx.showModal({
-        title: '暂不能修改名称',
-        content: `每月仅可修改一次店铺名称，${(nextRenameAt || '').slice(0, 10)} 后可再次修改。`,
-        showCancel: false
-      });
-      return;
-    }
+    const { id, name } = e.currentTarget.dataset;
     wx.showModal({
       title: '修改店铺名称',
       editable: true,

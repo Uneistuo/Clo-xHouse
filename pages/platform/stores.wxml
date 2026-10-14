@@ -24,9 +24,8 @@
       <view class="ctrl-btn primary" data-index="{{index}}" bindtap="openAuth">{{item.enabled ? '续期' : '授权'}}</view>
       <view wx:if="{{item.expireAt}}" class="ctrl-btn ghost" data-id="{{item.id}}" data-name="{{item.name}}"
             bindtap="onCloseAuth">关闭</view>
-      <view class="ctrl-btn ghost {{!item.canRename ? 'ctrl-btn-disabled' : ''}}"
-            data-id="{{item.id}}" data-name="{{item.name}}" data-can-rename="{{item.canRename}}"
-            data-next-rename-at="{{item.nextRenameAt}}"
+      <view class="ctrl-btn ghost"
+            data-id="{{item.id}}" data-name="{{item.name}}"
             bindtap="onRenameStore">改名</view>
     </view>
   </view>

@@ -847,7 +847,7 @@ async function renderPlatform(view) {
                     : '<span class="badge cancelled">未授权</span>')}</td>
                 <td class="t-right">
                   <button class="btn small ghost" data-bill="${s.id}" data-name="${esc(s.name)}">设置授权</button>
-                  <button class="btn small ghost" data-rename="${s.id}" data-rname="${esc(s.name)}" data-can-rename="${s.canRename}" data-next-rename-at="${esc(s.nextRenameAt || '')}" style="margin-left:6px">改名</button>
+                  <button class="btn small ghost" data-rename="${s.id}" data-rname="${esc(s.name)}" style="margin-left:6px">改名</button>
                 </td>
               </tr>`).join('')}</tbody></table>`}
     </div>`;
@@ -901,17 +901,11 @@ async function renderPlatform(view) {
     $('#modal-cancel').addEventListener('click', closeModal);
   }));
 
-  // 改名按钮（每店每月 1 次，平台管理员视角）
+  // 改名按钮（无冷却，平台管理员视角）
   $$('[data-rename]').forEach((b) => b.addEventListener('click', async () => {
     const id = b.dataset.rename;
     const name = b.dataset.rname;
-    const canRename = b.dataset.canRename === 'true';
-    const next = b.dataset.nextRenameAt || '';
-    if (!canRename) {
-      alert(`每月仅可修改一次店铺名称，${next ? next.slice(0, 10) + ' ' : ''}后可再次修改`);
-      return;
-    }
-    const newName = prompt(`新的店铺名称（每月限改一次）：`, name);
+    const newName = prompt(`新的店铺名称（无冷却，可随时修改）：`, name);
     if (!newName || !newName.trim() || newName.trim() === name) return;
     try {
       const r = await api(`/api/platform/stores/${id}/rename`, { method: 'POST', data: { storeName: newName.trim() } });
