@@ -215,7 +215,7 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
-  overflow: hidden;                   /* 防止旋转箭头溢出 */
+  /* 不能 overflow:hidden，否则 ::before/::after 凸耳会被裁掉 */
 }
 .fold-toggle-hover { background: #4a4f58; }   /* hover 更深一档 */
 /* 两侧凸耳：用 radial-gradient 覆盖卡片底边圆角，让开关与卡片衔接平滑 */
