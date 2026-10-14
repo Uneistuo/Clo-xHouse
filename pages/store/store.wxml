@@ -50,11 +50,7 @@
     </block>
 
     <!-- 折叠控制开关（卡片底侧，常驻） -->
-    <view class="fold-toggle" bindtap="toggleMembers">
-      <text class="fold-toggle-text">
-        <block wx:if="{{membersExpanded}}">收起</block>
-        <block wx:else>展开成员<text wx:if="{{role === 'owner' && canCreateStore}}"> / 注册店铺</text><text class="fold-count">（{{members.length}}）</text></block>
-      </text>
+    <view class="fold-toggle" bindtap="toggleMembers" hover-class="fold-toggle-hover">
       <text class="fold-toggle-arrow {{membersExpanded ? 'fold-arrow-up' : ''}}">▾</text>
     </view>
   </view>

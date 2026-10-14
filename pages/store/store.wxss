@@ -197,24 +197,19 @@
   line-height: 1.6;
 }
 
-/* 折叠控制开关（卡片底侧，常驻） */
+/* 折叠控制开关（卡片底侧，仅图标） */
 .fold-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10rpx;
-  margin-top: 16rpx;
-  padding: 18rpx 0 4rpx;
+  margin-top: 8rpx;
+  padding: 12rpx 0;
   border-top: 1rpx solid #eceef1;
-  color: #5b616e;
-  font-size: 24rpx;
 }
-.fold-toggle:active { opacity: 0.55; }
-.fold-toggle-text { font-size: 24rpx; }
-.fold-count { color: #9aa0ac; font-size: 22rpx; margin-left: 2rpx; }
+.fold-toggle-hover { background: rgba(20, 22, 26, 0.03); }
 .fold-toggle-arrow {
   display: inline-block;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #9aa0ac;
   line-height: 1;
   transform: rotate(0deg);
