@@ -11,8 +11,8 @@ Page({
     role: '',            // owner 店主 / staff 员工
     store: null,         // { name, bind_code, created_at }
     members: [],          // [{ id, username, role, created_at }]
-    canRename: false,     // 平台管理员本月是否可修改店铺名称
-    nextRenameAt: '',     // 下次可改名时间（本月已改过时展示）
+    canRename: false,     // 保留字段（暂未在页面使用；改名已统一移至平台管理页）
+    nextRenameAt: '',     // 保留字段
     isPlatform: false,   // 平台管理员标记（显示"平台管理"入口）
     printerHint: '未连接打印机', // 打印设置卡片副标题
     action: 'create',    // 未绑定时选择：create 创建 / join 加入
@@ -228,47 +228,6 @@ Page({
           this.saveNewToken(data);
         } catch (e) {
           // 错误提示已由请求封装统一处理
-        }
-      }
-    });
-  },
-
-  // 修改店铺名称（仅平台管理员，每月限一次，全小程序名称唯一）
-  handleRename() {
-    const { canRename, nextRenameAt, store } = this.data;
-    if (!canRename) {
-      wx.showModal({
-        title: '暂不能修改名称',
-        content: `每月仅可修改一次店铺名称，${(nextRenameAt || '').slice(0, 10)} 后可再次修改。`,
-        showCancel: false
-      });
-      return;
-    }
-    wx.showModal({
-      title: '修改店铺名称',
-      editable: true,
-      placeholderText: '请输入新的店铺名称',
-      content: store.name,
-      success: async (res) => {
-        if (!res.confirm) return;
-        const storeName = (res.content || '').trim();
-        if (!storeName) {
-          wx.showToast({ title: '请填写新的店铺名称', icon: 'none' });
-          return;
-        }
-        try {
-          const data = await request({
-            url: '/api/store/rename',
-            method: 'POST',
-            data: { storeName }
-          });
-          wx.showToast({ title: '名称已修改', icon: 'success' });
-          // 同步本地缓存的店铺名
-          const adminInfo = wx.getStorageSync('adminInfo') || {};
-          wx.setStorageSync('adminInfo', { ...adminInfo, storeName });
-          this.loadInfo();
-        } catch (e) {
-          // 错误提示已由请求封装统一处理（重名/频率限制等）
         }
       }
     });

@@ -750,7 +750,6 @@ async function renderStore(view) {
           <b style="font-size:17px">${esc(s ? s.name : '未绑定店铺')}</b>
           <div class="muted" style="margin-top:4px">我的身份：${isOwner ? '店主' : '员工'}　${d.billingEnabled ? `开单授权至 ${esc(d.billingExpireAt)}` : '<span style="color:#b45309">开单功能未授权</span>'}</div>
         </div>
-        ${admin.isPlatform && d.canRename ? '<button class="btn ghost" id="btn-rename">修改店铺名</button>' : ''}
       </div>
     </div>
 
@@ -789,11 +788,6 @@ async function renderStore(view) {
 
     ${!isOwner ? '<button class="btn danger" id="btn-unbind">退出当前店铺</button>' : ''}`;
 
-  if ($('#btn-rename')) $('#btn-rename').addEventListener('click', async () => {
-    const name = prompt('新的店铺名称（每月限改一次）：', s.name);
-    if (!name || !name.trim() || name.trim() === s.name) return;
-    try { await api('/api/store/rename', { method: 'POST', data: { storeName: name.trim() } }); toast('店铺名称已修改'); renderMain($('#app')); } catch (e) {}
-  });
   if ($('#btn-code')) $('#btn-code').addEventListener('click', async () => {
     if (!confirm('重置后旧店铺码立即失效，确定重置？')) return;
     try { const r = await api('/api/store/code', { method: 'POST' }); toast('新店铺码：' + r.bindCode); renderStore(view); } catch (e) {}
@@ -851,7 +845,10 @@ async function renderPlatform(view) {
                   : (s.expireAt
                     ? `<span class="badge off">已到期</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
                     : '<span class="badge cancelled">未授权</span>')}</td>
-                <td class="t-right"><button class="btn small ghost" data-bill="${s.id}" data-name="${esc(s.name)}">设置授权</button></td>
+                <td class="t-right">
+                  <button class="btn small ghost" data-bill="${s.id}" data-name="${esc(s.name)}">设置授权</button>
+                  <button class="btn small ghost" data-rename="${s.id}" data-rname="${esc(s.name)}" data-can-rename="${s.canRename}" data-next-rename-at="${esc(s.nextRenameAt || '')}" style="margin-left:6px">改名</button>
+                </td>
               </tr>`).join('')}</tbody></table>`}
     </div>`;
 
@@ -902,6 +899,25 @@ async function renderPlatform(view) {
       doSet({ days: 0 });
     });
     $('#modal-cancel').addEventListener('click', closeModal);
+  }));
+
+  // 改名按钮（每店每月 1 次，平台管理员视角）
+  $$('[data-rename]').forEach((b) => b.addEventListener('click', async () => {
+    const id = b.dataset.rename;
+    const name = b.dataset.rname;
+    const canRename = b.dataset.canRename === 'true';
+    const next = b.dataset.nextRenameAt || '';
+    if (!canRename) {
+      alert(`每月仅可修改一次店铺名称，${next ? next.slice(0, 10) + ' ' : ''}后可再次修改`);
+      return;
+    }
+    const newName = prompt(`新的店铺名称（每月限改一次）：`, name);
+    if (!newName || !newName.trim() || newName.trim() === name) return;
+    try {
+      const r = await api(`/api/platform/stores/${id}/rename`, { method: 'POST', data: { storeName: newName.trim() } });
+      toast(r.message || '店铺名称已修改');
+      renderPlatform(view);
+    } catch (e) {}
   }));
 }
 

@@ -97,6 +97,11 @@
   border: 1rpx solid #f0b8b2;
   background: #ffffff;
 }
+.ctrl-btn-disabled {
+  color: #9aa0ac !important;
+  border-color: #e6e8ec !important;
+  background: #f4f5f7 !important;
+}
 
 /* ===== 授权弹层（.mask/.modal/.modal-title/.modal-sub 使用全局样式） ===== */
 .opt-label { font-size: 26rpx; color: #5b616e; margin: 20rpx 0 12rpx; }

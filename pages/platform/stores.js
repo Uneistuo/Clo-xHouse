@@ -126,5 +126,43 @@ Page({
         }
       }
     });
+  },
+
+  /** 修改店铺名称（仅平台管理员；每店每月限一次，名称全库唯一） */
+  onRenameStore(e) {
+    const { id, name, canRename, nextRenameAt } = e.currentTarget.dataset;
+    if (!canRename) {
+      wx.showModal({
+        title: '暂不能修改名称',
+        content: `每月仅可修改一次店铺名称，${(nextRenameAt || '').slice(0, 10)} 后可再次修改。`,
+        showCancel: false
+      });
+      return;
+    }
+    wx.showModal({
+      title: '修改店铺名称',
+      editable: true,
+      placeholderText: '请输入新的店铺名称',
+      content: name,
+      success: async (res) => {
+        if (!res.confirm) return;
+        const storeName = (res.content || '').trim();
+        if (!storeName) {
+          wx.showToast({ title: '请填写新的店铺名称', icon: 'none' });
+          return;
+        }
+        try {
+          const r = await request({
+            url: `/api/platform/stores/${id}/rename`,
+            method: 'POST',
+            data: { storeName }
+          });
+          wx.showToast({ title: r.message || '名称已修改', icon: 'none' });
+          this.loadStores();
+        } catch (e2) {
+          // 失败提示由请求封装统一处理
+        }
+      }
+    });
   }
 });

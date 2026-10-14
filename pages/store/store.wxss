@@ -29,31 +29,19 @@
 }
 .store-name { font-size: 40rpx; font-weight: bold; color: #14161a; }
 
-/* 改名按钮（店铺名称右侧，浅色小按钮，仅店主） */
-.rename-btn {
-  font-size: 22rpx;
-  color: #e1483c;
-  background: rgba(225, 72, 60, 0.08);
-  border: 1rpx solid #f0b8b2;
-  border-radius: 999rpx;
-  padding: 6rpx 24rpx;
-  line-height: 1.6;
-  flex-shrink: 0;
-}
-
-/* 切换店铺圆形小图标（店铺名称旁） */
+/* 切换店铺图标（仅图案，无圆圈、无背景、无边框） */
 .switch-icon {
-  width: 52rpx;
-  height: 52rpx;
-  border-radius: 50%;
-  border: 1rpx solid #f0b8b2;
-  color: #e1483c;
-  background: rgba(225, 72, 60, 0.06);
-  font-size: 28rpx;
-  line-height: 52rpx;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44rpx;
+  height: 44rpx;
+  color: #9aa0ac;
+  font-size: 40rpx;
+  line-height: 1;
   flex-shrink: 0;
 }
+.switch-icon:active { color: var(--primary, #e1483c); }
 
 /* 店铺成员（与店铺信息同一卡片内的分区） */
 .member-section {
@@ -192,13 +180,6 @@
   border-bottom: 1rpx solid #eceef1;
   font-size: 28rpx;
   color: #14161a;
-}
-/* 店主改名频率提示 */
-.rename-tip {
-  margin-top: 16rpx;
-  font-size: 22rpx;
-  color: #9aa0ac;
-  text-align: center;
 }
 
 .member-item:last-child { border-bottom: none; }

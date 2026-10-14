@@ -6,10 +6,9 @@
 
   <!-- ===== 已绑定店铺：店铺信息（名称/店铺码）+ 店铺成员（合并板块） ===== -->
   <view class="store-card" wx:if="{{storeId}}">
-    <!-- 店铺名称 + 改名按钮（浅色）+ 切换店铺圆形小图标 -->
+    <!-- 店铺名称 + 切换店铺图标（仅图标，无圆圈与背景） -->
     <view class="store-name-row">
       <view class="store-name">{{store.name}}</view>
-      <view class="rename-btn" wx:if="{{isPlatform}}" bindtap="handleRename">改名</view>
       <view class="switch-icon" wx:if="{{role === 'owner' && myStores.length}}" bindtap="openSwitchPopup"><view class="icon icon-swap"></view></view>
     </view>
     <view class="store-role">{{role === 'owner' ? '店主' : '员工'}}</view>
@@ -26,10 +25,6 @@
 
     <view class="store-btns" wx:if="{{role !== 'owner'}}">
       <button class="btn-ghost" bindtap="handleUnbind">退出店铺</button>
-    </view>
-    <!-- 店主改名频率提示：本月已改过时展示下次可改时间 -->
-    <view class="rename-tip" wx:if="{{isPlatform && !canRename && nextRenameAt}}">
-      店铺名称每月可修改一次，{{nextRenameAt}} 后可再次修改
     </view>
 
     <!-- 店铺成员（与店铺信息同一板块）：店主可移除员工，员工可自行退出 -->
