@@ -167,24 +167,38 @@
   margin: -8rpx 0 24rpx;
   letter-spacing: 1rpx;
 }
+/* 性别二选一（参考商品编辑页尺码选择：整体胶囊 + 中间分隔） */
 .gender-options {
   display: flex;
-  gap: 20rpx;
+  flex: 1;                 /* 撑满表单行剩余宽度，避免胶囊只有文字那么短 */
+  border: 1rpx solid #e6e8ec;
+  border-radius: 999rpx;
+  overflow: hidden;
 }
 .gender-option {
   flex: 1;
   text-align: center;
-  padding: 22rpx 0;
-  border: 1rpx solid #e6e8ec;
-  border-radius: 14rpx;
-  font-size: 28rpx;
+  padding: 16rpx 0;
+  font-size: 26rpx;
   color: #5b616e;
   background: #ffffff;
 }
+.gender-option + .gender-option { border-left: 1rpx solid #e6e8ec; }
 .gender-option.active {
-  border-color: #e1483c;
-  background: rgba(225, 72, 60, 0.06);
   color: #e1483c;
+  background: #fdecea;
+  font-weight: bold;
+}
+
+/* 弹窗按钮：两按钮同高胶囊，取消略窄于确认 */
+.modal-btns .btn-ghost.modal-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+}
+.modal-btns .btn-primary.modal-btn {
+  flex: 1.4;
+  margin-left: 24rpx;
 }
 
 /* ===== 当场已收款卡片 ===== */

@@ -59,12 +59,9 @@
     </view>
     <view class="form-item">
       <view class="form-label required">姓氏</view>
-      <input class="form-input" placeholder="如：赵" value="{{formSurname}}"
+      <input class="form-input surname-input" placeholder="如：赵" value="{{formSurname}}"
              bindinput="onFormSurnameInput" placeholder-class="ph" maxlength="10" />
-    </view>
-    <view class="form-item">
-      <view class="form-label required">性别</view>
-      <view class="gender-options">
+      <view class="gender-options inline">
         <view class="gender-option {{formGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onFormGenderTap">先生</view>
         <view class="gender-option {{formGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onFormGenderTap">女士</view>
       </view>
