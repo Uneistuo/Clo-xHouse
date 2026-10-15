@@ -304,6 +304,7 @@ tr:hover td { background: #FAFBFC; }
 .stock-warn { color: #DC2626; font-weight: 700; }
 
 
+
 /* 自定义确认/提示弹窗统一按钮样式（在 modal-actions 内） */
 .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 .dialog-actions .btn-cancel { background: #fff; color: var(--text-2); border: 1px solid var(--border); }
