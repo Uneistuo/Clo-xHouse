@@ -1176,7 +1176,7 @@ async function renderPlatform(view) {
       if (!v) { toast('请选择到期时间', true); return; }
       doSet({ expireAt: v.replace('T', ' ') + ':00' });
     });
-    $('#pl-close').addEventListener('click', () => {
+    $('#pl-close').addEventListener('click', async () => {
       if (!(await confirm(`确定关闭店铺【${name}】的开单权限？关闭后立即生效，该店将无法开单`))) return;
       doSet({ days: 0 });
     });
