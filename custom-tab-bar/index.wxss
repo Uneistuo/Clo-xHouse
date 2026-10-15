@@ -1,9 +1,14 @@
 @import "../styles/icons.wxss";
+@import "../styles/tokens.wxss";
 
 /* ============================================================
-   自定义底部导航
+   自定义底部导航（裁间）
    栏高 = 普通项高度（100rpx）+ 安全区；
    中间"开单"为绝对定位的凸起圆钮，浮在栏上方，不影响栏高。
+
+   ⚠️ 自定义 tabBar 是组件（样式隔离），tokens.wxss 里的
+      page / :host 变量可能传不进来。因此所有 var() 均带兜底色值，
+      取不到变量时回退为原设计稿的固定色，避免背景失效变透明。
    ============================================================ */
 .tabbar {
   position: fixed;
@@ -15,7 +20,8 @@
   height: 100rpx;                              /* 栏高只由普通项决定 */
   padding-bottom: env(safe-area-inset-bottom); /* 安全区额外占位（content-box） */
   box-sizing: content-box;
-  background: #ffffff;
+  background: var(--bg-card, #ffffff);
+  border-top: 1rpx solid var(--divider, #eceef1);
   box-shadow: 0 -2rpx 12rpx rgba(20, 22, 26, 0.06);
 }
 
@@ -28,18 +34,25 @@
   justify-content: flex-end;
   padding-bottom: 12rpx;
   box-sizing: border-box;
-  color: #9aa0ac;
+  color: var(--text-3, #9aa0ac);
   font-size: 22rpx;
+  transition: color 0.15s ease;
 }
-.tabbar-item.active { color: #e1483c; }
+.tabbar-item.active { color: var(--primary, #e1483c); }
 
 .tabbar-icon-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.15s ease;
 }
-.tabbar-icon { font-size: 44rpx; }
-.tabbar-text { margin-top: 4rpx; line-height: 1.1; }
+.tabbar-item.active .tabbar-icon-wrap { transform: translateY(-2rpx); }
+.tabbar-icon { font-size: 44rpx; transition: transform 0.12s ease, opacity 0.12s ease; }
+.tabbar-text { margin-top: 4rpx; line-height: 1.1; transition: opacity 0.12s ease; }
+
+/* 按下反馈：5 个按键统一（图标缩小 + 图标文字变淡），与选中上浮互不冲突 */
+.tabbar-item:active .tabbar-icon { transform: scale(0.88); opacity: 0.7; }
+.tabbar-item:active .tabbar-text { opacity: 0.7; }
 
 /* ===== 中间凸起"开单"：绝对定位，浮于栏上方 ===== */
 .tabbar-item-middle .tabbar-icon-wrap {
@@ -51,9 +64,10 @@
   height: 96rpx;
   box-sizing: border-box;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
-  border: 6rpx solid #f4f5f7;
-  box-shadow: 0 8rpx 20rpx rgba(225, 72, 60, 0.4);
+  background: linear-gradient(135deg, var(--primary, #e1483c) 0%, var(--primary-dark, #c5362c) 100%);
+  border: 6rpx solid var(--bg-app, #f4f5f7);
+  box-shadow: var(--shadow-primary, 0 8rpx 20rpx rgba(225, 72, 60, 0.4));
 }
+.tabbar-item-middle.active .tabbar-icon-wrap { transform: translateX(-50%) translateY(-2rpx); }
 .tabbar-item-middle .tabbar-icon { color: #ffffff; font-size: 48rpx; }
-.tabbar-item-middle .tabbar-text { color: #e1483c; font-weight: 600; }
+.tabbar-item-middle .tabbar-text { color: var(--primary, #e1483c); font-weight: 600; }

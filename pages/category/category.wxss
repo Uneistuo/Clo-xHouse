@@ -1,4 +1,4 @@
-/* 分类管理页样式 */
+/* 分类管理页样式（CSS 变量） */
 .page {
   display: flex;
   flex-direction: column;
@@ -16,29 +16,35 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 32rpx 12rpx;
+  padding: 24rpx 8rpx 12rpx;
 }
-.cat-page-title { font-size: 38rpx; font-weight: bold; color: #14161a; }
+.cat-page-title {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: var(--text-1);
+  letter-spacing: 1rpx;
+}
 .cat-manage-btn {
-  background: #e1483c;
+  background: var(--primary);
   color: #fff;
   padding: 12rpx 32rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   font-size: 26rpx;
   letter-spacing: 2rpx;
 }
+.cat-manage-btn:active { opacity: 0.85; }
 
 /* 管理模式提示条 */
 .manage-hint {
-  margin: 0 24rpx 16rpx;
+  margin: 0 0 16rpx;
   padding: 16rpx 24rpx;
   font-size: 24rpx;
-  color: #e1483c;
-  background: #fdecea;
+  color: var(--primary-dark);
+  background: var(--primary-tint);
   border-radius: 12rpx;
 }
 
-/* 新增分类行（位于页面底部，仅默认模式显示） */
+/* 新增分类行 */
 .add-row { display: flex; align-items: center; }
 
 /* 固定在页面最底部的新增分类栏（仅在有分类时显示） */
@@ -48,20 +54,22 @@
   right: 0;
   bottom: 0;
   z-index: 50;
-  background: #ffffff;
-  border-top: 1rpx solid #e6e8ec;
+  background: var(--bg-card);
+  border-top: 1rpx solid var(--border);
   border-radius: 24rpx 24rpx 0 0;
-  box-shadow: 0 -6rpx 18rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -6rpx 18rpx rgba(20, 22, 26, 0.06);
   padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
   margin: 0;
   box-sizing: border-box;
 }
 .add-input {
   flex: 1;
-  background: #f0f1f4;
-  border-radius: 10rpx;
+  background: var(--bg-subtle);
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius-input);
   padding: 14rpx 20rpx;
   font-size: 28rpx;
+  color: var(--text-1);
   margin-right: 16rpx;
 }
 
@@ -72,18 +80,17 @@
   align-items: center;
   box-sizing: border-box;
   position: relative;
-  /* 默认在 manage 模式轻微缩进表示可拖动 */
   will-change: transform;
 }
 .cat-info { flex: 1; min-width: 0; }
 .cat-name {
   font-size: 30rpx;
   font-weight: bold;
-  color: #14161a;
+  color: var(--text-1);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cat-meta { font-size: 24rpx; color: #9aa0ac; margin-top: 6rpx; }
+.cat-meta { font-size: 24rpx; color: var(--text-3); margin-top: 6rpx; }
 .cat-actions { display: flex; align-items: center; flex-shrink: 0; }
 /* 空状态使用全局 .empty / .empty-icon */

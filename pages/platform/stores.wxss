@@ -1,6 +1,6 @@
-/* 平台管理页：米色底 + 酒红主调 */
+/* 平台管理页：CSS 变量 */
 .platform-page {
-  background: #f4f5f7;
+  background: var(--bg-app);
   min-height: 100vh;
   padding: 24rpx 30rpx 0;
   box-sizing: border-box;
@@ -10,19 +10,19 @@
 .plat-title {
   font-size: 44rpx;
   font-weight: bold;
-  color: #14161a;
-  letter-spacing: 2rpx;
+  color: var(--text-1);
+  letter-spacing: 1rpx;
 }
 .plat-sub {
   margin-top: 10rpx;
   font-size: 24rpx;
-  color: #5b616e;
+  color: var(--text-2);
   line-height: 1.6;
 }
 
 .plat-tip {
   text-align: center;
-  color: #5b616e;
+  color: var(--text-2);
   font-size: 26rpx;
   padding: 80rpx 0;
 }
@@ -33,22 +33,23 @@
 .store-row {
   display: flex;
   align-items: center;
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
   padding: 28rpx 30rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
 .store-main { flex: 1; min-width: 0; }
 .store-nm {
   font-size: 32rpx;
   font-weight: bold;
-  color: #14161a;
+  color: var(--text-1);
 }
 .store-meta {
   margin-top: 8rpx;
   font-size: 22rpx;
-  color: #5b616e;
+  color: var(--text-2);
 }
 .ellipsis {
   overflow: hidden;
@@ -60,17 +61,17 @@
 .store-bill {
   margin-top: 12rpx;
   font-size: 22rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   padding: 6rpx 18rpx;
   display: inline-block;
 }
 .store-bill.on {
-  color: #e1483c;
-  background: #fdecea;
+  color: var(--success);
+  background: var(--success-tint);
   font-weight: bold;
 }
-.store-bill.expired { color: #dc2626; background: #fdecea; }
-.store-bill.off { color: #9aa0ac; background: #eef0f3; }
+.store-bill.expired { color: var(--danger); background: var(--danger-tint); }
+.store-bill.off { color: var(--text-3); background: var(--bg-subtle); }
 
 /* 操作按钮区 */
 .store-ctrl {
@@ -81,54 +82,55 @@
 }
 .ctrl-btn {
   font-size: 24rpx;
-  border-radius: 999rpx;
+  border-radius: var(--radius-pill);
   padding: 10rpx 32rpx;
   text-align: center;
 }
 .ctrl-btn + .ctrl-btn { margin-top: 14rpx; }
 .ctrl-btn.primary {
   color: #fff;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
-  box-shadow: 0 4rpx 12rpx rgba(225, 72, 60, 0.3);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  box-shadow: var(--shadow-primary);
   font-weight: bold;
 }
 .ctrl-btn.ghost {
-  color: #e1483c;
-  border: 1rpx solid #f0b8b2;
-  background: #ffffff;
+  color: var(--primary-dark);
+  border: 1rpx solid var(--primary-tint);
+  background: var(--bg-card);
 }
+.ctrl-btn:active { opacity: 0.85; }
 .ctrl-btn-disabled {
-  color: #9aa0ac !important;
-  border-color: #e6e8ec !important;
-  background: #f4f5f7 !important;
+  color: var(--text-3) !important;
+  border-color: var(--border) !important;
+  background: var(--bg-subtle) !important;
 }
 
 /* ===== 授权弹层（.mask/.modal/.modal-title/.modal-sub 使用全局样式） ===== */
-.opt-label { font-size: 26rpx; color: #5b616e; margin: 20rpx 0 12rpx; }
+.opt-label { font-size: 26rpx; color: var(--text-2); margin: 20rpx 0 12rpx; }
 .opt-row { display: flex; flex-wrap: wrap; }
 .opt-item {
-  border: 1rpx solid #e6e8ec;
-  border-radius: 999rpx;
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius-pill);
   padding: 10rpx 28rpx;
   margin: 0 16rpx 16rpx 0;
   font-size: 26rpx;
-  color: #14161a;
-  background: #ffffff;
+  color: var(--text-1);
+  background: var(--bg-card);
 }
-.opt-item.picker { display: inline-block; color: #5b616e; }
+.opt-item.picker { display: inline-block; color: var(--text-2); }
 .opt-active {
-  border-color: #e1483c;
-  color: #e1483c;
-  background: #fdecea;
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  background: var(--primary-tint);
   font-weight: bold;
 }
 .opt-input {
-  background: #ffffff;
-  border: 1rpx solid #e6e8ec;
-  border-radius: 999rpx;
+  background: var(--bg-card);
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius-pill);
   padding: 14rpx 28rpx;
   font-size: 26rpx;
-  color: #14161a;
+  color: var(--text-1);
 }
 
 /* .modal-btns / .modal-btn 使用全局样式（app.wxss） */

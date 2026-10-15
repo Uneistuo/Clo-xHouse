@@ -1,52 +1,71 @@
-<!--登录/注册页-->
+<!--裁间 · 登录 / 注册页-->
 <view class="login-page">
-  <view class="login-header">
-    <view class="login-logo">衣</view>
-    <view class="login-title">服装店商家管理</view>
-    <view class="login-sub">店主登录 · 门店经营好帮手</view>
-  </view>
+  <!-- 背景光晕 -->
+  <view class="glow glow-1"></view>
+  <view class="glow glow-2"></view>
 
-  <!-- 登录 / 注册 切换 -->
-  <view class="mode-tabs">
-    <view class="mode-tab {{mode === 'login' ? 'active' : ''}}" data-mode="login" bindtap="switchMode">账号登录</view>
-    <view class="mode-tab {{mode === 'register' ? 'active' : ''}}" data-mode="register" bindtap="switchMode">注册账号</view>
-  </view>
+  <view class="login-wrap">
+    <!-- 品牌区 -->
+    <view class="brand">
+      <view class="brand-title">裁 间</view>
+      <view class="brand-bar"></view>
+      <view class="brand-sub">服装店商家管理平台</view>
+    </view>
 
-  <!-- 登录表单 -->
-  <view class="login-form" wx:if="{{mode === 'login'}}">
-    <view class="login-item">
-      <text class="login-label">账号</text>
-      <input class="login-input" placeholder="请输入商家账号" value="{{username}}"
-             bindinput="onUsernameInput" placeholder-class="placeholder" />
-    </view>
-    <view class="login-item">
-      <text class="login-label">密码</text>
-      <input class="login-input" placeholder="请输入密码" password value="{{password}}"
-             bindinput="onPasswordInput" placeholder-class="placeholder" />
-    </view>
-    <button class="btn-primary login-btn" bindtap="handleLogin"
-            disabled="{{loading}}">{{loading ? '登录中...' : '登 录'}}</button>
-  </view>
+    <!-- 主卡片 -->
+    <view class="panel">
+      <!-- 模式切换 -->
+      <view class="seg">
+        <view class="seg-item {{mode === 'login' ? 'active' : ''}}" data-mode="login" bindtap="switchMode">登录</view>
+        <view class="seg-item {{mode === 'register' ? 'active' : ''}}" data-mode="register" bindtap="switchMode">注册</view>
+      </view>
 
-  <!-- 注册表单（自由注册，注册后绑定店铺即可同步数据） -->
-  <view class="login-form" wx:else>
-    <view class="login-item">
-      <text class="login-label">账号</text>
-      <input class="login-input" placeholder="3-20位字母、数字或下划线" value="{{username}}"
-             bindinput="onUsernameInput" placeholder-class="placeholder" />
+      <!-- 账号 -->
+      <view class="field {{focusField === 'username' ? 'is-focus' : ''}} {{usernameError ? 'is-error' : ''}}">
+        <view class="field-label">账号</view>
+        <input class="field-input" placeholder="请输入商家账号" value="{{username}}"
+               bindinput="onUsernameInput" bindfocus="onFocus" bindblur="onBlur" data-name="username"
+               placeholder-class="ph" />
+      </view>
+      <view wx:if="{{usernameError}}" class="field-tip">{{usernameError}}</view>
+
+      <!-- 密码 -->
+      <view class="field {{focusField === 'password' ? 'is-focus' : ''}} {{passwordError ? 'is-error' : ''}}">
+        <view class="field-label">密码</view>
+        <input class="field-input" placeholder="请输入密码" password value="{{password}}"
+               bindinput="onPasswordInput" bindfocus="onFocus" bindblur="onBlur" data-name="password"
+               placeholder-class="ph" />
+      </view>
+      <view wx:if="{{passwordError}}" class="field-tip">{{passwordError}}</view>
+
+      <!-- 确认密码（仅注册） -->
+      <block wx:if="{{mode === 'register'}}">
+        <view class="field {{focusField === 'confirm' ? 'is-focus' : ''}} {{confirmError ? 'is-error' : ''}}">
+          <view class="field-label">确认密码</view>
+          <input class="field-input" placeholder="请再次输入密码" password value="{{confirmPassword}}"
+                 bindinput="onConfirmInput" bindfocus="onFocus" bindblur="onBlur" data-name="confirm"
+                 placeholder-class="ph" />
+        </view>
+        <view wx:if="{{confirmError}}" class="field-tip">{{confirmError}}</view>
+      </block>
+
+      <!-- 提交按钮 -->
+      <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleSubmit" disabled="{{loading}}">
+        {{loading ? (mode === 'login' ? '登录中…' : '注册中…') : (mode === 'login' ? '登 录' : '注 册')}}
+      </button>
+
+      <!-- 注册说明 -->
+      <view wx:if="{{mode === 'register'}}" class="register-hint">注册后可创建自己的店铺，或凭店铺码加入已有店铺</view>
     </view>
-    <view class="login-item">
-      <text class="login-label">密码</text>
-      <input class="login-input" placeholder="6-32位密码" password value="{{password}}"
-             bindinput="onPasswordInput" placeholder-class="placeholder" />
+
+    <!-- 底部切换 -->
+    <view class="foot">
+      <block wx:if="{{mode === 'login'}}">
+        <text>还没有账号？</text><text class="foot-link" data-mode="register" bindtap="switchMode">立即注册</text>
+      </block>
+      <block wx:else>
+        <text>已有账号？</text><text class="foot-link" data-mode="login" bindtap="switchMode">返回登录</text>
+      </block>
     </view>
-    <view class="login-item">
-      <text class="login-label">确认密码</text>
-      <input class="login-input" placeholder="请再次输入密码" password value="{{confirmPassword}}"
-             bindinput="onConfirmPasswordInput" placeholder-class="placeholder" />
-    </view>
-    <view class="register-tip">注册后可创建自己的店铺，或凭店铺码加入已有店铺</view>
-    <button class="btn-primary login-btn" bindtap="handleRegister"
-            disabled="{{loading}}">{{loading ? '提交中...' : '注 册'}}</button>
   </view>
 </view>

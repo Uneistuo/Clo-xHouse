@@ -1,12 +1,18 @@
 <!-- 会员列表页：搜索 + 分页列表（每项含 CRM 统计：消费次数/累计金额/最近到店） -->
 <view class="page">
+  <!-- 页头 -->
+  <view class="list-head">
+    <view class="list-title">会员</view>
+    <view class="list-count" wx:if="{{loaded}}">共 {{total}} 位</view>
+  </view>
+
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-input-wrap">
       <view class="icon icon-search search-icon"></view>
       <input class="search-input" placeholder="搜索手机号 / 姓氏" value="{{keyword}}"
              bindinput="onKeywordInput" confirm-type="search" placeholder-class="ph" />
-      <view class="search-clear icon icon-close" wx:if="{{keyword}}" bindtap="clearKeyword"></view>
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
     </view>
   </view>
 
@@ -33,7 +39,7 @@
   <!-- 空状态 -->
   <view wx:if="{{loaded && list.length === 0}}" class="empty">
     <view class="empty-icon icon icon-package"></view>
-    <view>{{keyword ? '未找到相关会员' : '暂无会员，去开单页添加或点右上角 + 新增'}}</view>
+    <view>{{keyword ? '未找到相关会员' : '暂无会员，点右下角 + 新增'}}</view>
   </view>
 
   <!-- 加载提示 -->
@@ -45,7 +51,7 @@
 </view>
 
 <!-- 新增会员 FAB -->
-<view class="fab" bindtap="openAdd">+</view>
+<view class="fab" bindtap="openAdd"><view class="icon icon-plus"></view></view>
 
 <!-- 添加会员弹窗 -->
 <view wx:if="{{addVisible}}" class="mask" bindtap="closeAdd">
@@ -69,7 +75,8 @@
 
     <view class="modal-btns">
       <button class="btn-ghost modal-btn" bindtap="closeAdd">取消</button>
-      <button class="btn-primary modal-btn primary" bindtap="confirmAdd" disabled="{{saving}}">{{saving ? '保存中...' : '确认添加'}}</button>
+      <button class="btn-primary modal-btn primary {{saving ? 'btn-loading' : ''}}" bindtap="confirmAdd"
+              disabled="{{saving}}">{{saving ? '保存中…' : '确认添加'}}</button>
     </view>
   </view>
 </view>

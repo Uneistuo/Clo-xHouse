@@ -1,4 +1,4 @@
-<!--首页：经营看板-->
+<!--首页：经营看板（优化版：CSS 变量 + 统一空状态 + 加载态）-->
 <view class="page home">
   <!-- 顶部日期与标题 -->
   <view class="head">
@@ -15,8 +15,10 @@
     </view>
     <view class="sales-body">
       <view class="sales-label">{{rangeLabel}}销售额</view>
-      <view class="sales-num">￥{{periodSales}}</view>
-      <view class="sales-note">共 {{periodOrders}} 单 · 仅统计已收款与已完成</view>
+      <view class="sales-figure-row">
+        <view class="sales-num">￥{{periodSales}}</view>
+        <view class="sales-note">共 {{periodOrders}} 单</view>
+      </view>
     </view>
   </view>
 
@@ -73,7 +75,7 @@
   <view wx:if="{{lowStock.length > 0}}" class="card">
     <view class="section-head">
       <view class="section-title">低库存提醒</view>
-      <view class="section-link" bindtap="goGoods">全部商品</view>
+      <view class="section-link" bindtap="goGoods">全部商品<view class="icon icon-chevron-right"></view></view>
     </view>
     <view wx:for="{{lowStock}}" wx:key="id" class="low-item"
           data-id="{{item.id}}" bindtap="goRestock">
@@ -82,57 +84,6 @@
       <view class="low-arrow icon icon-chevron-right"></view>
     </view>
   </view>
-
-  <!-- 快捷入口 -->
-  <view class="btn-row">
-    <view class="btn-billing" bindtap="goBilling">
-      <view class="btn-icon icon icon-home"></view> 现场开单
-    </view>
-    <view class="btn-add" bindtap="goAddGoods">
-      <view class="btn-icon icon icon-plus"></view> 录入商品
-    </view>
-  </view>
-
-  <!-- 今日单据 -->
-  <view class="section-head">
-    <view class="section-title">今日单据</view>
-    <view class="section-link" bindtap="goOrders">全部订单<view class="icon icon-chevron-right"></view></view>
-  </view>
-
-  <!-- 骨架屏（加载中） -->
-  <block wx:if="{{loading}}">
-    <view wx:for="{{[1,2]}}" wx:key="*this" class="order-card">
-      <view class="oc-left">
-        <view class="skeleton" style="width:200rpx;height:27rpx;"></view>
-        <view class="skeleton" style="width:260rpx;height:23rpx;margin-top:12rpx;"></view>
-      </view>
-      <view class="oc-right">
-        <view class="skeleton" style="width:120rpx;height:32rpx;"></view>
-      </view>
-    </view>
-  </block>
-
-  <!-- 空状态（今天还没有开单） -->
-  <view wx:elif="{{todayOrdersList.length === 0}}" class="empty-card">
-    <view class="empty-icon icon icon-shirt"></view>
-    <view class="empty-title">今天还没有开单</view>
-    <view class="empty-sub">顾客到店后，在开单页选款下单即可</view>
-  </view>
-
-  <!-- 今日订单列表 -->
-  <block wx:else>
-    <view wx:for="{{todayOrdersList}}" wx:key="id" class="order-card"
-          data-id="{{item.id}}" bindtap="goDetail">
-      <view class="oc-left">
-        <view class="oc-no">{{item.order_no}}</view>
-        <view class="oc-time">{{item.timeText}} · {{item.quantity_count}} 件商品</view>
-      </view>
-      <view class="oc-right">
-        <view class="oc-amount">￥{{item.amountText}}</view>
-        <view class="tag {{item.statusClass}}">{{item.statusText}}</view>
-      </view>
-    </view>
-  </block>
 
   <view class="page-bottom-space"></view>
 </view>

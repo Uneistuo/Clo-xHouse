@@ -1,8 +1,8 @@
-/* 商品编辑页样式 */
+/* 商品编辑页样式（优化版：CSS 变量） */
 
 .img-list { flex: 1; display: flex; flex-wrap: wrap; }
 .img-item { position: relative; margin-right: 16rpx; margin-bottom: 16rpx; }
-.img-thumb { width: 140rpx; height: 140rpx; border-radius: 16rpx; background: #f0f1f4; }
+.img-thumb { width: 140rpx; height: 140rpx; border-radius: 16rpx; background: var(--bg-subtle); border: 1rpx solid var(--border); }
 .img-del {
   position: absolute;
   top: -12rpx;
@@ -11,7 +11,7 @@
   height: 40rpx;
   line-height: 38rpx;
   text-align: center;
-  background: #dc2626;
+  background: var(--danger);
   color: #fff;
   border-radius: 50%;
   font-size: 28rpx;
@@ -21,77 +21,73 @@
   height: 140rpx;
   line-height: 136rpx;
   text-align: center;
-  border: 2rpx dashed #e6e8ec;
+  border: 2rpx dashed var(--border);
   border-radius: 16rpx;
-  color: #9aa0ac;
+  color: var(--text-2);
   font-size: 48rpx;
   box-sizing: border-box;
-  background: #f0f1f4;
+  background: var(--bg-subtle);
 }
 
-/* 商品分类：输入搜索 + 候选标签 + 新增按钮 */
 .cat-input-row { display: flex; align-items: center; }
 .cat-input { flex: 1; }
 .cat-add-btn { flex-shrink: 0; margin-left: 16rpx; }
 
-/* .section-title / .section-tip 使用全局样式（app.wxss） */
 .section-title.mt { margin-top: 36rpx; }
 
 .tag-row { min-height: 20rpx; margin-bottom: 16rpx; }
 .tag-edit { padding: 10rpx 20rpx; margin-bottom: 12rpx; font-size: 26rpx; }
 .tag-input-row { display: flex; align-items: center; }
 .tag-input {
-  background: #f0f1f4;
+  background: var(--bg-subtle);
   border-radius: 10rpx;
   padding: 12rpx 20rpx;
   margin-right: 20rpx;
+  border: 1rpx solid var(--border);
 }
 
-/* 尺码预设选项：表格排列（每行 4 格） */
 .size-table {
   display: flex;
   flex-wrap: wrap;
-  border-top: 1rpx solid #e6e8ec;
-  border-left: 1rpx solid #e6e8ec;
+  border-top: 1rpx solid var(--border);
+  border-left: 1rpx solid var(--border);
   border-radius: 12rpx;
   overflow: hidden;
 }
 .size-cell {
   width: 25%;
   box-sizing: border-box;
-  border-right: 1rpx solid #e6e8ec;
-  border-bottom: 1rpx solid #e6e8ec;
+  border-right: 1rpx solid var(--border);
+  border-bottom: 1rpx solid var(--border);
   padding: 18rpx 0;
   text-align: center;
   font-size: 26rpx;
-  color: #14161a;
-  background: #ffffff;
+  color: var(--text-1);
+  background: var(--bg-card);
 }
 .size-cell-active {
-  color: #e1483c;
-  background: #fdecea;
+  color: var(--primary-dark);
+  background: var(--primary-tint);
   font-weight: bold;
 }
 
-/* 颜色预设选项（胶囊 + 色点） */
 .size-options { display: flex; flex-wrap: wrap; }
 .size-opt {
-  border: 1rpx solid #e6e8ec;
+  border: 1rpx solid var(--border-strong);
   border-radius: 999rpx;
   padding: 12rpx 34rpx;
   margin: 0 16rpx 16rpx 0;
   font-size: 26rpx;
-  color: #14161a;
-  background: #ffffff;
+  color: var(--text-1);
+  background: var(--bg-card);
 }
 .size-opt-active {
-  border-color: #e1483c;
-  color: #e1483c;
-  background: #fdecea;
+  border-color: var(--primary-dark);
+  color: var(--primary-dark);
+  background: var(--primary-tint);
   font-weight: bold;
 }
 
-/* 颜色预设选项（色点 + 文字） */
 .color-opt { display: flex; align-items: center; }
 .color-dot {
   width: 24rpx;
@@ -102,26 +98,26 @@
   box-sizing: border-box;
 }
 
-/* 规格库存（SKU）行 */
 .sku-block { margin-top: 8rpx; }
 .sku-row {
   display: flex;
   align-items: center;
   padding: 14rpx 0;
-  border-bottom: 1rpx solid #f0f1f4;
+  border-bottom: 1rpx solid var(--bg-subtle);
 }
-.sku-name { flex: 1; font-size: 27rpx; color: #14161a; }
-.sku-sep { color: #9aa0ac; }
+.sku-name { flex: 1; font-size: 27rpx; color: var(--text-1); }
+.sku-sep { color: var(--text-2); }
 .sku-input {
   width: 160rpx;
   text-align: center;
-  background: #f0f1f4;
+  background: var(--bg-subtle);
   border-radius: 10rpx;
   padding: 12rpx 10rpx;
+  border: 1rpx solid var(--border);
 }
 .sku-total {
   font-size: 26rpx;
-  color: #e1483c;
+  color: var(--primary-dark);
   font-weight: bold;
   margin-top: 16rpx;
   text-align: right;

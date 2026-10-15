@@ -1,6 +1,7 @@
-// pages/printer-pair/printer-pair.js - 蓝牙打印机配对页
+// 蓝牙打印机配对页
 const { printer } = require('../../utils/printer');
 const { buildTestReceipt } = require('../../utils/receipt');
+const { confirm, alert, toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
 
 Page({
   data: {
@@ -31,12 +32,13 @@ Page({
   },
 
   _setState(kind) {
-    // kind: 'saved' | 'scanning' | 'connected' | 'failed'
+    // kind: 'saved' | 'scanning' | 'connected' | 'failed' | 'disconnected'
     const map = {
       saved: { icon: 'icon-clipboard', title: '已配对打印机', sub: '点击"重新连接"以连接', cls: 'status-disconnected' },
       scanning: { icon: 'icon-search', title: '正在扫描...', sub: '请确保打印机已开机并处于配对模式', cls: 'status-disconnected' },
       connected: { icon: 'icon-check-circle', title: '打印机已连接', sub: '可以正常打印小票', cls: 'status-connected' },
-      failed: { icon: 'icon-x-circle', title: '操作失败', sub: '请重试或检查打印机状态', cls: 'status-disconnected' }
+      failed: { icon: 'icon-x-circle', title: '操作失败', sub: '请重试或检查打印机状态', cls: 'status-disconnected' },
+      disconnected: { icon: 'icon-printer', title: '尚未连接打印机', sub: '点击下方按钮开始扫描', cls: 'status-disconnected' }
     };
     const s = map[kind] || map.saved;
     this.setData({
@@ -62,7 +64,7 @@ Page({
 
       await printer.startDiscovery();
       printer.onDeviceFound((devices) => {
-        // 过滤：去重 + 排除明显不是打印机的设备
+        // 过滤：去重
         const seen = new Set(this.data.devices.map((d) => d.deviceId));
         const fresh = devices.filter((d) => !seen.has(d.deviceId));
         if (fresh.length) {
@@ -72,11 +74,7 @@ Page({
     } catch (e) {
       this.setData({ scanning: false });
       this._setState('failed');
-      wx.showModal({
-        title: '扫描失败',
-        content: e.message || '请检查蓝牙权限',
-        showCancel: false
-      });
+      alert({ title: '扫描失败', content: e.message || '请检查蓝牙权限' });
     }
   },
 
@@ -96,7 +94,7 @@ Page({
       this.setData({ scanning: false });
     }
 
-    wx.showLoading({ title: '连接中...', mask: true });
+    showLoading('连接中...');
     try {
       await printer.fullConnect(id);
       const saved = {
@@ -107,71 +105,58 @@ Page({
       printer.saveDevice(saved);
       this.setData({ savedDevice: saved });
       this._setState('connected');
-      wx.hideLoading();
-      wx.showToast({ title: '配对成功', icon: 'success' });
+      hideLoading();
+      toast('配对成功', 'success');
     } catch (e) {
-      wx.hideLoading();
+      hideLoading();
       this._setState('failed');
-      wx.showModal({
-        title: '配对失败',
-        content: e.message || '连接失败，请重试',
-        showCancel: false
-      });
+      alert({ title: '配对失败', content: e.message || '连接失败，请重试' });
     }
   },
 
   async onReconnect() {
     const saved = this.data.savedDevice;
     if (!saved) return;
-    wx.showLoading({ title: '连接中...', mask: true });
+    showLoading('连接中...');
     const ok = await printer.quickConnect(saved.deviceId);
-    wx.hideLoading();
+    hideLoading();
     if (ok) {
       this._setState('connected');
-      wx.showToast({ title: '已连接', icon: 'success' });
+      toast('已连接', 'success');
     } else {
       this._setState('failed');
-      wx.showModal({
-        title: '连接失败',
-        content: '无法连接已配对设备，请检查打印机是否开机或重新配对',
-        showCancel: false
-      });
+      alert({ title: '连接失败', content: '无法连接已配对设备，请检查打印机是否开机或重新配对' });
     }
   },
 
   async onTestPrint() {
     if (!printer.connected) {
-      wx.showToast({ title: '请先连接打印机', icon: 'none' });
+      toast('请先连接打印机', 'none');
       return;
     }
-    wx.showLoading({ title: '打印中...', mask: true });
+    showLoading('打印中...');
     try {
       const bytes = buildTestReceipt();
       await printer.writeBytes(bytes);
-      wx.hideLoading();
-      wx.showToast({ title: '打印成功', icon: 'success' });
+      hideLoading();
+      toast('打印成功', 'success');
     } catch (e) {
-      wx.hideLoading();
-      wx.showModal({
-        title: '打印失败',
-        content: e.message || '请检查打印机连接',
-        showCancel: false
-      });
+      hideLoading();
+      alert({ title: '打印失败', content: e.message || '请检查打印机连接' });
     }
   },
 
-  onUnpair() {
-    wx.showModal({
+  async onUnpair() {
+    const ok = await confirm({
       title: '解除配对',
       content: '解除后开单将无法打印小票，确定解除吗？',
-      success: (res) => {
-        if (!res.confirm) return;
-        printer.close();
-        printer.clearDevice();
-        this.setData({ savedDevice: null, connected: false });
-        this._setState('disconnected');
-        wx.showToast({ title: '已解除配对', icon: 'success' });
-      }
+      confirmText: '解除'
     });
+    if (!ok) return;
+    printer.close();
+    printer.clearDevice();
+    this.setData({ savedDevice: null, connected: false });
+    this._setState('disconnected');
+    toast('已解除配对', 'success');
   }
 });

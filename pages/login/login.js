@@ -1,16 +1,22 @@
-// 登录/注册页：账号密码自由注册；登录态持久化（Token 存入本地 Storage）
+// 裁间 · 登录 / 注册页
 const { request } = require('../../utils/api');
+const { confirm, toast } = require('../../utils/dialog');
 
 Page({
   data: {
     mode: 'login', // login 登录 / register 注册
+    loading: false,
+    focusField: '',
+
     username: '',
     password: '',
     confirmPassword: '',
-    loading: false
+
+    usernameError: '',
+    passwordError: '',
+    confirmError: ''
   },
 
-  // 进入页面：回填上次登录的账号
   onLoad() {
     const saved = wx.getStorageSync('login_username');
     if (saved) this.setData({ username: saved });
@@ -18,88 +24,96 @@ Page({
 
   // 切换 登录 / 注册
   switchMode(e) {
-    this.setData({ mode: e.currentTarget.dataset.mode });
+    const mode = e.currentTarget.dataset.mode;
+    if (!mode || mode === this.data.mode) return;
+    this.setData({ mode, confirmPassword: '' });
+    this.clearErrors();
+  },
+
+  clearErrors() {
+    this.setData({ usernameError: '', passwordError: '', confirmError: '' });
+  },
+
+  onFocus(e) {
+    this.setData({ focusField: e.currentTarget.dataset.name });
+  },
+  onBlur() {
+    this.setData({ focusField: '' });
   },
 
   onUsernameInput(e) {
-    this.setData({ username: e.detail.value });
+    const v = e.detail.value;
+    this.setData({ username: v, usernameError: '' });
   },
-
   onPasswordInput(e) {
-    this.setData({ password: e.detail.value });
+    const v = e.detail.value;
+    this.setData({ password: v, passwordError: '' });
+  },
+  onConfirmInput(e) {
+    const v = e.detail.value;
+    this.setData({ confirmPassword: v, confirmError: '' });
   },
 
-  onConfirmPasswordInput(e) {
-    this.setData({ confirmPassword: e.detail.value });
+  validate() {
+    const { mode, username, password, confirmPassword } = this.data;
+    const errors = { usernameError: '', passwordError: '', confirmError: '' };
+
+    if (!username.trim()) {
+      errors.usernameError = '请输入账号';
+    } else if (mode === 'register' && !/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
+      errors.usernameError = '账号需为 3-20 位字母、数字或下划线';
+    }
+
+    if (!password) {
+      errors.passwordError = '请输入密码';
+    } else if (mode === 'register' && (password.length < 6 || password.length > 32)) {
+      errors.passwordError = '密码长度需为 6-32 位';
+    }
+
+    if (mode === 'register') {
+      if (!confirmPassword) {
+        errors.confirmError = '请再次输入密码';
+      } else if (confirmPassword !== password) {
+        errors.confirmError = '两次输入的密码不一致';
+      }
+    }
+
+    this.setData(errors);
+    return !errors.usernameError && !errors.passwordError && !errors.confirmError;
   },
 
-  // 保存登录态：已绑定店铺进首页，未绑定进店铺创建/绑定页
+  // 保存登录态：已绑定店铺进首页，未绑定进店铺页
   saveLoginState(data) {
     wx.setStorageSync('token', data.token);
     wx.setStorageSync('adminInfo', data.admin);
-    // 记住账号，下次登录自动回填
     if (data.admin && data.admin.username) {
       wx.setStorageSync('login_username', data.admin.username);
     }
-    wx.showToast({
-      title: this.data.mode === 'login' ? '登录成功' : '注册成功',
-      icon: 'success'
-    });
+    toast(this.data.mode === 'login' ? '登录成功' : '注册成功', 'success');
     setTimeout(() => {
       const target = data.admin && data.admin.storeId
         ? '/pages/index/index'
         : '/pages/store/store';
       wx.reLaunch({ url: target });
-    }, 500);
+    }, 600);
   },
 
-  // 提交登录
-  async handleLogin() {
-    const { username, password, loading } = this.data;
-    if (loading) return;
-    if (!username.trim() || !password) {
-      wx.showToast({ title: '请输入账号和密码', icon: 'none' });
-      return;
-    }
-    this.setData({ loading: true });
-    try {
-      const data = await request({
-        url: '/api/auth/login',
-        method: 'POST',
-        data: { username: username.trim(), password }
-      });
-      this.saveLoginState(data);
-    } catch (e) {
-      // 错误提示已由请求封装统一处理
-    } finally {
-      this.setData({ loading: false });
-    }
-  },
+  async handleSubmit() {
+    if (this.data.loading) return;
+    if (!this.validate()) return;
 
-  // 提交注册（自由注册，不建店；注册后可创建店铺或凭店铺码加入）
-  async handleRegister() {
-    const { username, password, confirmPassword, loading } = this.data;
-    if (loading) return;
-    if (!username.trim() || !password) {
-      wx.showToast({ title: '请填写账号和密码', icon: 'none' });
-      return;
-    }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username.trim())) {
-      wx.showToast({ title: '账号需为 3-20 位字母、数字或下划线', icon: 'none' });
-      return;
-    }
-    if (password.length < 6 || password.length > 32) {
-      wx.showToast({ title: '密码长度需为 6-32 位', icon: 'none' });
-      return;
-    }
-    if (password !== confirmPassword) {
-      wx.showToast({ title: '两次输入的密码不一致', icon: 'none' });
-      return;
-    }
+    const { mode, username, password } = this.data;
     this.setData({ loading: true });
     try {
+      if (mode === 'register') {
+        const confirmed = await confirm({
+          title: '确认注册',
+          content: `确定使用账号「${username.trim()}」注册吗？`
+        });
+        if (!confirmed) return;
+      }
       const data = await request({
-        url: '/api/auth/register',
+        url: mode === 'login' ? '/api/auth/login' : '/api/auth/register',
         method: 'POST',
         data: { username: username.trim(), password }
       });

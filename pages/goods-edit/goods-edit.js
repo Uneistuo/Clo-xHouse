@@ -1,6 +1,7 @@
 // 商品编辑页：新增 / 编辑商品（全字段表单 + 图片上传 + 颜色尺码标签录入）
 const { request, uploadFile, BASE_URL } = require('../../utils/api');
 const { resolveImg } = require('../../utils/util');
+const { toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
 
 Page({
   data: {
@@ -50,12 +51,10 @@ Page({
 
   onLoad(options) {
     if (!getApp().checkLogin()) return;
+    // 导航栏标题统一为「裁间」（各页 json 已配置），此处不再动态覆盖
     if (options.id) {
       this.setData({ id: options.id, isEdit: true });
-      wx.setNavigationBarTitle({ title: '编辑商品' });
       this.loadGoods(options.id);
-    } else {
-      wx.setNavigationBarTitle({ title: '新增商品' });
     }
     this.loadCategories();
   },
@@ -159,7 +158,7 @@ Page({
         this.setData({ 'form.categoryId': cat.id, categoryInput: cat.name });
         this.syncCategoryByInput();
       }
-      wx.showToast({ title: '分类已创建', icon: 'success' });
+      toast('分类已创建', 'success');
     } catch (e) {
       // 错误提示由请求封装统一处理
     }
@@ -210,14 +209,14 @@ Page({
   // ============ 图片上传（最多 3 张） ============
   async chooseImage() {
     if (this.data.imagePaths.length >= 3) {
-      wx.showToast({ title: '最多上传 3 张图片', icon: 'none' });
+      toast('最多上传 3 张图片', 'none');
       return;
     }
     wx.chooseMedia({
       count: 3 - this.data.imagePaths.length,
       mediaType: ['image'],
       success: async (res) => {
-        wx.showLoading({ title: '上传中...' });
+        showLoading('上传中...');
         try {
           for (const f of res.tempFiles) {
             const url = await uploadFile(f.tempFilePath);
@@ -227,7 +226,7 @@ Page({
             });
           }
         } finally {
-          wx.hideLoading();
+          hideLoading();
         }
       }
     });
@@ -298,12 +297,12 @@ Page({
     if (submitting) return;
 
     // 表单校验
-    if (!form.name.trim()) { wx.showToast({ title: '请输入商品名称', icon: 'none' }); return; }
+    if (!form.name.trim()) { toast('请输入商品名称', 'none'); return; }
     if (form.price === '' || isNaN(Number(form.price)) || Number(form.price) < 0) {
-      wx.showToast({ title: '请输入正确的售价', icon: 'none' }); return;
+      toast('请输入正确的售价', 'none'); return;
     }
     if (form.originalPrice !== '' && (isNaN(Number(form.originalPrice)) || Number(form.originalPrice) < 0)) {
-      wx.showToast({ title: '原价格式不正确', icon: 'none' }); return;
+      toast('原价格式不正确', 'none'); return;
     }
     // 规格库存校验
     const skuList = skus.map((s) => ({
@@ -315,7 +314,7 @@ Page({
       if (isNaN(s.stock) || s.stock < 0) {
         const label = this.data.hasSpec
           ? `规格【${s.color || '默认色'} / ${s.size || '默认码'}】` : '';
-        wx.showToast({ title: `请输入${label}正确的库存`, icon: 'none' });
+        toast(`请输入${label}正确的库存`, 'none');
         return;
       }
     }
@@ -342,7 +341,7 @@ Page({
       } else {
         await request({ url: '/api/goods', method: 'POST', data: payload });
       }
-      wx.showToast({ title: '保存成功', icon: 'success' });
+      toast('保存成功', 'success');
       setTimeout(() => wx.navigateBack(), 600);
     } catch (e) {
       // 错误提示由请求封装统一处理

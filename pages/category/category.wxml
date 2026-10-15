@@ -19,7 +19,7 @@
       <view class="add-row">
         <input class="add-input" placeholder="分类名称，如：上衣" value="{{addName}}"
                bindinput="onAddNameInput" placeholder-class="ph" />
-        <view class="btn-ghost" bindtap="handleAdd">添加</view>
+        <view class="btn-ghost {{adding ? 'btn-loading btn-loading-dark' : ''}}" bindtap="handleAdd">添加</view>
       </view>
     </view>
 
@@ -52,7 +52,7 @@
     <view class="add-row">
       <input class="add-input" placeholder="分类名称，如：上衣" value="{{addName}}"
              bindinput="onAddNameInput" placeholder-class="ph" />
-      <view class="btn-ghost" bindtap="handleAdd">添加</view>
+      <view class="btn-ghost {{adding ? 'btn-loading btn-loading-dark' : ''}}" bindtap="handleAdd">添加</view>
     </view>
   </view>
 </view>

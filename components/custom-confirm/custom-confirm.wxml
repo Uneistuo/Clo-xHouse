@@ -1,0 +1,11 @@
+<!-- 自定义确认对话框（替代 wx.showModal，样式可控） -->
+<view wx:if="{{visible}}" class="c-confirm-mask" bindtap="onMaskTap">
+  <view class="c-confirm-modal" catchtap="noop">
+    <view class="c-confirm-title">{{title}}</view>
+    <view class="c-confirm-content">{{content}}</view>
+    <view class="c-confirm-btns">
+      <view class="c-confirm-btn c-confirm-btn-cancel" bindtap="onCancel">{{cancelText || '取消'}}</view>
+      <view class="c-confirm-btn c-confirm-btn-confirm" bindtap="onConfirm">{{confirmText || '确定'}}</view>
+    </view>
+  </view>
+</view>

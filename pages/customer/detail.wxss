@@ -1,4 +1,4 @@
-/* 会员详情页样式 */
+/* 会员详情页样式（CSS 变量） */
 .page { padding: 24rpx 24rpx 0; }
 
 /* 会员信息卡 */
@@ -8,8 +8,8 @@
   width: 108rpx;
   height: 108rpx;
   border-radius: 50%;
-  background: rgba(225, 72, 60, 0.1);
-  color: #e1483c;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
   font-size: 48rpx;
   font-weight: bold;
   display: flex;
@@ -17,21 +17,22 @@
   justify-content: center;
   flex-shrink: 0;
   margin-right: 28rpx;
+  box-shadow: 0 8rpx 20rpx rgba(225, 72, 60, 0.25);
 }
-.profile-name { font-size: 36rpx; font-weight: bold; color: #14161a; margin-bottom: 8rpx; }
-.profile-phone { font-size: 26rpx; color: #5b616e; letter-spacing: 1rpx; }
-.profile-actions { display: flex; gap: 20rpx; border-top: 1rpx solid #eceef1; padding-top: 24rpx; }
+.profile-name { font-size: 36rpx; font-weight: bold; color: var(--text-1); margin-bottom: 8rpx; }
+.profile-phone { font-size: 26rpx; color: var(--text-2); letter-spacing: 1rpx; }
+.profile-actions { display: flex; gap: 20rpx; border-top: 1rpx solid var(--divider); padding-top: 24rpx; }
 .action-btn {
   flex: 1;
   text-align: center;
   padding: 18rpx 0;
   border-radius: 14rpx;
   font-size: 28rpx;
-  color: #e1483c;
-  background: rgba(225, 72, 60, 0.06);
+  color: var(--primary-dark);
+  background: var(--primary-tint);
 }
 .action-btn:active { opacity: 0.7; }
-.action-btn.danger { color: #5b616e; background: #f4f5f7; }
+.action-btn.danger { color: var(--text-2); background: var(--bg-subtle); }
 
 /* CRM 统计卡 */
 .stats-card {
@@ -43,39 +44,40 @@
 .stat-value {
   font-size: 32rpx;
   font-weight: bold;
-  color: #14161a;
+  color: var(--text-1);
   margin-bottom: 8rpx;
 }
-.stat-value.stat-time { font-size: 24rpx; color: #5b616e; padding-top: 8rpx; }
-.stat-label { font-size: 22rpx; color: #9aa0ac; }
+.stat-value.stat-time { font-size: 24rpx; color: var(--text-2); padding-top: 8rpx; }
+.stat-label { font-size: 22rpx; color: var(--text-3); }
 
 /* 消费记录卡片 */
 .order-card {
-  background: #ffffff;
-  border-radius: 20rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
   padding: 26rpx 28rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
-.order-card:active { background: #f8f9fb; }
+.order-card:active { background: var(--bg-subtle); }
 .order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
-.order-no { font-size: 28rpx; font-weight: bold; color: #14161a; }
+.order-no { font-size: 28rpx; font-weight: bold; color: var(--text-1); }
 .order-status { font-size: 22rpx; }
-.status-pending { color: #d97706; }
-.status-paid { color: #16a34a; }
-.status-done { color: #5b616e; }
-.status-cancelled { color: #9aa0ac; }
-.status-refunded { color: #e1483c; }
+.status-pending { color: var(--warning); }
+.status-paid { color: var(--success); }
+.status-done { color: var(--info); }
+.status-cancelled { color: var(--text-3); }
+.status-refunded { color: var(--danger); }
 .order-bottom { display: flex; justify-content: space-between; align-items: center; }
-.order-time { font-size: 22rpx; color: #9aa0ac; }
-.order-amount { font-size: 30rpx; font-weight: bold; color: #e1483c; }
+.order-time { font-size: 22rpx; color: var(--text-3); }
+.order-amount { font-size: 30rpx; font-weight: bold; color: var(--primary-dark); }
 
-/* 编辑弹窗性别二选一（参考商品编辑页尺码选择：整体胶囊 + 中间分隔） */
+/* 编辑弹窗性别二选一 */
 .gender-options {
   display: flex;
-  flex: 1;                 /* 撑满表单行剩余宽度，避免胶囊只有文字那么短 */
-  border: 1rpx solid #e6e8ec;
-  border-radius: 999rpx;
+  flex: 1;
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 .gender-option {
@@ -83,13 +85,13 @@
   text-align: center;
   padding: 16rpx 0;
   font-size: 26rpx;
-  color: #5b616e;
-  background: #ffffff;
+  color: var(--text-2);
+  background: var(--bg-card);
 }
-.gender-option + .gender-option { border-left: 1rpx solid #e6e8ec; }
+.gender-option + .gender-option { border-left: 1rpx solid var(--border); }
 .gender-option.active {
-  color: #e1483c;
-  background: #fdecea;
+  color: var(--primary-dark);
+  background: var(--primary-tint);
   font-weight: bold;
 }
 
@@ -105,4 +107,4 @@
 }
 
 /* 加载提示 */
-.loading-tip { text-align: center; padding: 24rpx 0 36rpx; font-size: 24rpx; color: #9aa0ac; }
+.loading-tip { text-align: center; padding: 24rpx 0 36rpx; font-size: 24rpx; color: var(--text-3); }

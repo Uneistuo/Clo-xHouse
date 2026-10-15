@@ -112,6 +112,6 @@
     </view>
   </view>
 
-  <button class="btn-primary submit-btn" bindtap="handleSubmit"
-          disabled="{{submitting}}">{{submitting ? '保存中...' : (isEdit ? '保存修改' : '立即上架')}}</button>
+  <button class="btn-primary submit-btn {{submitting ? 'btn-loading' : ''}}" bindtap="handleSubmit"
+          disabled="{{submitting}}">{{submitting ? '保存中…' : (isEdit ? '保存修改' : '立即上架')}}</button>
 </view>

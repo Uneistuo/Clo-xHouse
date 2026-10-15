@@ -1,6 +1,7 @@
 // 会员详情页：CRM 统计 + 编辑/删除 + 消费记录（按会员关联的订单）
 const { request } = require('../../utils/api');
 const { STATUS_TEXT } = require('../../utils/util');
+const { confirm, toast } = require('../../utils/dialog');
 
 const PAGE_SIZE = 20;
 
@@ -43,7 +44,6 @@ Page({
     try {
       const data = await request({ url: `/api/customer/${this.data.id}` });
       this.setData({ customer: data, loaded: true });
-      wx.setNavigationBarTitle({ title: data.displayName || '会员详情' });
     } catch (e) {
       // 错误提示已由 request 统一处理
     }
@@ -108,11 +108,11 @@ Page({
     const { id, editSurname, editGender, saving } = this.data;
     if (saving) return;
     if (!editSurname.trim()) {
-      wx.showToast({ title: '请输入姓氏', icon: 'none' });
+      toast('请输入姓氏', 'none');
       return;
     }
     if (editGender !== 1 && editGender !== 2) {
-      wx.showToast({ title: '请选择性别', icon: 'none' });
+      toast('请选择性别', 'none');
       return;
     }
     this.setData({ saving: true });
@@ -122,7 +122,7 @@ Page({
         method: 'PUT',
         data: { surname: editSurname.trim(), gender: editGender }
       });
-      wx.showToast({ title: '已保存', icon: 'success' });
+      toast('已保存', 'success');
       this.setData({ editVisible: false });
       this.loadDetail(); // 刷新显示名与统计
     } catch (e) {
@@ -133,22 +133,20 @@ Page({
   },
 
   // ============ 删除会员 ============
-  onDelete() {
+  async onDelete() {
     const { id, displayName } = this.data.customer;
-    wx.showModal({
+    const ok = await confirm({
       title: '删除会员',
       content: `确定删除会员【${displayName}】？该操作不可恢复，历史订单中的姓名快照将保留。`,
-      confirmColor: '#e1483c',
-      success: async (r) => {
-        if (!r.confirm) return;
-        try {
-          await request({ url: `/api/customer/${id}`, method: 'DELETE' });
-          wx.showToast({ title: '会员已删除', icon: 'success' });
-          setTimeout(() => wx.navigateBack(), 600);
-        } catch (e) {
-          // 错误提示已由 request 统一处理
-        }
-      }
+      confirmText: '删除'
     });
+    if (!ok) return;
+    try {
+      await request({ url: `/api/customer/${id}`, method: 'DELETE' });
+      toast('会员已删除', 'success');
+      setTimeout(() => wx.navigateBack(), 600);
+    } catch (e) {
+      // 错误提示已由 request 统一处理
+    }
   }
 });

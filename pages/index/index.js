@@ -1,7 +1,7 @@
 // 首页：经营看板
-// 结构：周期销售额（书签切换）→ 关键指标 → 近 7 天趋势（可点选）→ 低库存（可直达补货）→ 快捷入口 → 今日单据
+// 结构：周期销售额（书签切换）→ 关键指标 → 近 7 天趋势（可点选）→ 低库存（可直达补货）
 const { request } = require('../../utils/api');
-const { fmtMoney, STATUS_TEXT, STATUS_CLASS } = require('../../utils/util');
+const { fmtMoney } = require('../../utils/util');
 
 Page({
   data: {
@@ -26,10 +26,7 @@ Page({
     trend: [],              // 近 7 天趋势 [{ date, amount, amountText, orders, barH }]
     trendIndex: 0,          // 趋势图当前选中项
     trendSelected: null,    // 当前选中项数据
-    lowStock: [],           // 低库存商品
-
-    todayOrdersList: [],    // 今日单据（前 5 条）
-    loading: true
+    lowStock: []            // 低库存商品
   },
 
   onShow() {
@@ -46,7 +43,6 @@ Page({
     }
     this.setData({ dateText: this.buildDateText() });
     this.loadDashboard();
-    this.loadTodayOrders();
   },
 
   /** 生成顶部日期文案：如 "10月7日星期三" */
@@ -100,50 +96,20 @@ Page({
         trend: trendView,
         trendIndex: last,
         trendSelected: trendView[last] || null,
-        lowStock: data.lowStock || [],
-        loading: false
+        lowStock: data.lowStock || []
       });
     } catch (e) {
-      this.setData({ loading: false });
-    }
-  },
-
-  /** 拉取今日单据（最近5条） */
-  async loadTodayOrders() {
-    try {
-      const data = await request({
-        url: '/api/orders',
-        data: { range: 'today', page: 1, pageSize: 5 }
-      });
-      const list = (data.list || []).map((o) => ({
-        ...o,
-        amountText: fmtMoney(o.total_amount),
-        timeText: (o.created_at || '').slice(11, 16), // 只显示时分
-        statusText: STATUS_TEXT[o.status] || o.status,
-        statusClass: STATUS_CLASS[o.status] || 'tag-gray'
-      }));
-      this.setData({ todayOrdersList: list });
-    } catch (e) {
-      // 空表/网络异常时保持空列表，页面正常渲染
+      // 接口异常时保持既有数据，页面正常渲染
     }
   },
 
   /** 下拉刷新 */
   onPullDownRefresh() {
-    Promise.all([this.loadDashboard(), this.loadTodayOrders()])
-      .finally(() => wx.stopPullDownRefresh());
+    this.loadDashboard().finally(() => wx.stopPullDownRefresh());
   },
 
-  // 快捷入口
-  goBilling() { wx.switchTab({ url: '/pages/billing/billing' }); },
-  goAddGoods() { wx.navigateTo({ url: '/pages/goods-edit/goods-edit' }); },
   goGoods() { wx.switchTab({ url: '/pages/goods/goods' }); },
   goOrders() { wx.switchTab({ url: '/pages/orders/orders' }); },
-
-  /** 点击今日单据 -> 订单详情 */
-  goDetail(e) {
-    wx.navigateTo({ url: `/pages/order-detail/order-detail?id=${e.currentTarget.dataset.id}` });
-  },
 
   /** 点击低库存商品 -> 去编辑补货 */
   goRestock(e) {

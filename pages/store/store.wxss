@@ -1,7 +1,7 @@
-/* 店铺页样式（米色底 + 酒红主调，与登录页一致） */
+/* 店铺页样式（优化版：CSS 变量） */
 .store-page {
   min-height: 100vh;
-  background: #f4f5f7;
+  background: var(--bg-app);
   padding: 40rpx 40rpx 180rpx;
   box-sizing: border-box;
 }
@@ -12,49 +12,45 @@
   justify-content: space-between;
   margin-bottom: 32rpx;
 }
-.store-title { font-size: 38rpx; font-weight: bold; color: #14161a; }
-.store-back { font-size: 26rpx; color: #e1483c; padding: 8rpx 20rpx; border: 1rpx solid #e1483c; border-radius: 28rpx; }
+.store-title { font-size: 38rpx; font-weight: bold; color: var(--text-1); }
+.store-back { font-size: 26rpx; color: var(--primary-dark); padding: 8rpx 20rpx; border: 1rpx solid var(--primary-dark); border-radius: 28rpx; }
 
-/* 店铺信息卡（店铺信息 + 店铺成员 合并板块） */
 .store-card {
-  position: relative;          /* 为水滴折叠开关提供定位锚点 */
-  background: #ffffff;
-  border-radius: 24rpx;
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
   padding: 48rpx 40rpx;
-  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
+  box-shadow: var(--shadow-2);
+  border: 1rpx solid var(--border);
 }
 .store-name-row {
   display: flex;
   align-items: center;
   gap: 20rpx;
 }
-.store-name { font-size: 40rpx; font-weight: bold; color: #14161a; }
+.store-name { font-size: 40rpx; font-weight: bold; color: var(--text-1); }
 
-/* 切换店铺图标（仅图案，无圆圈、无背景、无边框） */
 .switch-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44rpx;
   height: 44rpx;
-  color: #9aa0ac;
+  color: var(--text-2);
   font-size: 40rpx;
   line-height: 1;
   flex-shrink: 0;
 }
-.switch-icon:active { color: var(--primary, #e1483c); }
+.switch-icon:active { color: var(--primary); }
 
-/* 店铺成员（与店铺信息同一卡片内的分区） */
 .member-section {
   margin-top: 44rpx;
   padding-top: 32rpx;
-  border-top: 1rpx solid #eceef1;
+  border-top: 1rpx solid var(--divider);
 }
 
-/* 注册店铺按钮（页面最下方，满 3 家时由 wx:if 移除） */
 .register-btn { margin-top: 40rpx; font-size: 32rpx; }
 
-/* 切换店铺弹窗 */
 .popup-mask {
   position: fixed;
   left: 0;
@@ -69,14 +65,15 @@
 }
 .popup-panel {
   width: 580rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
   padding: 40rpx 36rpx 28rpx;
+  box-shadow: var(--shadow-3);
 }
 .popup-title {
   font-size: 30rpx;
   font-weight: bold;
-  color: #14161a;
+  color: var(--text-1);
   text-align: center;
   margin-bottom: 16rpx;
 }
@@ -85,25 +82,25 @@
   justify-content: space-between;
   align-items: center;
   padding: 26rpx 8rpx;
-  border-bottom: 1rpx solid #eceef1;
+  border-bottom: 1rpx solid var(--divider);
   font-size: 28rpx;
-  color: #14161a;
+  color: var(--text-1);
 }
 .popup-item:last-of-type { border-bottom: none; }
-.popup-item.current .popup-store-name { color: #e1483c; font-weight: bold; }
+.popup-item.current .popup-store-name { color: var(--primary-dark); font-weight: bold; }
 .popup-store-name { flex: 1; }
 .popup-store-tag {
   font-size: 22rpx;
   color: #fff;
-  background: #e1483c;
+  background: var(--primary-dark);
   border-radius: 999rpx;
   padding: 4rpx 22rpx;
   line-height: 1.6;
 }
 .popup-store-arrow {
   font-size: 24rpx;
-  color: #e1483c;
-  border: 1rpx solid #f0b8b2;
+  color: var(--primary-dark);
+  border: 1rpx solid var(--primary-tint);
   border-radius: 999rpx;
   padding: 4rpx 26rpx;
   line-height: 1.6;
@@ -112,36 +109,36 @@
   margin-top: 24rpx;
   text-align: center;
   font-size: 28rpx;
-  color: #5b616e;
+  color: var(--text-2);
   padding: 12rpx 0;
 }
 .store-role {
   display: inline-block;
   margin-top: 16rpx;
   font-size: 24rpx;
-  color: #e1483c;
-  background: rgba(225, 72, 60, 0.1);
+  color: var(--primary-dark);
+  background: var(--primary-tint);
   border-radius: 12rpx;
   padding: 6rpx 20rpx;
 }
 
 .code-box {
   margin-top: 40rpx;
-  background: #f0f1f4;
+  background: var(--bg-subtle);
   border-radius: 16rpx;
   padding: 28rpx 24rpx;
+  border: 1rpx solid var(--border);
 }
-.code-label { font-size: 22rpx; color: #5b616e; flex: 1; }
+.code-label { font-size: 22rpx; color: var(--text-2); flex: 1; }
 
-/* 店铺码板块头部：说明文字 + 重置店铺码圆形小图标（仅店主） */
 .code-head { display: flex; align-items: center; }
 .reset-icon {
   width: 44rpx;
   height: 44rpx;
   border-radius: 50%;
-  border: 1rpx solid #f0b8b2;
-  color: #e1483c;
-  background: #ffffff;
+  border: 1rpx solid var(--primary-tint);
+  color: var(--primary-dark);
+  background: var(--bg-card);
   font-size: 26rpx;
   line-height: 44rpx;
   text-align: center;
@@ -153,7 +150,7 @@
   font-size: 44rpx;
   font-weight: bold;
   letter-spacing: 10rpx;
-  color: #e1483c;
+  color: var(--primary-dark);
   display: flex;
   align-items: center;
 }
@@ -162,64 +159,54 @@
   font-size: 22rpx;
   letter-spacing: 0;
   color: #fff;
-  background: #e1483c;
+  background: var(--primary-dark);
   border-radius: 10rpx;
   padding: 6rpx 16rpx;
 }
 
 .store-btns { margin-top: 40rpx; display: flex; flex-direction: column; gap: 20rpx; }
 .store-btns .btn-primary, .store-btns .btn-ghost { font-size: 28rpx; }
-/* .btn-ghost 使用全局样式（app.wxss），此处不再重复定义 */
 
-/* 成员列表（合并进店铺信息卡） */
-.member-title { font-size: 28rpx; font-weight: bold; color: #14161a; margin-bottom: 12rpx; }
+.member-title { font-size: 28rpx; font-weight: bold; color: var(--text-1); margin-bottom: 12rpx; }
 .member-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 22rpx 0;
-  border-bottom: 1rpx solid #eceef1;
+  border-bottom: 1rpx solid var(--divider);
   font-size: 28rpx;
-  color: #14161a;
+  color: var(--text-1);
 }
-
 .member-item:last-child { border-bottom: none; }
-.member-role { font-size: 22rpx; color: #5b616e; }
-.role-owner { color: #e1483c; font-weight: bold; }
+.member-role { font-size: 22rpx; color: var(--text-2); }
+.role-owner { color: var(--primary-dark); font-weight: bold; }
 
-/* 店主移除成员按钮 */
 .member-info { display: flex; align-items: center; gap: 16rpx; }
 .member-remove {
   font-size: 24rpx;
-  color: #e1483c;
-  border: 1rpx solid #f0b8b2;
+  color: var(--danger);
+  border: 1rpx solid var(--danger-tint);
   border-radius: 999rpx;
   padding: 4rpx 26rpx;
   line-height: 1.6;
 }
 
-/* 折叠开关：卡片底边的深色水滴形按钮（点击展开 / 收起店铺成员）
-   形状：顶部半圆（圆腹朝上）+ 底部与卡片底边齐平，
-   两侧用凹圆角与卡片底边平滑过渡（radial-gradient 实现） */
 .fold-toggle {
   position: absolute;
-  bottom: 0;                          /* 底部落在卡片底边 */
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 40rpx;
   height: 36rpx;
-  background: #5b616e;                /* 深灰色（次级文字色） */
-  border-top-left-radius: 20rpx;      /* 顶部半圆：宽度一半 = 完美半圆 */
+  background: var(--text-2);
+  border-top-left-radius: 20rpx;
   border-top-right-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  /* 不能 overflow:hidden，否则 ::before/::after 凹圆角会被裁掉 */
 }
-.fold-toggle-hover { background: #4a4f58; }   /* hover 更深一档 */
-/* 两侧凹圆角：圆心在远角、圆内透明、圆外填充，
-   使水滴两侧平滑地"流入"卡片底边（与看板书签同一手法） */
+.fold-toggle-hover { background: #4a4f58; }
 .fold-toggle::before,
 .fold-toggle::after {
   content: '';
@@ -227,85 +214,89 @@
   bottom: 0;
   width: 14rpx;
   height: 14rpx;
-  pointer-events: none;               /* 不挡 hover/click */
+  pointer-events: none;
 }
 .fold-toggle::before {
   left: -14rpx;
-  background: radial-gradient(circle 14rpx at 0 0, transparent 13rpx, #5b616e 14rpx);
+  background: radial-gradient(circle 14rpx at 0 0, transparent 13rpx, var(--text-2) 14rpx);
 }
 .fold-toggle::after {
   right: -14rpx;
-  background: radial-gradient(circle 14rpx at 100% 0, transparent 13rpx, #5b616e 14rpx);
+  background: radial-gradient(circle 14rpx at 100% 0, transparent 13rpx, var(--text-2) 14rpx);
 }
 .fold-toggle-arrow {
   position: relative;
   z-index: 1;
   display: inline-block;
-  color: #ffffff;                     /* 箭头白色，与深灰底形成对比 */
+  color: #ffffff;
   font-size: 20rpx;
   line-height: 1;
   transform: rotate(0deg);
   transition: transform 0.2s ease;
-  margin-top: -2rpx;                  /* 视觉居中（半圆顶端上移） */
+  margin-top: -2rpx;
 }
 .fold-arrow-up { transform: rotate(180deg); }
 
-/* 未绑定：创建 / 加入 */
 .action-tabs {
   display: flex;
-  background: #ffffff;
-  border-radius: 24rpx 24rpx 0 0;
-  padding: 24rpx 40rpx 0;
-  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 16rpx;
+  margin: 0 40rpx 32rpx;
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
 .action-tab {
   flex: 1;
   text-align: center;
   font-size: 30rpx;
-  color: #5b616e;
-  padding-bottom: 24rpx;
-  border-bottom: 4rpx solid transparent;
+  color: var(--text-2);
+  padding-bottom: 18rpx;
+  border-bottom: 3rpx solid transparent;
+  border-radius: 16rpx 16rpx 0 0;
 }
 .action-tab.active {
-  color: #e1483c;
+  color: var(--primary-dark);
   font-weight: bold;
-  border-bottom-color: #e1483c;
+  border-bottom-color: var(--primary-dark);
+  background: var(--primary-tint);
 }
 
 .store-form {
-  background: #ffffff;
-  border-radius: 0 0 24rpx 24rpx;
+  background: var(--bg-card);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
   padding: 40rpx;
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
+  border-top: none;
 }
-/* .form-item / .form-label / .form-input / .placeholder 使用全局样式（app.wxss） */
-
-.form-tip { margin-top: 32rpx; font-size: 24rpx; color: #9aa0ac; text-align: center; }
+.form-tip { margin-top: 32rpx; font-size: 24rpx; color: var(--text-2); text-align: center; }
 .form-btn { margin-top: 40rpx; font-size: 32rpx; }
 
-/* 平台管理入口（仅平台管理员可见） */
 .platform-card {
   margin-top: 28rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
   padding: 36rpx 40rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
-.platform-title { font-size: 30rpx; font-weight: bold; color: #14161a; }
-.platform-sub { font-size: 24rpx; color: #5b616e; margin-top: 8rpx; }
-.platform-arrow { font-size: 44rpx; color: #b9bfc9; line-height: 1; }
+.platform-title { font-size: 30rpx; font-weight: bold; color: var(--text-1); }
+.platform-sub { font-size: 24rpx; color: var(--text-2); margin-top: 8rpx; }
+.platform-arrow { font-size: 44rpx; color: var(--text-2); line-height: 1; }
 
 .page-bottom-space { height: 40rpx; }
 
-/* ===== 设置区 ===== */
 .settings-card {
   margin-top: 28rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
   padding: 0 40rpx;
-  box-shadow: 0 8rpx 30rpx rgba(20, 22, 26, 0.08);
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
 .settings-item {
   display: flex;
@@ -313,6 +304,8 @@
   justify-content: space-between;
   padding: 34rpx 0;
   font-size: 30rpx;
-  color: #14161a;
+  color: var(--text-1);
+  border-bottom: 1rpx solid var(--divider);
 }
-.settings-arrow { font-size: 34rpx; color: #b9bfc9; }
+.settings-item:last-child { border-bottom: none; }
+.settings-arrow { font-size: 34rpx; color: var(--text-2); }

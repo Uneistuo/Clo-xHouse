@@ -102,8 +102,8 @@
       <view class="footer-spec">{{cart.length}} 种规格</view>
       <view class="footer-price">¥{{totalAmount}}</view>
     </view>
-    <view class="footer-btn {{cart.length === 0 || submitting ? 'disabled' : ''}}" bindtap="submitOrder">
-      {{submitting ? '提交中...' : '收款并出单'}}
+    <view class="footer-btn {{cart.length === 0 || submitting ? 'disabled' : ''}} {{submitting ? 'btn-loading' : ''}}" bindtap="submitOrder">
+      {{submitting ? '提交中…' : '收款并出单'}}
     </view>
   </view>
 
@@ -135,7 +135,7 @@
       </view>
       <view class="modal-btns">
         <button class="btn-ghost modal-btn" bindtap="closeSelect">取消</button>
-        <button class="btn-primary modal-btn primary" bindtap="confirmAdd">加入订单</button>
+        <button class="btn-primary modal-btn primary {{addingItem ? 'btn-loading' : ''}}" bindtap="confirmAdd">加入订单</button>
       </view>
     </view>
   </view>

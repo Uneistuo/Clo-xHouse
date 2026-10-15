@@ -3,6 +3,7 @@
 // 平台管理员在本页另有"平台管理"入口（控制各店铺开单白名单）
 const { request } = require('../../utils/api');
 const { printer } = require('../../utils/printer');
+const { confirm, toast } = require('../../utils/dialog');
 
 Page({
   data: {
@@ -108,7 +109,7 @@ Page({
     const { storeName, loading } = this.data;
     if (loading) return;
     if (!storeName.trim()) {
-      wx.showToast({ title: '请填写店铺名称', icon: 'none' });
+      toast('请填写店铺名称', 'none');
       return;
     }
     this.setData({ loading: true });
@@ -118,7 +119,7 @@ Page({
         method: 'POST',
         data: { storeName: storeName.trim() }
       });
-      wx.showToast({ title: '店铺创建成功', icon: 'success' });
+      toast('店铺创建成功', 'success');
       this.saveNewToken(data);
     } catch (e) {
       // 错误提示已由请求封装统一处理
@@ -128,35 +129,37 @@ Page({
   },
 
   // 注册新店铺（仅店主；已有店铺后仍可继续创建，上限 3 个，创建后自动切换为当前店铺）
-  handleCreateNew() {
+  async handleCreateNew() {
     const { canCreateStore, storeLimit } = this.data;
     if (!canCreateStore) {
-      wx.showToast({ title: `每个店主最多可绑定 ${storeLimit} 个店铺`, icon: 'none' });
+      toast(`每个店主最多可绑定 ${storeLimit} 个店铺`, 'none');
       return;
     }
-    wx.showModal({
-      title: '注册新店铺',
-      editable: true,
-      placeholderText: '请输入新店铺名称',
-      success: async (res) => {
-        if (!res.confirm) return;
-        const storeName = (res.content || '').trim();
-        if (!storeName) {
-          wx.showToast({ title: '请填写店铺名称', icon: 'none' });
-          return;
-        }
-        try {
-          const data = await request({
-            url: '/api/store/create',
-            method: 'POST',
-            data: { storeName }
-          });
-          wx.showToast({ title: '新店铺创建成功', icon: 'success' });
-          this.saveNewToken(data);
-        } catch (e) {
-          // 错误提示已由请求封装统一处理（重名/数量上限等）
-        }
-      }
+    const storeName = await this.promptInput('注册新店铺', '请输入新店铺名称');
+    if (!storeName) return;
+    try {
+      const data = await request({
+        url: '/api/store/create',
+        method: 'POST',
+        data: { storeName }
+      });
+      toast('新店铺创建成功', 'success');
+      this.saveNewToken(data);
+    } catch (e) {
+      // 错误提示已由请求封装统一处理（重名/数量上限等）
+    }
+  },
+
+  /** 调用 wx.showModal 做单行文本输入（editable 模式），返回输入内容或 null */
+  promptInput(title, placeholder) {
+    return new Promise((resolve) => {
+      wx.showModal({
+        title,
+        editable: true,
+        placeholderText: placeholder,
+        success: (res) => resolve(res.confirm ? (res.content || '').trim() : null),
+        fail: () => resolve(null)
+      });
     });
   },
 
@@ -173,28 +176,26 @@ Page({
   // 阻止弹窗内点击冒泡到遮罩
   noop() {},
 
-  handleSwitchStore(e) {
+  async handleSwitchStore(e) {
     const { id, name } = e.currentTarget.dataset;
     if (Number(id) === this.data.storeId) return;
-    wx.showModal({
+    const confirmed = await confirm({
       title: '切换店铺',
-      content: `确定切换到【${name}】吗？切换后商品与订单将展示该店铺的数据。`,
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          const data = await request({
-            url: '/api/store/switch',
-            method: 'POST',
-            data: { storeId: Number(id) }
-          });
-          this.closeSwitchPopup();
-          wx.showToast({ title: '已切换', icon: 'success' });
-          this.saveNewToken(data);
-        } catch (e) {
-          // 错误提示已由请求封装统一处理
-        }
-      }
+      content: `确定切换到【${name}】吗？切换后商品与订单将展示该店铺的数据。`
     });
+    if (!confirmed) return;
+    try {
+      const data = await request({
+        url: '/api/store/switch',
+        method: 'POST',
+        data: { storeId: Number(id) }
+      });
+      this.closeSwitchPopup();
+      toast('已切换', 'success');
+      this.saveNewToken(data);
+    } catch (e) {
+      // 错误提示已由请求封装统一处理
+    }
   },
 
   // 凭店铺码加入店铺（商品/订单数据自动同步）
@@ -202,7 +203,7 @@ Page({
     const { code, loading } = this.data;
     if (loading) return;
     if (!code.trim()) {
-      wx.showToast({ title: '请输入店铺码', icon: 'none' });
+      toast('请输入店铺码', 'none');
       return;
     }
     this.setData({ loading: true });
@@ -212,7 +213,7 @@ Page({
         method: 'POST',
         data: { code: code.trim() }
       });
-      wx.showToast({ title: '已加入，数据已同步', icon: 'success' });
+      toast('已加入，数据已同步', 'success');
       this.saveNewToken(data);
     } catch (e) {
       // 错误提示已由请求封装统一处理
@@ -222,70 +223,64 @@ Page({
   },
 
   // 退出店铺（员工自行退出共享，店主不可退出）
-  handleUnbind() {
-    wx.showModal({
+  async handleUnbind() {
+    const confirmed = await confirm({
       title: '退出店铺',
-      content: '退出后将不再看到该店铺的商品与订单，确定退出吗？',
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          const data = await request({ url: '/api/store/unbind', method: 'POST' });
-          wx.showToast({ title: '已退出', icon: 'success' });
-          this.saveNewToken(data);
-        } catch (e) {
-          // 错误提示已由请求封装统一处理
-        }
-      }
+      content: '退出后将不再看到该店铺的商品与订单，确定退出吗？'
     });
+    if (!confirmed) return;
+    try {
+      const data = await request({ url: '/api/store/unbind', method: 'POST' });
+      toast('已退出', 'success');
+      this.saveNewToken(data);
+    } catch (e) {
+      // 错误提示已由请求封装统一处理
+    }
   },
 
   // 移除店铺成员（仅店主，被移除成员立即失去本店数据权限）
-  handleRemoveMember(e) {
+  async handleRemoveMember(e) {
     const { id, name } = e.currentTarget.dataset;
-    wx.showModal({
+    const confirmed = await confirm({
       title: '移除成员',
-      content: `确定将【${name}】移出店铺吗？移除后其将无法查看本店商品与订单。`,
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          const data = await request({
-            url: '/api/store/member/remove',
-            method: 'POST',
-            data: { memberId: Number(id) }
-          });
-          wx.showToast({ title: data.message || '已移除', icon: 'none' });
-          this.loadInfo();
-        } catch (err) {
-          // 错误提示已由请求封装统一处理
-        }
-      }
+      content: `确定将【${name}】移出店铺吗？移除后其将无法查看本店商品与订单。`
     });
+    if (!confirmed) return;
+    try {
+      const data = await request({
+        url: '/api/store/member/remove',
+        method: 'POST',
+        data: { memberId: Number(id) }
+      });
+      toast(data.message || '已移除', 'none');
+      this.loadInfo();
+    } catch (err) {
+      // 错误提示已由请求封装统一处理
+    }
   },
 
   // 复制店铺码（分享给员工绑定）
   handleCopyCode() {
     wx.setClipboardData({
       data: this.data.store.bind_code,
-      success: () => wx.showToast({ title: '店铺码已复制', icon: 'success' })
+      success: () => toast('店铺码已复制', 'success')
     });
   },
 
   // 重置店铺码（仅店主）
-  handleResetCode() {
-    wx.showModal({
+  async handleResetCode() {
+    const confirmed = await confirm({
       title: '重置店铺码',
-      content: '重置后旧店铺码立即失效，已绑定的成员不受影响，确定重置吗？',
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          await request({ url: '/api/store/code', method: 'POST' });
-          wx.showToast({ title: '已重置', icon: 'success' });
-          this.loadInfo();
-        } catch (e) {
-          // 错误提示已由请求封装统一处理
-        }
-      }
+      content: '重置后旧店铺码立即失效，已绑定的成员不受影响，确定重置吗？'
     });
+    if (!confirmed) return;
+    try {
+      await request({ url: '/api/store/code', method: 'POST' });
+      toast('已重置', 'success');
+      this.loadInfo();
+    } catch (e) {
+      // 错误提示已由请求封装统一处理
+    }
   },
 
   // 平台管理：控制各店铺开单白名单（仅平台管理员可见入口）
@@ -304,11 +299,11 @@ Page({
   },
 
   // 退出登录
-  handleLogout() {
-    wx.showModal({
+  async handleLogout() {
+    const confirmed = await confirm({
       title: '提示',
-      content: '确定退出登录吗？',
-      success: (res) => { if (res.confirm) getApp().logout(); }
+      content: '确定退出登录吗？'
     });
+    if (confirmed) getApp().logout();
   }
 });

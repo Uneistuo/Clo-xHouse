@@ -85,7 +85,8 @@
 
     <view class="modal-btns">
       <button class="btn-ghost modal-btn" bindtap="closeEdit">取消</button>
-      <button class="btn-primary modal-btn primary" bindtap="confirmEdit" disabled="{{saving}}">{{saving ? '保存中...' : '保存'}}</button>
+      <button class="btn-primary modal-btn primary {{saving ? 'btn-loading' : ''}}" bindtap="confirmEdit"
+              disabled="{{saving}}">{{saving ? '保存中…' : '保存'}}</button>
     </view>
   </view>
 </view>

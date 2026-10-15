@@ -1,0 +1,51 @@
+/* ============================================================
+   styles/tokens.wxss —— 设计变量（Design Tokens）
+   选择器说明：
+     · page   —— 页面上下文（app.wxss 引入）
+     · :host  —— 自定义组件根节点（如 custom-tab-bar 等组件内引入）
+   自定义组件默认样式隔离，page 上定义的变量不会传入组件，
+   组件需自行 @import 本文件，变量方能生效。
+   ============================================================ */
+page,
+:host {
+  /* ---------- 中性色 ---------- */
+  --bg-app: #f4f5f7;        /* 页面底 */
+  --bg-card: #ffffff;       /* 卡片 */
+  --bg-subtle: #f0f1f4;     /* 分区/输入底 */
+  --border: #e6e8ec;
+  --border-strong: #d3d7de;
+  --divider: #eceef1;
+
+  /* ---------- 文字 ---------- */
+  --text-1: #14161a;        /* 主 */
+  --text-2: #5b616e;        /* 次 */
+  --text-3: #9aa0ac;        /* 弱 */
+  --text-placeholder: #b9bfc9;
+
+  /* ---------- 品牌主色（时尚红） ---------- */
+  --primary: #e1483c;
+  --primary-dark: #c5362c;
+  --primary-tint: #fdecea;
+
+  /* ---------- 语义色 ---------- */
+  --success: #16a34a;
+  --success-tint: #e7f6ec;
+  --warning: #b45309;
+  --warning-tint: #fef3e2;
+  --danger: #dc2626;
+  --danger-tint: #fdecea;
+  --info: #2563eb;
+  --info-tint: #e6efff;
+
+  /* ---------- 圆角 ---------- */
+  --radius-card: 24rpx;
+  --radius-input: 16rpx;
+  --radius-sheet: 28rpx;
+  --radius-pill: 999rpx;
+
+  /* ---------- 阴影 ---------- */
+  --shadow-1: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
+  --shadow-2: 0 8rpx 24rpx rgba(20, 22, 26, 0.08);
+  --shadow-3: 0 16rpx 48rpx rgba(20, 22, 26, 0.18);
+  --shadow-primary: 0 8rpx 20rpx rgba(225, 72, 60, 0.28);
+}

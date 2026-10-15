@@ -1,4 +1,4 @@
-/* 商品管理页样式 */
+/* 商品管理页样式（优化版：CSS 变量） */
 .search-bar {
   display: flex;
   align-items: center;
@@ -8,39 +8,49 @@
   flex: 1;
   display: flex;
   align-items: center;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 999rpx;
   padding: 16rpx 24rpx;
+  border: 1rpx solid var(--border-strong);
 }
-.search-icon { font-size: 26rpx; margin-right: 12rpx; }
-.search-input { flex: 1; font-size: 28rpx; }
+.search-icon { font-size: 26rpx; margin-right: 12rpx; color: var(--text-2); }
+.search-input { flex: 1; font-size: 28rpx; color: var(--text-1); }
+
+/* 分类入口：纯图标按钮（三条横杠），无底框，位于搜索栏行首 */
 .category-entry {
-  margin-left: 20rpx;
-  color: #c5362c;
-  font-size: 28rpx;
-  padding: 12rpx 8rpx;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  font-size: 40rpx;
 }
+.category-entry:active { opacity: 0.5; }
 
 .tabs {
   display: flex;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 999rpx;
   padding: 6rpx;
   margin-bottom: 24rpx;
+  border: 1rpx solid var(--border);
 }
-.goods-no { font-size: 23rpx; color: #9aa0ac; margin-top: 4rpx; }
+.goods-no { font-size: 23rpx; color: var(--text-2); margin-top: 4rpx; }
 
 .tab {
   flex: 1;
   text-align: center;
   font-size: 28rpx;
-  color: #5b616e;
+  color: var(--text-2);
   padding: 16rpx 0;
   border-radius: 999rpx;
 }
 .tab-active {
   color: #ffffff;
-  background: #e1483c;
+  background: var(--primary);
   font-weight: bold;
 }
 
@@ -50,21 +60,22 @@
   width: 160rpx;
   height: 160rpx;
   border-radius: 16rpx;
-  background: #f0f1f4;
+  background: var(--bg-subtle);
   flex-shrink: 0;
+  border: 1rpx solid var(--border);
 }
 .goods-info { flex: 1; margin-left: 20rpx; overflow: hidden; }
-.goods-name { font-size: 30rpx; font-weight: bold; color: #14161a; }
+.goods-name { font-size: 30rpx; font-weight: bold; color: var(--text-1); }
 .goods-price { margin: 10rpx 0; font-size: 32rpx; }
 .origin-price {
-  color: #9aa0ac;
+  color: var(--text-2);
   font-size: 22rpx;
   text-decoration: line-through;
   margin-left: 12rpx;
 }
 .goods-meta {
   font-size: 24rpx;
-  color: #5b616e;
+  color: var(--text-2);
   margin-bottom: 10rpx;
   display: flex;
   align-items: center;
@@ -75,13 +86,12 @@
   justify-content: flex-end;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #eceef1;
+  border-top: 1rpx solid var(--divider);
 }
-.goods-actions .btn-mini:first-child { margin-left: 0; }
 
 .loading-tip {
   text-align: center;
-  color: #9aa0ac;
+  color: var(--text-2);
   font-size: 24rpx;
   padding: 20rpx 0 160rpx;
 }
@@ -95,42 +105,43 @@
   height: 100rpx;
   line-height: 96rpx;
   text-align: center;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: #fff;
   font-size: 56rpx;
   border-radius: 50%;
-  box-shadow: 0 8rpx 20rpx rgba(225, 72, 60, 0.32);
+  box-shadow: var(--shadow-primary);
 }
 
-/* ===== 搜索栏右侧入口（分类 / 管理） ===== */
+/* 搜索栏右侧入口 */
 .bar-actions { display: flex; align-items: center; }
 .manage-entry {
   margin-left: 20rpx;
   font-size: 26rpx;
-  color: #5b616e;
-  background: #ffffff;
+  color: var(--text-2);
+  background: var(--bg-card);
   border-radius: 999rpx;
   padding: 12rpx 26rpx;
+  border: 1rpx solid var(--border);
 }
 .manage-entry.active {
   color: #fff;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
-/* ===== 低库存预警 ===== */
-.stock-warn { color: #dc2626; font-weight: 600; }
+/* 低库存预警 */
+.stock-warn { color: var(--danger); font-weight: 700; }
 
-/* ===== 批量选择圆点 ===== */
+/* 批量选择圆点 */
 .select-dot {
   width: 40rpx;
   height: 40rpx;
   border-radius: 50%;
-  border: 2rpx solid #d3d7de;
+  border: 2rpx solid var(--border-strong);
   box-sizing: border-box;
   margin-right: 20rpx;
   flex-shrink: 0;
 }
-.select-dot.on { background: #e1483c; border-color: #e1483c; position: relative; }
+.select-dot.on { background: var(--primary); border-color: var(--primary); position: relative; }
 .select-dot.on::after {
   content: '';
   position: absolute;
@@ -142,9 +153,9 @@
   border-width: 0 3rpx 3rpx 0;
   transform: rotate(45deg);
 }
-.goods-selected { border: 1.5rpx solid #e1483c; }
+.goods-selected { border: 1.5rpx solid var(--primary); }
 
-/* ===== 批量操作栏 ===== */
+/* 批量操作栏 */
 .batch-bar {
   position: fixed;
   left: 0;
@@ -154,15 +165,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: var(--bg-card);
   padding: 20rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -6rpx 18rpx rgba(20, 22, 26, 0.08);
+  border-top: 1rpx solid var(--border);
 }
-.batch-all { display: flex; align-items: center; font-size: 28rpx; color: #14161a; }
+.batch-all { display: flex; align-items: center; font-size: 28rpx; color: var(--text-1); }
 .batch-all .select-dot { margin-right: 12rpx; }
 .batch-actions { display: flex; align-items: center; }
 .batch-actions .btn-mini { margin-left: 16rpx; }
-/* ===== 适配自定义 TabBar（底部悬浮，内容留白 / 固定元素上移） ===== */
+
+/* 适配自定义 TabBar */
 .page { padding-bottom: 180rpx; }
 .fab { bottom: calc(140rpx + env(safe-area-inset-bottom)); }
 .batch-bar { bottom: calc(100rpx + env(safe-area-inset-bottom)); }

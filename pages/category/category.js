@@ -1,5 +1,6 @@
 // 分类管理页：默认模式仅展示 + 底部新增；管理模式下可长按拖动排序、删除
 const { request } = require('../../utils/api');
+const { confirm, toast } = require('../../utils/dialog');
 
 Page({
   data: {
@@ -7,6 +8,7 @@ Page({
     loading: true,
     // 新增分类表单（默认模式）
     addName: '',
+    adding: false,     // 新增按钮加载态
     // 管理模式与长按拖拽
     manageMode: false,
     itemHrpx: 120,     // 列表项高度（rpx）
@@ -47,19 +49,22 @@ Page({
   onAddNameInput(e) { this.setData({ addName: e.detail.value }); },
 
   async handleAdd() {
-    const { addName } = this.data;
-    const name = String(addName || '').trim();
+    if (this.data.adding) return;
+    const name = String(this.data.addName || '').trim();
     if (!name) {
-      wx.showToast({ title: '请输入分类名称', icon: 'none' });
+      toast('请输入分类名称', 'none');
       return;
     }
+    this.setData({ adding: true });
     try {
       await request({ url: '/api/category', method: 'POST', data: { name, sort: 0 } });
-      wx.showToast({ title: '已添加', icon: 'success' });
+      toast('已添加', 'success');
       this.setData({ addName: '' });
       this.loadList();
     } catch (e) {
       // 错误提示由请求封装统一处理
+    } finally {
+      this.setData({ adding: false });
     }
   },
 
@@ -78,23 +83,21 @@ Page({
   },
 
   // ============ 管理模式：删除 ============
-  handleDelete(e) {
+  async handleDelete(e) {
     const { id, name } = e.currentTarget.dataset;
-    wx.showModal({
-      title: '删除确认',
+    const ok = await confirm({
+      title: '删除分类',
       content: `确定删除分类【${name}】吗？`,
-      confirmColor: '#dc2626',
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          await request({ url: `/api/category/${id}`, method: 'DELETE' });
-          wx.showToast({ title: '已删除', icon: 'success' });
-          this.loadList();
-        } catch (e) {
-          // 错误提示由请求封装统一处理
-        }
-      }
+      confirmText: '删除'
     });
+    if (!ok) return;
+    try {
+      await request({ url: `/api/category/${id}`, method: 'DELETE' });
+      toast('已删除', 'success');
+      this.loadList();
+    } catch (e) {
+      // 错误提示由请求封装统一处理
+    }
   },
 
   // ============ 管理模式：长按拖动排序 ============
@@ -179,7 +182,7 @@ Page({
   async saveSort(ids) {
     try {
       await request({ url: '/api/category/sort', method: 'POST', data: { ids } });
-      wx.showToast({ title: '排序已保存', icon: 'success' });
+      toast('排序已保存', 'success');
     } catch (e) {
       // 错误提示由请求封装统一处理
     }

@@ -1,133 +1,83 @@
-/* 首页样式：米色底 + 酒红主调 */
+/* 首页样式（优化版：CSS 变量 + 统一空状态） */
 .home {
-  background: #f4f5f7;
+  background: var(--bg-app);
   padding: 20rpx 30rpx 0;
 }
 
-/* ===== 顶部日期与标题 ===== */
 .head { padding: 10rpx 6rpx 24rpx; position: relative; }
-.head-date { font-size: 24rpx; color: #5b616e; }
+.head-date { font-size: 24rpx; color: var(--text-2); }
 .head-title {
   font-size: 52rpx;
   font-weight: bold;
-  color: #14161a;
+  color: var(--text-1);
   margin-top: 8rpx;
   letter-spacing: 2rpx;
 }
 
-/* ===== 今日销售额主卡（酒红渐变） ===== */
+/* 销售额主卡 */
 .sales-card {
-  background: #e1483c;
+  background: var(--primary);
   border-radius: 28rpx;
   padding: 40rpx 36rpx 34rpx;
   color: #fff;
-  box-shadow: 0 10rpx 26rpx rgba(225, 72, 60, 0.28);
+  box-shadow: var(--shadow-primary);
 }
 .sales-label { font-size: 26rpx; opacity: 0.85; }
+/* 总额与单数同一行：基线对齐，两者字号各自保持不变 */
+.sales-figure-row {
+  display: flex;
+  align-items: baseline;
+  margin-top: 6rpx;
+}
 .sales-num {
   font-size: 84rpx;
   font-weight: bold;
   line-height: 1.25;
-  margin: 6rpx 0 10rpx;
 }
-.sales-note { font-size: 22rpx; opacity: 0.7; }
+.sales-note { font-size: 22rpx; opacity: 0.7; margin-left: 20rpx; }
 
-/* ===== 今日订单 / 待收款 双卡 ===== */
+/* 双卡 */
 .duo-row { display: flex; margin-top: 24rpx; }
 .duo-card {
   flex: 1;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 24rpx;
   padding: 28rpx 30rpx;
-  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
 .duo-card:first-child { margin-right: 24rpx; }
-.duo-label { font-size: 24rpx; color: #5b616e; }
-.duo-num { font-size: 52rpx; font-weight: bold; color: #14161a; margin-top: 8rpx; }
+.duo-label { font-size: 24rpx; color: var(--text-2); }
+.duo-num { font-size: 52rpx; font-weight: bold; color: var(--text-1); margin-top: 8rpx; }
 
-/* ===== 商品统计三栏 ===== */
+/* 三栏 */
 .tri-row {
   display: flex;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 24rpx;
   margin-top: 24rpx;
   padding: 26rpx 0;
-  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
+  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--border);
 }
 .tri-item { flex: 1; text-align: center; }
-.tri-num { font-size: 38rpx; font-weight: bold; color: #14161a; }
-.tri-label { font-size: 24rpx; color: #5b616e; margin-top: 6rpx; }
+.tri-num { font-size: 38rpx; font-weight: bold; color: var(--text-1); }
+.tri-label { font-size: 24rpx; color: var(--text-2); margin-top: 6rpx; }
 
-/* ===== 操作按钮 ===== */
-.btn-row { display: flex; margin-top: 28rpx; }
-.btn-billing {
-  flex: 1;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: bold;
-  text-align: center;
-  padding: 26rpx 0;
-  border-radius: 999rpx;
-  box-shadow: 0 8rpx 20rpx rgba(225, 72, 60, 0.3);
-}
-.btn-add {
-  flex: 1;
-  margin-left: 24rpx;
-  background: #ffffff;
-  color: #14161a;
-  border: 1.5rpx solid #e6e8ec;
-  font-size: 30rpx;
-  font-weight: bold;
-  text-align: center;
-  padding: 26rpx 0;
-  border-radius: 999rpx;
-}
-.btn-icon { margin-right: 6rpx; }
-
-/* ===== 今日单据标题行 ===== */
+/* 分区标题行 */
 .section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 40rpx 6rpx 20rpx;
 }
-.section-head .section-title { font-size: 34rpx; font-weight: bold; color: #14161a; }
-.section-link { font-size: 26rpx; color: #c5362c; }
-
-/* ===== 空状态卡片（虚线边框） ===== */
-.empty-card {
-  border: 2rpx dashed #e6e8ec;
-  border-radius: 24rpx;
-  background: rgba(255, 253, 248, 0.6);
-  text-align: center;
-  padding: 60rpx 0 50rpx;
-}
-.empty-card .empty-icon { font-size: 64rpx; margin-bottom: 16rpx; }
-.empty-title { font-size: 30rpx; color: #14161a; font-weight: bold; }
-.empty-sub { font-size: 24rpx; color: #9aa0ac; margin-top: 10rpx; }
-
-/* ===== 今日订单卡片 ===== */
-.order-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 20rpx;
-  padding: 26rpx 30rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
-}
-.oc-no { font-size: 27rpx; font-weight: bold; color: #14161a; }
-.oc-time { font-size: 23rpx; color: #9aa0ac; margin-top: 8rpx; }
-.oc-right { text-align: right; }
-.oc-amount { font-size: 32rpx; font-weight: bold; color: #c5362c; margin-bottom: 8rpx; }
+.section-head .section-title { font-size: 34rpx; font-weight: bold; color: var(--text-1); }
+.section-link { font-size: 26rpx; color: var(--primary-dark); }
 
 .page-bottom-space { height: 180rpx; }
 
-/* ===== 销售额卡片：书签式周期切换（合并为一个卡片，贴边无留空） ===== */
+/* 书签式周期切换 */
 .sales-card { padding: 0; overflow: hidden; }
-/* 标签条底为淡色；未选中透出淡色，选中用不透明卡片色并圆角上边（融入卡片） */
 .bookmark-tabs { display: flex; background: rgba(255, 255, 255, 0.18); }
 .bookmark-tab {
   position: relative;
@@ -135,16 +85,15 @@
   text-align: center;
   font-size: 25rpx;
   padding: 22rpx 0;
-  color: #ffffff;                 /* 书签字体白色 */
-  background: transparent;        /* 未选中：显示淡色条 */
+  color: #ffffff;
+  background: transparent;
 }
 .bookmark-tab.active {
   color: #ffffff;
-  background: #e1483c;            /* 选中：与卡片背景一致 */
-  border-radius: 18rpx 18rpx 0 0; /* 上侧两个角为圆角 */
+  background: var(--primary);
+  border-radius: 18rpx 18rpx 0 0;
   font-weight: 700;
 }
-/* 选中项与卡片连接处的平滑过渡（半径 16rpx，略小于顶角 18rpx；边缘柔化 2rpx） */
 .bookmark-tab.active::before,
 .bookmark-tab.active::after {
   content: '';
@@ -155,18 +104,17 @@
 }
 .bookmark-tab.active::before {
   left: -16rpx;
-  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, #e1483c 16rpx);
+  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, var(--primary) 16rpx);
 }
 .bookmark-tab.active::after {
   right: -16rpx;
-  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, #e1483c 16rpx);
+  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, var(--primary) 16rpx);
 }
 .sales-body { padding: 26rpx 36rpx 34rpx; }
 
-/* 卡片内标题行去掉外边距 */
 .card .section-head { margin: 0 0 20rpx; }
 
-/* ===== 近 7 天销售趋势 ===== */
+/* 趋势图 */
 .trend { display: flex; align-items: flex-end; justify-content: space-between; height: 200rpx; }
 .trend-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
 .trend-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
@@ -177,33 +125,32 @@
   transition: background 0.15s;
 }
 .trend-bar.active {
-  background: linear-gradient(180deg, #e1483c 0%, #c5362c 100%);
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
-.trend-date { font-size: 20rpx; color: #9aa0ac; margin-top: 10rpx; }
-.trend-date.active { color: #e1483c; font-weight: 600; }
+.trend-date { font-size: 20rpx; color: var(--text-2); margin-top: 10rpx; }
+.trend-date.active { color: var(--primary); font-weight: 600; }
 
-/* 趋势选中项详情 */
 .trend-info {
   display: flex;
   align-items: baseline;
   gap: 12rpx;
   margin-top: 20rpx;
   padding-top: 18rpx;
-  border-top: 1rpx solid #eceef1;
+  border-top: 1rpx solid var(--divider);
 }
-.trend-info-date { font-size: 24rpx; color: #5b616e; }
-.trend-info-amount { font-size: 36rpx; font-weight: bold; color: #e1483c; }
-.trend-info-orders { font-size: 22rpx; color: #9aa0ac; }
+.trend-info-date { font-size: 24rpx; color: var(--text-2); }
+.trend-info-amount { font-size: 36rpx; font-weight: bold; color: var(--primary); }
+.trend-info-orders { font-size: 22rpx; color: var(--text-2); }
 
-/* ===== 低库存提醒 ===== */
+/* 低库存提醒 */
 .low-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 18rpx 0;
-  border-bottom: 1rpx solid #eceef1;
+  border-bottom: 1rpx solid var(--divider);
 }
 .low-item:last-child { border-bottom: none; }
-.low-name { flex: 1; font-size: 28rpx; color: #14161a; margin-right: 20rpx; }
-.low-stock { font-size: 26rpx; color: #dc2626; font-weight: 600; }
-.low-arrow { font-size: 30rpx; color: #b9bfc9; margin-left: 12rpx; }
+.low-name { flex: 1; font-size: 28rpx; color: var(--text-1); margin-right: 20rpx; }
+.low-stock { font-size: 26rpx; color: var(--danger); font-weight: 700; }
+.low-arrow { font-size: 30rpx; color: var(--text-2); margin-left: 12rpx; }

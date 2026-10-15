@@ -1,5 +1,6 @@
 // 会员列表页：搜索 + 分页 + CRM 统计（消费次数/累计金额/最近到店）+ 新增会员
 const { request } = require('../../utils/api');
+const { toast } = require('../../utils/dialog');
 
 const PAGE_SIZE = 20;
 
@@ -103,15 +104,15 @@ Page({
     const { formPhone, formSurname, formGender, saving } = this.data;
     if (saving) return;
     if (!/^\d{11}$/.test(formPhone)) {
-      wx.showToast({ title: '请输入 11 位手机号', icon: 'none' });
+      toast('请输入 11 位手机号', 'none');
       return;
     }
     if (!formSurname.trim()) {
-      wx.showToast({ title: '请输入姓氏', icon: 'none' });
+      toast('请输入姓氏', 'none');
       return;
     }
     if (formGender !== 1 && formGender !== 2) {
-      wx.showToast({ title: '请选择性别', icon: 'none' });
+      toast('请选择性别', 'none');
       return;
     }
     this.setData({ saving: true });
@@ -121,7 +122,7 @@ Page({
         method: 'POST',
         data: { phone: formPhone, surname: formSurname.trim(), gender: formGender }
       });
-      wx.showToast({ title: r.message || '已添加会员', icon: 'success' });
+      toast(r.message || '已添加会员', 'success');
       this.setData({ addVisible: false });
       this.loadCustomers(true);
     } catch (e) {

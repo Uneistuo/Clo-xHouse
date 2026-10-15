@@ -1,4 +1,4 @@
-/* 订单管理页样式 */
+/* 订单管理页样式（优化版：CSS 变量） */
 .order-page { padding-bottom: 180rpx; }
 
 .search-bar { display: flex; align-items: center; margin-bottom: 20rpx; }
@@ -6,39 +6,39 @@
   flex: 1;
   display: flex;
   align-items: center;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 999rpx;
   padding: 16rpx 24rpx;
+  border: 1rpx solid var(--border-strong);
 }
-.search-icon { font-size: 26rpx; margin-right: 12rpx; }
-.search-input { flex: 1; font-size: 28rpx; }
-/* 搜索栏右侧状态筛选入口 */
-.filter-entry { margin-left: 20rpx; color: #c5362c; font-size: 26rpx; padding: 12rpx 4rpx; }
+.search-icon { font-size: 26rpx; margin-right: 12rpx; color: var(--text-2); }
+.search-input { flex: 1; font-size: 28rpx; color: var(--text-1); }
+.filter-entry { margin-left: 20rpx; color: var(--primary-dark); font-size: 26rpx; padding: 12rpx 4rpx; }
 
-/* 状态筛选 tab */
 .status-tabs { display: flex; gap: 12rpx; margin-bottom: 24rpx; overflow-x: auto; white-space: nowrap; }
 .status-tab {
   flex-shrink: 0;
   font-size: 26rpx;
-  color: #5b616e;
-  background: #ffffff;
+  color: var(--text-2);
+  background: var(--bg-card);
   border-radius: 999rpx;
   padding: 12rpx 28rpx;
+  border: 1rpx solid var(--border);
 }
 .status-tab.active {
   color: #fff;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   font-weight: 600;
 }
 
 .order-card { padding: 24rpx; }
-.order-no { font-size: 26rpx; color: #14161a; font-weight: bold; }
+.order-no { font-size: 26rpx; color: var(--text-1); font-weight: bold; }
 .order-mid { margin-top: 16rpx; }
-.order-time { font-size: 24rpx; color: #9aa0ac; }
-.order-amount { font-size: 34rpx; font-weight: bold; color: #c5362c; }
-.order-bottom { margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid #eceef1; }
-.order-sub { font-size: 24rpx; color: #9aa0ac; }
-.order-arrow { font-size: 24rpx; color: #c5362c; }
+.order-time { font-size: 24rpx; color: var(--text-2); }
+.order-amount { font-size: 34rpx; font-weight: bold; color: var(--primary-dark); }
+.order-bottom { margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid var(--divider); }
+.order-sub { font-size: 24rpx; color: var(--text-2); }
+.order-arrow { font-size: 24rpx; color: var(--primary-dark); }
 
 .empty-btn { margin: 30rpx auto 0; }
-.loading-tip { text-align: center; color: #9aa0ac; font-size: 24rpx; padding: 20rpx 0; }
+.loading-tip { text-align: center; color: var(--text-2); font-size: 24rpx; padding: 20rpx 0; }

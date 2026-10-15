@@ -4,49 +4,9 @@
    —— 所有颜色/圆角/阴影统一走变量，换肤只需改这里 ——
    ============================================================ */
 @import "styles/icons.wxss";
+@import "styles/tokens.wxss";
 
 page {
-  /* ---------- 中性色 ---------- */
-  --bg-app: #f4f5f7;        /* 页面底 */
-  --bg-card: #ffffff;       /* 卡片 */
-  --bg-subtle: #f0f1f4;     /* 分区/输入底 */
-  --border: #e6e8ec;
-  --border-strong: #d3d7de;
-  --divider: #eceef1;
-
-  /* ---------- 文字 ---------- */
-  --text-1: #14161a;        /* 主 */
-  --text-2: #5b616e;        /* 次 */
-  --text-3: #9aa0ac;        /* 弱 */
-  --text-placeholder: #b9bfc9;
-
-  /* ---------- 品牌主色（时尚红） ---------- */
-  --primary: #e1483c;
-  --primary-dark: #c5362c;
-  --primary-tint: #fdecea;
-
-  /* ---------- 语义色 ---------- */
-  --success: #16a34a;
-  --success-tint: #e7f6ec;
-  --warning: #b45309;
-  --warning-tint: #fef3e2;
-  --danger: #dc2626;
-  --danger-tint: #fdecea;
-  --info: #2563eb;
-  --info-tint: #e6efff;
-
-  /* ---------- 圆角 ---------- */
-  --radius-card: 24rpx;
-  --radius-input: 16rpx;
-  --radius-sheet: 28rpx;
-  --radius-pill: 999rpx;
-
-  /* ---------- 阴影 ---------- */
-  --shadow-1: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
-  --shadow-2: 0 8rpx 24rpx rgba(20, 22, 26, 0.08);
-  --shadow-3: 0 16rpx 48rpx rgba(20, 22, 26, 0.18);
-  --shadow-primary: 0 8rpx 20rpx rgba(225, 72, 60, 0.28);
-
   background: var(--bg-app);
   color: var(--text-1);
 }
@@ -225,3 +185,86 @@ page {
 .modal-btns { display: flex; margin-top: 36rpx; }
 .modal-btn { flex: 1; }
 .modal-btn.primary { margin-left: 24rpx; }
+
+/* ========== 按钮加载状态（统一用于提交按钮） ========== */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: -16rpx;
+  margin-top: -16rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: btnSpin 0.8s linear infinite;
+}
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+/* 浅色底按钮的加载转圈（描边为深色） */
+.btn-loading.btn-loading-dark::after {
+  border-color: rgba(20, 22, 26, 0.15);
+  border-top-color: var(--primary);
+}
+
+/* ========== 表单内联错误提示 ========== */
+.form-error {
+  color: var(--danger);
+  font-size: 24rpx;
+  margin-top: 8rpx;
+}
+
+/* ========== 统一空状态 ========== */
+.empty-state {
+  text-align: center;
+  padding: 120rpx 40rpx;
+  color: var(--text-3);
+}
+.empty-state-icon {
+  font-size: 96rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.5;
+}
+.empty-state-title {
+  font-size: 30rpx;
+  color: var(--text-2);
+  font-weight: 400;
+  margin-bottom: 12rpx;
+}
+.empty-state-sub {
+  font-size: 26rpx;
+  color: var(--text-2);
+  margin-bottom: 40rpx;
+}
+
+/* ========== 统一页面容器 ========== */
+.page-container {
+  min-height: 100vh;
+  background: var(--bg-app);
+}
+
+/* ========== 列表项（卡片式） ========== */
+.list-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 24rpx 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-1);
+}
+
+/* ========== 输入框聚焦/错误 ========== */
+.input-error {
+  border-color: var(--danger) !important;
+}
+.input-error:focus {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 6rpx rgba(220, 38, 38, 0.08);
+}
