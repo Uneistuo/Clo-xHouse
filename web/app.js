@@ -105,7 +105,81 @@ function openModal(html) {
   document.addEventListener('keydown', escClose);
   function escClose(e) { if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escClose); } }
 }
-function closeModal() { $('#modal-root').innerHTML = ''; }
+let activeDialogResolver = null; // 未决对话框的 resolve（ESC 取消时使用）
+
+function closeModal() {
+  if (activeDialogResolver) { activeDialogResolver(false); activeDialogResolver = null; }
+  $('#modal-root').innerHTML = '';
+}
+
+/* ================= 交互增强工具 ================= */
+// 防抖
+function debounce(fn, wait) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+}
+
+// 按钮加载状态
+function setBtnLoading(btn, isLoading) {
+  if (!btn) return;
+  if (isLoading) { btn.classList.add('loading'); btn.disabled = true; }
+  else { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+// 字段错误提示
+function showFieldError(input, msg) {
+  input.classList.add('error');
+  let err = input.parentElement.querySelector('.form-error');
+  if (!err) { err = document.createElement('div'); err.className = 'form-error'; input.parentElement.appendChild(err); }
+  err.textContent = msg;
+}
+function clearFieldError(input) {
+  input.classList.remove('error');
+  const err = input.parentElement.querySelector('.form-error');
+  if (err) err.remove();
+}
+
+// 自定义确认对话框（替代原生 confirm，返回 Promise<boolean>）
+function confirm(msg) {
+  return new Promise((resolve) => {
+    activeDialogResolver = resolve;
+    openModal(`
+      <div class="confirm-dialog">
+        <div style="color:var(--text-2);font-size:14px;line-height:1.5;margin-bottom:22px">${esc(msg)}</div>
+        <div class="dialog-actions">
+          <button class="btn btn-cancel" data-act="cancel">取消</button>
+          <button class="btn btn-confirm" data-act="ok">确定</button>
+        </div>
+      </div>`);
+    const dlg = $('#modal-root .confirm-dialog');
+    const finish = (ok) => { activeDialogResolver = null; resolve(ok); closeModal(); };
+    dlg.querySelector('[data-act="cancel"]').addEventListener('click', () => finish(false));
+    dlg.querySelector('[data-act="ok"]').addEventListener('click', () => finish(true));
+  });
+}
+
+// 自定义提示输入对话框（替代原生 prompt，返回 Promise<string|null>）
+function prompt(msg, defaultValue = '') {
+  return new Promise((resolve) => {
+    activeDialogResolver = resolve;
+    openModal(`
+      <div class="prompt-dialog">
+        <div style="color:var(--text-2);font-size:14px;margin-bottom:14px">${esc(msg)}</div>
+        <input type="text" id="prompt-input" value="${esc(defaultValue || '')}" style="width:100%;padding:10px 14px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;box-sizing:border-box">
+        <div class="dialog-actions" style="margin-top:16px">
+          <button class="btn btn-cancel" data-act="cancel">取消</button>
+          <button class="btn btn-confirm" data-act="ok">确定</button>
+        </div>
+      </div>`);
+    const dlg = $('#modal-root .prompt-dialog');
+    const input = $('#prompt-input');
+    input.focus();
+    const finish = (ok, val) => { activeDialogResolver = null; resolve(ok ? val : null); closeModal(); };
+    dlg.querySelector('[data-act="cancel"]').addEventListener('click', () => finish(false));
+    dlg.querySelector('[data-act="ok"]').addEventListener('click', () => finish(true, input.value));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true, input.value); if (e.key === 'Escape') finish(false); });
+  });
+}
 
 /* ================= 渲染入口 ================= */
 const NAV_ITEMS = [
@@ -120,10 +194,11 @@ const NAV_ITEMS = [
 
 function render() {
   const root = $('#app');
-  if (!token || !admin) { renderAuth(root); return; }
-  if (!admin.storeId) { renderSetup(root); return; }
+  root.classList.add('page-fade');
+  if (!token || !admin) { renderAuth(root); root.classList.remove('page-fade'); return; }
+  if (!admin.storeId) { renderSetup(root); root.classList.remove('page-fade'); return; }
   // 先探测平台管理员身份（缓存），再渲染主导航
-  ensurePlatformFlag().then(() => renderMain(root));
+  ensurePlatformFlag().then(() => { renderMain(root); root.classList.remove('page-fade'); });
 }
 
 window.addEventListener('hashchange', () => { if (token && admin && admin.storeId) render(); });
@@ -153,7 +228,7 @@ function renderAuth(root) {
       e.preventDefault();
       const fd = new FormData(e.target);
       const btn = $('button[type=submit]', e.target);
-      btn.disabled = true;
+      setBtnLoading(btn, true);
       try {
         const data = await api('/api/auth/' + (isLogin ? 'login' : 'register'), {
           method: 'POST',
@@ -164,7 +239,7 @@ function renderAuth(root) {
         location.hash = data.admin.storeId ? '#/dashboard' : '#/setup';
         render();
       } catch (e) { /* toast 已在 api 中统一弹出 */ }
-      btn.disabled = false;
+      setBtnLoading(btn, false);
     });
   };
   draw();
@@ -339,7 +414,9 @@ async function renderGoods(view) {
       </div>`;
 
     // 事件绑定
-    $('#g-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.keyword = e.target.value.trim(); state.page = 1; load(); } });
+    const onGoodsKeyword = debounce(() => { state.keyword = $('#g-keyword').value.trim(); state.page = 1; load(); }, 300);
+    $('#g-keyword').addEventListener('input', onGoodsKeyword);
+    $('#g-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') onGoodsKeyword(); });
     $('#g-status').addEventListener('change', (e) => { state.status = e.target.value; state.page = 1; load(); });
     $('#g-cat').addEventListener('change', (e) => { state.categoryId = e.target.value; state.page = 1; load(); });
     $('#btn-add').addEventListener('click', () => openGoodsEditor(null, load));
@@ -351,7 +428,7 @@ async function renderGoods(view) {
       try { await api(`/api/goods/${b.dataset.toggle}/status`, { method: 'PUT', data: { onSale: b.dataset.on === '1' ? 0 : 1 } }); toast('操作成功'); load(); } catch (e) {}
     }));
     $$('[data-del]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm('确定删除该商品吗？（删除后不可恢复）')) return;
+      if (!(await confirm('确定删除该商品吗？（删除后不可恢复）'))) return;
       try { await api(`/api/goods/${b.dataset.del}`, { method: 'DELETE' }); toast('已删除'); load(); } catch (e) {}
     }));
   };
@@ -423,7 +500,9 @@ async function openGoodsEditor(id, onDone) {
   $('#goods-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    if (images.length > 3) { toast('最多 3 张图片', true); return; }
+    const btn = $('button[type=submit]', e.target);
+    setBtnLoading(btn, true);
+    if (images.length > 3) { toast('最多 3 张图片', true); setBtnLoading(btn, false); return; }
     const body = {
       name: fd.get('name').trim(),
       price: Number(fd.get('price')),
@@ -444,6 +523,7 @@ async function openGoodsEditor(id, onDone) {
       closeModal();
       onDone && onDone();
     } catch (e2) {}
+    setBtnLoading(btn, false);
   });
 }
 
@@ -477,12 +557,12 @@ async function openCategoryManager(onDone) {
   const bindRow = () => {
     $$('[data-cedit]').forEach((b) => b.addEventListener('click', async () => {
       const c = cats.find((x) => String(x.id) === b.dataset.cedit);
-      const name = prompt('新的分类名称：', c.name);
+      const name = await prompt('新的分类名称：', c.name);
       if (!name || !name.trim()) return;
       try { await api('/api/category/' + c.id, { method: 'PUT', data: { name: name.trim(), sort: c.sort } }); toast('已保存'); refresh(); } catch (e) {}
     }));
     $$('[data-cdel]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm('确定删除该分类吗？')) return;
+      if (!(await confirm('确定删除该分类吗？'))) return;
       try { await api('/api/category/' + b.dataset.cdel, { method: 'DELETE' }); toast('已删除'); refresh(); onDone && onDone(); } catch (e) {}
     }));
   };
@@ -656,8 +736,7 @@ async function renderBilling(view) {
     $('#btn-submit').addEventListener('click', async () => {
       if (!cart.length) return;
       const btn = $('#btn-submit');
-      btn.disabled = true;
-      btn.textContent = '提交中…';
+      setBtnLoading(btn, true);
       try {
         const res = await api('/api/orders', {
           method: 'POST',
@@ -675,7 +754,7 @@ async function renderBilling(view) {
         // 重新拉取商品以刷新库存
         try { const d2 = await api('/api/goods?status=on&page=1&pageSize=200'); goodsList.length = 0; goodsList.push(...(d2.list || [])); } catch (e) {}
         draw();
-      } catch (e) { btn.disabled = false; btn.textContent = '确认开单'; }
+      } catch (e) { setBtnLoading(btn, false); }
     });
 
     function openSkuPicker(g) {
@@ -753,7 +832,9 @@ async function renderOrders(view) {
                 <button class="btn small ghost" id="o-next" ${state.page >= totalPages ? 'disabled' : ''}>下一页</button>
               </div>`}
       </div>`;
-    $('#o-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.keyword = e.target.value.trim(); state.page = 1; load(); } });
+    const onOrderKeyword = debounce(() => { state.keyword = $('#o-keyword').value.trim(); state.page = 1; load(); }, 300);
+    $('#o-keyword').addEventListener('input', onOrderKeyword);
+    $('#o-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') onOrderKeyword(); });
     $('#o-status').addEventListener('change', (e) => { state.status = e.target.value; state.page = 1; load(); });
     $('#o-range').addEventListener('change', (e) => { state.range = e.target.value; state.page = 1; load(); });
     if ($('#o-prev')) $('#o-prev').addEventListener('click', () => { state.page--; load(); });
@@ -802,13 +883,15 @@ async function renderCustomers(view) {
                 <button class="btn small ghost" id="c-next" ${state.page >= totalPages ? 'disabled' : ''}>下一页</button>
               </div>`}
       </div>`;
-    $('#c-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.keyword = e.target.value.trim(); state.page = 1; load(); } });
+    const onCustomerKeyword = debounce(() => { state.keyword = $('#c-keyword').value.trim(); state.page = 1; load(); }, 300);
+    $('#c-keyword').addEventListener('input', onCustomerKeyword);
+    $('#c-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') onCustomerKeyword(); });
     $('#c-add').addEventListener('click', openAddModal);
     if ($('#c-prev')) $('#c-prev').addEventListener('click', () => { state.page--; load(); });
     if ($('#c-next')) $('#c-next').addEventListener('click', () => { state.page++; load(); });
     $$('[data-edit]').forEach((b) => b.addEventListener('click', () => openEditModal(b.dataset.edit, b.dataset.surname, b.dataset.gender)));
     $$('[data-del]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm(`确定删除会员【${b.dataset.name}】？历史订单中的姓名快照将保留。`)) return;
+      if (!(await confirm(`确定删除会员【${b.dataset.name}】？历史订单中的姓名快照将保留。`))) return;
       try { await api(`/api/customer/${b.dataset.del}`, { method: 'DELETE' }); toast('会员已删除'); load(); } catch (e) {}
     }));
   };
@@ -918,10 +1001,10 @@ window.showOrder = async function (id) {
   $$('[data-act]').forEach((b) => b.addEventListener('click', async () => {
     const act = b.dataset.act;
     const confirmText = { paid: '确认已收到货款？', done: '确认该订单已完成？', cancel: '取消后库存将自动归还，确定取消？', refund: '退款后库存将自动归还，确定退款？' };
-    if (act === 'paid') { if (!confirm(confirmText.paid)) return; }
-    if (act === 'done') { if (!confirm(confirmText.done)) return; }
-    if (act === 'cancel') { if (!confirm(confirmText.cancel)) return; }
-    if (act === 'refund') { if (!confirm(confirmText.refund)) return; }
+    if (act === 'paid') { if (!(await confirm(confirmText.paid))) return; }
+    if (act === 'done') { if (!(await confirm(confirmText.done))) return; }
+    if (act === 'cancel') { if (!(await confirm(confirmText.cancel))) return; }
+    if (act === 'refund') { if (!(await confirm(confirmText.refund))) return; }
     b.disabled = true;
     try {
       if (act === 'paid' || act === 'done') await api(`/api/orders/${o.id}/status`, { method: 'PUT', data: { status: act } });
@@ -988,11 +1071,11 @@ async function renderStore(view) {
     ${!isOwner ? '<button class="btn danger" id="btn-unbind">退出当前店铺</button>' : ''}`;
 
   if ($('#btn-code')) $('#btn-code').addEventListener('click', async () => {
-    if (!confirm('重置后旧店铺码立即失效，确定重置？')) return;
+    if (!(await confirm('重置后旧店铺码立即失效，确定重置？'))) return;
     try { const r = await api('/api/store/code', { method: 'POST' }); toast('新店铺码：' + r.bindCode); renderStore(view); } catch (e) {}
   });
   $$('[data-switch]').forEach((b) => b.addEventListener('click', async () => {
-    if (!confirm('切换店铺后，商品与订单数据将切换为新店铺的数据，确定？')) return;
+    if (!(await confirm('切换店铺后，商品与订单数据将切换为新店铺的数据，确定？'))) return;
     try {
       const r = await api('/api/store/switch', { method: 'POST', data: { storeId: Number(b.dataset.switch) } });
       saveAuth(r.token, r.admin);
@@ -1001,11 +1084,11 @@ async function renderStore(view) {
     } catch (e) {}
   }));
   $$('[data-remove]').forEach((b) => b.addEventListener('click', async () => {
-    if (!confirm(`确定将成员【${b.dataset.name}】移出店铺？`)) return;
+    if (!(await confirm(`确定将成员【${b.dataset.name}】移出店铺？`))) return;
     try { await api('/api/store/member/remove', { method: 'POST', data: { memberId: Number(b.dataset.remove) } }); toast('已移除'); renderStore(view); } catch (e) {}
   }));
   if ($('#btn-unbind')) $('#btn-unbind').addEventListener('click', async () => {
-    if (!confirm('退出后将无法访问该店铺的商品与订单，确定退出？')) return;
+    if (!(await confirm('退出后将无法访问该店铺的商品与订单，确定退出？'))) return;
     try {
       const r = await api('/api/store/unbind', { method: 'POST' });
       saveAuth(r.token, r.admin);
@@ -1094,7 +1177,7 @@ async function renderPlatform(view) {
       doSet({ expireAt: v.replace('T', ' ') + ':00' });
     });
     $('#pl-close').addEventListener('click', () => {
-      if (!confirm(`确定关闭店铺【${name}】的开单权限？关闭后立即生效，该店将无法开单`)) return;
+      if (!(await confirm(`确定关闭店铺【${name}】的开单权限？关闭后立即生效，该店将无法开单`))) return;
       doSet({ days: 0 });
     });
     $('#modal-cancel').addEventListener('click', closeModal);
@@ -1104,7 +1187,7 @@ async function renderPlatform(view) {
   $$('[data-rename]').forEach((b) => b.addEventListener('click', async () => {
     const id = b.dataset.rename;
     const name = b.dataset.rname;
-    const newName = prompt(`新的店铺名称（无冷却，可随时修改）：`, name);
+    const newName = await prompt(`新的店铺名称（无冷却，可随时修改）：`, name);
     if (!newName || !newName.trim() || newName.trim() === name) return;
     try {
       const r = await api(`/api/platform/stores/${id}/rename`, { method: 'POST', data: { storeName: newName.trim() } });
