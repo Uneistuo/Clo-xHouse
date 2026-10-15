@@ -5,6 +5,9 @@ const { STATUS_TEXT } = require('../../utils/util');
 const PAGE_SIZE = 20;
 
 Page({
+  /** 空处理：配合 wxml 中的 catchtap，阻止弹窗内点击事件冒泡到遮罩（否则点输入框会关闭弹窗） */
+  noop() {},
+
   data: {
     id: 0,
     customer: null,   // 会员信息（含 CRM 统计）

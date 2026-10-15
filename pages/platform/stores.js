@@ -5,6 +5,9 @@ const { request } = require('../../utils/api');
 const QUICK_DAYS = [7, 30, 90, 365];
 
 Page({
+  /** 空处理：配合 wxml 中的 catchtap，阻止弹窗内点击事件冒泡到遮罩（否则点输入框会关闭弹窗） */
+  noop() {},
+
   data: {
     list: [],      // [{ id, name, owner_name, member_count, order_count, bind_code, created_at, expireAt, enabled, daysLeft }]
     loading: true,

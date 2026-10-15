@@ -37,7 +37,7 @@
 
   <!-- 授权 / 续期弹层 -->
   <view wx:if="{{visible}}" class="mask" bindtap="closeAuth">
-    <view class="modal" catchtap="">
+    <view class="modal" catchtap="noop">
       <view class="modal-title">开单授权 · {{store.name}}</view>
       <view class="modal-sub" wx:if="{{store.expireAt}}">当前授权至 {{store.expireAt}}</view>
 

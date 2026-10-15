@@ -49,7 +49,7 @@
 
 <!-- 添加会员弹窗 -->
 <view wx:if="{{addVisible}}" class="mask" bindtap="closeAdd">
-  <view class="modal" catchtap="">
+  <view class="modal" catchtap="noop">
     <view class="modal-title">添加会员</view>
 
     <view class="form-item">

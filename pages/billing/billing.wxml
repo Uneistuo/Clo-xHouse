@@ -109,7 +109,7 @@
 
   <!-- 规格选择弹层 -->
   <view wx:if="{{selectVisible}}" class="mask" bindtap="closeSelect">
-    <view class="modal" catchtap="">
+    <view class="modal" catchtap="noop">
       <view class="modal-title">{{selGoods.name}}</view>
       <view wx:if="{{selColors.length}}">
         <view class="spec-label">颜色</view>
@@ -143,7 +143,7 @@
 
   <!-- 开单成功卡片（替代系统 modal：可继续开单 / 查看订单 / 补打小票） -->
   <view wx:if="{{successInfo}}" class="mask" bindtap="closeSuccess">
-    <view class="modal success-modal" catchtap="">
+    <view class="modal success-modal" catchtap="noop">
       <view class="success-icon icon icon-check-circle"></view>
       <view class="success-title">开单成功</view>
       <view class="success-order">{{successInfo.orderNo}}</view>
@@ -161,7 +161,7 @@
 
   <!-- 添加会员弹窗：输入姓氏 + 选择性别 -->
   <view wx:if="{{addCustomerVisible}}" class="mask" bindtap="closeAddCustomer">
-    <view class="modal" catchtap="">
+    <view class="modal" catchtap="noop">
       <view class="modal-title">添加会员</view>
       <view class="modal-sub">手机号 {{customerPhone}}</view>
 

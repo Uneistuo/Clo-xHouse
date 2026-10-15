@@ -4,6 +4,9 @@ const { request } = require('../../utils/api');
 const PAGE_SIZE = 20;
 
 Page({
+  /** 空处理：配合 wxml 中的 catchtap="noop"，阻止弹窗内点击事件冒泡到遮罩（否则点输入框会关闭弹窗） */
+  noop() {},
+
   data: {
     keyword: '',
     list: [],

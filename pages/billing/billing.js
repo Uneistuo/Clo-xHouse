@@ -7,6 +7,9 @@ const { printer } = require('../../utils/printer');
 const { buildReceipt } = require('../../utils/receipt');
 
 Page({
+  /** 空处理：配合 wxml 中的 catchtap，阻止弹窗内点击事件冒泡到遮罩（否则点输入框会关闭弹窗） */
+  noop() {},
+
   data: {
     keyword: '',
     goodsList: [],       // 上架商品列表（含库存）
