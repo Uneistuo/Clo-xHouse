@@ -11,7 +11,7 @@
       "disablePlugins": [],
       "outputPath": ""
     },
-    "useCompilerPlugins": false,
+    "useCompilerPlugins": ["typescript"],
     "compileWorklet": false,
     "uploadWithSourceMap": true,
     "packNpmManually": false,

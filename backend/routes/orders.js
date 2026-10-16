@@ -15,6 +15,90 @@ const requireStore = require('../middleware/requireStore');
 
 router.use(auth, requireStore);
 
+/**
+ * @openapi
+ * /api/orders:
+ *   post:
+ *     tags: [订单]
+ *     summary: 创建订单（商家开单：事务内校验库存 → 写单 → 扣减 SKU/总库存）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [items]
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [goodsId, quantity]
+ *                   properties:
+ *                     goodsId: { type: integer }
+ *                     color: { type: string }
+ *                     size: { type: string }
+ *                     quantity: { type: integer, minimum: 1 }
+ *               customerPhone: { type: string }
+ *               customerId: { type: integer, description: 会员 ID（属于本店才生效） }
+ *               remark: { type: string }
+ *               paidNow: { type: boolean, description: 'true=当场已收款（直接标记已收款）' }
+ *     responses:
+ *       200:
+ *         description: '成功 data = { id, orderNo, totalAmount, status }；code=1002 表示开单授权未开通/已到期'
+ *   get:
+ *     tags: [订单]
+ *     summary: 订单列表（状态/订单号/时间范围筛选 + 分页）
+ *     parameters:
+ *       - { in: query, name: status, schema: { type: string, enum: [pending, paid, done, cancelled, refunded] } }
+ *       - { in: query, name: keyword, schema: { type: string }, description: 订单号模糊搜索 }
+ *       - { in: query, name: range, schema: { type: string, enum: [today, week, month, all] } }
+ *       - { in: query, name: page, schema: { type: integer, default: 1 } }
+ *       - { in: query, name: pageSize, schema: { type: integer, default: 20, maximum: 200 } }
+ *     responses:
+ *       200: { description: 'data = { list, total, page, pageSize }（含 item_count/quantity_count）' }
+ * /api/orders/{id}:
+ *   get:
+ *     tags: [订单]
+ *     summary: 订单详情（含商品明细）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: 'data = Order + items[]' }
+ * /api/orders/{id}/status:
+ *   put:
+ *     tags: [订单]
+ *     summary: 修改订单状态（仅正向流转：pending→paid→done）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status: { type: string, enum: [paid, done] }
+ *     responses:
+ *       200: { description: '订单已{状态}' }
+ * /api/orders/{id}/cancel:
+ *   post:
+ *     tags: [订单]
+ *     summary: 取消订单（事务：状态置为已取消 + 归还全部库存）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: '订单已取消，商品库存已归还' }
+ * /api/orders/{id}/refund:
+ *   post:
+ *     tags: [订单]
+ *     summary: 退款处理（事务：状态置为已退款 + 归还全部库存）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: '退款完成，商品库存已归还' }
+ */
+
 // 订单状态字典（done=交易完成待售后；refunded=售后已处理）
 const STATUS = { pending: '待收款', paid: '已收款', done: '待售后', cancelled: '已取消', refunded: '已售后' };
 // 允许的正向状态流转
@@ -29,12 +113,44 @@ function genOrderNo() {
   return `SO${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}${rand}`;
 }
 
+/**
+ * 生成不重复的订单号（P1-2）：写入订单前在事务内查重，冲突则重新生成，最多重试 5 次；
+ * 同时捕获 order_no 唯一索引冲突（并发竞态），在事务内换号重试。
+ * 返回已成功写入订单的 { orderId, orderNo }。
+ */
+async function insertOrderWithUniqueNo(tx, fields) {
+  const { total, payMethod, status, customerPhone, customerId, customerName, remark, storeId, now } = fields;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const orderNo = genOrderNo();
+    try {
+      const exists = await tx.get('SELECT id FROM orders WHERE order_no = ?', [orderNo]);
+      if (exists) continue; // 已存在，换号重试
+      const info = await tx.run(
+        `
+        INSERT INTO orders (order_no, total_amount, pay_method, status, customer_phone, customer_id, customer_name, remark, store_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+        [orderNo, total, payMethod, status, customerPhone, customerId, customerName, remark, storeId, now, now]
+      );
+      return { orderId: info.insertId, orderNo };
+    } catch (e) {
+      if (e && e.code === 'ER_DUP_ENTRY') continue; // 并发下恰好撞号，直接换号重试
+      throw e;
+    }
+  }
+  throw new Error('订单号生成失败，请重试');
+}
+
 /** 归还订单明细库存：优先归还对应规格（SKU），同时累加商品总库存 */
 async function restoreStock(tx, items) {
   const now = nowStr();
   for (const it of items) {
-    await tx.run('UPDATE goods_sku SET stock = stock + ? WHERE goods_id = ? AND color = ? AND size = ?',
-      [it.quantity, it.goods_id, it.color || '', it.size || '']);
+    await tx.run('UPDATE goods_sku SET stock = stock + ? WHERE goods_id = ? AND color = ? AND size = ?', [
+      it.quantity,
+      it.goods_id,
+      it.color || '',
+      it.size || ''
+    ]);
     await tx.run('UPDATE goods SET stock = stock + ?, updated_at = ? WHERE id = ?', [it.quantity, now, it.goods_id]);
   }
 }
@@ -56,10 +172,10 @@ router.post('/', async (req, res) => {
     let customerId = parseInt(body.customerId, 10) || 0;
     let customerName = '';
     if (customerId) {
-      const c = await db.get(
-        'SELECT surname, gender FROM customer WHERE id = ? AND store_id = ?',
-        [customerId, req.admin.storeId]
-      );
+      const c = await db.get('SELECT surname, gender FROM customer WHERE id = ? AND store_id = ?', [
+        customerId,
+        req.admin.storeId
+      ]);
       if (c) {
         customerName = `${c.surname}${c.gender === 1 ? '先生' : c.gender === 2 ? '女士' : ''}`;
       } else {
@@ -71,9 +187,8 @@ router.post('/', async (req, res) => {
     const store = await db.get('SELECT billing_expire_at FROM store WHERE id = ?', [req.admin.storeId]);
     const now = nowStr();
     if (!store || !store.billing_expire_at || store.billing_expire_at <= now) {
-      const reason = store && store.billing_expire_at
-        ? `开单授权已于 ${store.billing_expire_at} 到期`
-        : '开单功能未开通';
+      const reason =
+        store && store.billing_expire_at ? `开单授权已于 ${store.billing_expire_at} 到期` : '开单功能未开通';
       return res.json({ code: 1002, message: `${reason}：请联系平台管理员授权或续期` });
     }
 
@@ -84,47 +199,75 @@ router.post('/', async (req, res) => {
       for (const it of items) {
         const qty = parseInt(it.quantity, 10);
         if (!it.goodsId || !qty || qty < 1) throw new Error('商品或数量不合法');
-        const g = await tx.get('SELECT * FROM goods WHERE id = ? AND store_id = ? AND is_deleted = 0',
-          [it.goodsId, req.admin.storeId]);
+        const g = await tx.get('SELECT * FROM goods WHERE id = ? AND store_id = ? AND is_deleted = 0', [
+          it.goodsId,
+          req.admin.storeId
+        ]);
         if (!g) throw new Error('商品不存在或已删除');
         const color = String(it.color || '').trim();
         const size = String(it.size || '').trim();
         // 查找对应规格 SKU（商品无规格时匹配空规格行）
-        const sku = await tx.get(
-          'SELECT * FROM goods_sku WHERE goods_id = ? AND color = ? AND size = ?',
-          [g.id, color, size]
-        );
+        const sku = await tx.get('SELECT * FROM goods_sku WHERE goods_id = ? AND color = ? AND size = ?', [
+          g.id,
+          color,
+          size
+        ]);
         const skuCountRow = await tx.get('SELECT COUNT(*) AS c FROM goods_sku WHERE goods_id = ?', [g.id]);
         if (skuCountRow.c > 0 && !sku) {
           throw new Error(`商品【${g.name}】不存在规格【${color || '默认'} / ${size || '默认'}】`);
         }
         const avail = sku ? sku.stock : g.stock; // 无 SKU 行时兼容按商品总库存
         if (avail < qty) {
-          throw new Error(`商品【${g.name}】规格【${color || '默认'} / ${size || '默认'}】库存不足（当前库存 ${avail}）`);
+          throw new Error(
+            `商品【${g.name}】规格【${color || '默认'} / ${size || '默认'}】库存不足（当前库存 ${avail}）`
+          );
         }
         total = r2(total + r2(g.price * qty));
-        rows.push({ goodsId: g.id, goodsNo: g.goods_no || '', goodsName: g.name, color, size, quantity: qty, price: g.price, skuId: sku ? sku.id : null });
+        rows.push({
+          goodsId: g.id,
+          goodsNo: g.goods_no || '',
+          goodsName: g.name,
+          color,
+          size,
+          quantity: qty,
+          price: g.price,
+          skuId: sku ? sku.id : null
+        });
       }
-      // 2. 写入订单主表
-      const orderNo = genOrderNo();
-      const info = await tx.run(`
-        INSERT INTO orders (order_no, total_amount, pay_method, status, customer_phone, customer_id, customer_name, remark, store_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `, [orderNo, total, payMethod, paidNow ? 'paid' : 'pending', customerPhone, customerId, customerName, remark, req.admin.storeId, now, now]);
-      const orderId = info.insertId;
+      // 2. 写入订单主表（P1-2：事务内订单号查重 + 唯一索引冲突重试，保证订单号不重复）
+      const { orderId, orderNo } = await insertOrderWithUniqueNo(tx, {
+        total,
+        payMethod,
+        status: paidNow ? 'paid' : 'pending',
+        customerPhone,
+        customerId,
+        customerName,
+        remark,
+        storeId: req.admin.storeId,
+        now
+      });
       // 3. 写入订单明细 + 原子扣减规格（SKU）库存与商品总库存（WHERE stock >= ? 防止并发超卖）
       for (const r of rows) {
-        await tx.run('INSERT INTO order_item (order_id, goods_id, goods_no, goods_name, color, size, quantity, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          [orderId, r.goodsId, r.goodsNo, r.goodsName, r.color, r.size, r.quantity, r.price]);
+        await tx.run(
+          'INSERT INTO order_item (order_id, goods_id, goods_no, goods_name, color, size, quantity, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [orderId, r.goodsId, r.goodsNo, r.goodsName, r.color, r.size, r.quantity, r.price]
+        );
         if (r.skuId) {
-          const dr = await tx.run('UPDATE goods_sku SET stock = stock - ? WHERE id = ? AND stock >= ?',
-            [r.quantity, r.skuId, r.quantity]);
+          const dr = await tx.run('UPDATE goods_sku SET stock = stock - ? WHERE id = ? AND stock >= ?', [
+            r.quantity,
+            r.skuId,
+            r.quantity
+          ]);
           if (dr.changes === 0) {
             throw new Error(`商品【${r.goodsName}】规格【${r.color || '默认'} / ${r.size || '默认'}】库存不足`);
           }
         }
-        const dg = await tx.run('UPDATE goods SET stock = stock - ?, updated_at = ? WHERE id = ? AND stock >= ?',
-          [r.quantity, now, r.goodsId, r.quantity]);
+        const dg = await tx.run('UPDATE goods SET stock = stock - ?, updated_at = ? WHERE id = ? AND stock >= ?', [
+          r.quantity,
+          now,
+          r.goodsId,
+          r.quantity
+        ]);
         if (dg.changes === 0) {
           throw new Error(`商品【${r.goodsName}】库存不足`);
         }
@@ -145,17 +288,31 @@ router.get('/', async (req, res) => {
     const { status = '', keyword = '', range = 'all' } = req.query;
     let where = ' WHERE o.store_id = ?';
     const params = [req.admin.storeId];
-    if (status && STATUS[status]) { where += ' AND o.status = ?'; params.push(status); }
-    if (keyword) { where += ' AND o.order_no LIKE ?'; params.push(`%${keyword.trim()}%`); }
-    if (range === 'today') { where += ' AND o.created_at >= ?'; params.push(nowStr().slice(0, 10)); }
-    else if (range === 'week') { where += ' AND o.created_at >= ?'; params.push(daysAgoStr(7)); }
-    else if (range === 'month') { where += ' AND o.created_at >= ?'; params.push(daysAgoStr(30)); }
+    if (status && STATUS[status]) {
+      where += ' AND o.status = ?';
+      params.push(status);
+    }
+    if (keyword) {
+      where += ' AND o.order_no LIKE ?';
+      params.push(`%${keyword.trim()}%`);
+    }
+    if (range === 'today') {
+      where += ' AND o.created_at >= ?';
+      params.push(nowStr().slice(0, 10));
+    } else if (range === 'week') {
+      where += ' AND o.created_at >= ?';
+      params.push(daysAgoStr(7));
+    } else if (range === 'month') {
+      where += ' AND o.created_at >= ?';
+      params.push(daysAgoStr(30));
+    }
 
     const size = Math.min(parseInt(req.query.pageSize, 10) || 20, 200);
     const cur = Math.max(parseInt(req.query.page, 10) || 1, 1);
 
     const totalRow = await db.get(`SELECT COUNT(*) AS c FROM orders o${where}`, params);
-    const list = await db.all(`
+    const list = await db.all(
+      `
       SELECT o.*,
              (SELECT COUNT(*) FROM order_item oi WHERE oi.order_id = o.id) AS item_count,
              (SELECT COALESCE(SUM(oi.quantity), 0) FROM order_item oi WHERE oi.order_id = o.id) AS quantity_count
@@ -163,7 +320,9 @@ router.get('/', async (req, res) => {
       ${where}
       ORDER BY o.id DESC
       LIMIT ? OFFSET ?
-    `, [...params, size, (cur - 1) * size]);
+    `,
+      [...params, size, (cur - 1) * size]
+    );
 
     res.json({ code: 0, data: { list, total: totalRow.c, page: cur, pageSize: size } });
   } catch (e) {
@@ -174,8 +333,10 @@ router.get('/', async (req, res) => {
 // ============ 订单详情 ============
 router.get('/:id', async (req, res) => {
   try {
-    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?',
-      [req.params.id, req.admin.storeId]);
+    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?', [
+      req.params.id,
+      req.admin.storeId
+    ]);
     if (!order) return res.json({ code: 1, message: '订单不存在' });
     order.items = await db.all('SELECT * FROM order_item WHERE order_id = ? ORDER BY id ASC', [order.id]);
     res.json({ code: 0, data: order });
@@ -190,8 +351,10 @@ router.put('/:id/status', async (req, res) => {
   try {
     const target = (req.body || {}).status;
     if (!STATUS[target]) return res.json({ code: 1, message: '订单状态不合法' });
-    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?',
-      [req.params.id, req.admin.storeId]);
+    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?', [
+      req.params.id,
+      req.admin.storeId
+    ]);
     if (!order) return res.json({ code: 1, message: '订单不存在' });
     if (FORWARD[order.status] !== target) {
       return res.json({ code: 1, message: `不允许将【${STATUS[order.status]}】订单改为【${STATUS[target]}】` });
@@ -206,8 +369,10 @@ router.put('/:id/status', async (req, res) => {
 // ============ 取消订单（事务：状态置为已取消 + 自动归还全部规格库存） ============
 router.post('/:id/cancel', async (req, res) => {
   try {
-    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?',
-      [req.params.id, req.admin.storeId]);
+    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?', [
+      req.params.id,
+      req.admin.storeId
+    ]);
     if (!order) return res.json({ code: 1, message: '订单不存在' });
     if (!['pending', 'paid'].includes(order.status)) {
       return res.json({ code: 1, message: `【${STATUS[order.status]}】订单不可取消` });
@@ -230,8 +395,10 @@ router.post('/:id/cancel', async (req, res) => {
 // ============ 退款处理（事务：状态置为已退款 + 自动归还全部商品库存） ============
 router.post('/:id/refund', async (req, res) => {
   try {
-    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?',
-      [req.params.id, req.admin.storeId]);
+    const order = await db.get('SELECT * FROM orders WHERE id = ? AND store_id = ?', [
+      req.params.id,
+      req.admin.storeId
+    ]);
     if (!order) return res.json({ code: 1, message: '订单不存在' });
     if (!['paid', 'done'].includes(order.status)) {
       return res.json({ code: 1, message: `【${STATUS[order.status]}】订单不可退款` });

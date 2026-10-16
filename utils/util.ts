@@ -1,9 +1,9 @@
-// utils/util.js 通用工具函数
+// utils/util.ts 通用工具函数（TypeScript 版，从 util.js 迁移，行为保持一致）
 
 /**
  * 金额格式化：保留两位小数
  */
-function fmtMoney(n) {
+export function fmtMoney(n: number | string): string {
   const num = Number(n) || 0;
   return num.toFixed(2);
 }
@@ -12,14 +12,14 @@ function fmtMoney(n) {
  * 图片地址解析：数据库存相对路径 /uploads/xxx 时拼接后端地址；
  * 若是完整 http(s) 地址则原样返回；空值返回空串
  */
-function resolveImg(path, BASE_URL) {
+export function resolveImg(path: string | null | undefined, baseUrl?: string): string {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return (BASE_URL || '') + path;
+  return (baseUrl || '') + path;
 }
 
 /** 订单状态 -> 中文文案 */
-const STATUS_TEXT = {
+export const STATUS_TEXT: Record<string, string> = {
   pending: '待收款',
   paid: '已收款',
   done: '待售后',
@@ -28,7 +28,7 @@ const STATUS_TEXT = {
 };
 
 /** 订单状态 -> 标签样式类名 */
-const STATUS_CLASS = {
+export const STATUS_CLASS: Record<string, string> = {
   pending: 'tag-orange',
   paid: 'tag-blue',
   done: 'tag-green',
@@ -37,6 +37,4 @@ const STATUS_CLASS = {
 };
 
 /** 收款方式文案 */
-const PAY_METHOD_TEXT = { offline: '线下收款' };
-
-module.exports = { fmtMoney, resolveImg, STATUS_TEXT, STATUS_CLASS, PAY_METHOD_TEXT };
+export const PAY_METHOD_TEXT: Record<string, string> = { offline: '线下收款' };

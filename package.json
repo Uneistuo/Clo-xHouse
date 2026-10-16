@@ -1,0 +1,36 @@
+{
+  "name": "clothing-store-miniprogram",
+  "version": "1.14.1",
+  "private": true,
+  "description": "裁间 · 服装店商家管理（微信小程序 + Web 管理后台）：小程序端工具链与代码规范配置",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint --ext .js pages components custom-tab-bar app.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.ts": [
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ],
+    "*.wxss": [
+      "prettier --write --parser css"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "miniprogram-api-typings": "^5.2.3",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3"
+  }
+}

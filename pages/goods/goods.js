@@ -28,8 +28,8 @@ Page({
     allSelected: false,
 
     // 按钮加载状态
-    loadingDelete: null,   // 单个删除/上下架的 loading id
-    loadingBatch: false    // 批量操作 loading
+    loadingDelete: null, // 单个删除/上下架的 loading id
+    loadingBatch: false // 批量操作 loading
   },
 
   onShow() {
@@ -103,6 +103,13 @@ Page({
 
   onReachBottom() {
     if (this.data.hasMore) this.loadGoods(false);
+  },
+
+  /** 商品封面加载失败 -> 显示占位图（P1-4） */
+  onCoverError(e) {
+    const index = e.currentTarget.dataset.index;
+    if (index === undefined || index === null) return;
+    this.setData({ [`list[${index}].cover`]: '' });
   },
 
   onPullDownRefresh() {
@@ -184,8 +191,8 @@ Page({
       toast('已删除', 'success');
       this.toggleManage();
       this.loadGoods(true);
-    } catch (e) { }
-    finally {
+    } catch (e) {
+    } finally {
       this.setData({ loadingBatch: false });
     }
   },
@@ -200,7 +207,10 @@ Page({
         title: '提示',
         content: `确定将该商品${action}吗？`
       });
-      if (!confirmed) { this.setData({ loadingDelete: null }); return; }
+      if (!confirmed) {
+        this.setData({ loadingDelete: null });
+        return;
+      }
 
       await request({
         url: `/api/goods/${id}/status`,
@@ -216,8 +226,8 @@ Page({
       } else {
         this.loadGoods(true);
       }
-    } catch (e) { }
-    finally {
+    } catch (e) {
+    } finally {
       this.setData({ loadingDelete: null });
     }
   },
@@ -238,7 +248,10 @@ Page({
         title: '删除确认',
         content: `确定删除商品【${name}】吗？（历史订单数据不受影响）`
       });
-      if (!confirmed) { this.setData({ loadingDelete: null }); return; }
+      if (!confirmed) {
+        this.setData({ loadingDelete: null });
+        return;
+      }
 
       await request({ url: `/api/goods/${id}`, method: 'DELETE' });
       toast('已删除', 'success');
@@ -253,8 +266,8 @@ Page({
       if (this.data.list.length === 0 && this.data.hasMore) {
         this.loadGoods(true);
       }
-    } catch (e) { }
-    finally {
+    } catch (e) {
+    } finally {
       this.setData({ loadingDelete: null });
     }
   },

@@ -22,6 +22,100 @@ const requireStore = require('../middleware/requireStore');
 
 router.use(auth, requireStore);
 
+/**
+ * @openapi
+ * /api/customer/exists:
+ *   get:
+ *     tags: [会员]
+ *     summary: 检查完整手机号是否已是本店会员
+ *     parameters:
+ *       - { in: query, name: phone, required: true, schema: { type: string, example: '13800138000' } }
+ *     responses:
+ *       200: { description: 'data = { exists, customer? }' }
+ * /api/customer:
+ *   post:
+ *     tags: [会员]
+ *     summary: 添加（或更新）会员（手机号已存在视为更新姓氏/性别）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [phone, surname, gender]
+ *             properties:
+ *               phone: { type: string, example: '13800138000' }
+ *               surname: { type: string, example: 赵 }
+ *               gender: { type: integer, enum: [1, 2], description: 1 先生 / 2 女士 }
+ *     responses:
+ *       200: { description: 'data = { id }' }
+ * /api/customer/match:
+ *   post:
+ *     tags: [会员]
+ *     summary: 按手机号后 4 位匹配会员（开单时老客户预选，最多 20 条）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               suffix: { type: string, example: '8000', description: 手机号后 4 位 }
+ *     responses:
+ *       200: { description: 'data = { list[] }' }
+ * /api/customer/list:
+ *   get:
+ *     tags: [会员]
+ *     summary: 会员列表（分页 + 手机号/姓氏搜索，含 CRM 统计）
+ *     parameters:
+ *       - { in: query, name: keyword, schema: { type: string } }
+ *       - { in: query, name: page, schema: { type: integer, default: 1 } }
+ *       - { in: query, name: pageSize, schema: { type: integer, default: 20, maximum: 100 } }
+ *     responses:
+ *       200: { description: 'data = { list[], total, page, pageSize }' }
+ * /api/customer/{id}:
+ *   get:
+ *     tags: [会员]
+ *     summary: 会员详情（含消费次数/累计金额/最近到店）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: 'data = 会员对象' }
+ *   put:
+ *     tags: [会员]
+ *     summary: 编辑会员（姓氏/性别）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               surname: { type: string }
+ *               gender: { type: integer, enum: [1, 2] }
+ *     responses:
+ *       200: { description: '已保存' }
+ *   delete:
+ *     tags: [会员]
+ *     summary: 删除会员（历史订单快照保留）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     responses:
+ *       200: { description: '会员已删除' }
+ * /api/customer/{id}/orders:
+ *   get:
+ *     tags: [会员]
+ *     summary: 会员消费记录（分页，按时间倒序）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *       - { in: query, name: page, schema: { type: integer, default: 1 } }
+ *       - { in: query, name: pageSize, schema: { type: integer, default: 20, maximum: 100 } }
+ *     responses:
+ *       200: { description: 'data = { list[], total, page, pageSize }' }
+ */
+
 /** 将 gender 数值映射为后缀文字 */
 function genderText(g) {
   if (g === 1) return '先生';
@@ -63,10 +157,10 @@ router.get('/exists', async (req, res) => {
     if (!/^\d{11}$/.test(phone)) {
       return res.json({ code: 0, data: { exists: false } });
     }
-    const row = await db.get(
-      'SELECT id, phone, surname, gender FROM customer WHERE store_id = ? AND phone = ?',
-      [req.admin.storeId, phone]
-    );
+    const row = await db.get('SELECT id, phone, surname, gender FROM customer WHERE store_id = ? AND phone = ?', [
+      req.admin.storeId,
+      phone
+    ]);
     if (!row) {
       return res.json({ code: 0, data: { exists: false } });
     }
@@ -111,17 +205,20 @@ router.post('/', async (req, res) => {
 
     const phoneLast4 = phone.slice(-4);
     const now = nowStr();
-    const existing = await db.get(
-      'SELECT id FROM customer WHERE store_id = ? AND phone = ?',
-      [req.admin.storeId, phone]
-    );
+    const existing = await db.get('SELECT id FROM customer WHERE store_id = ? AND phone = ?', [
+      req.admin.storeId,
+      phone
+    ]);
 
     if (existing) {
       // 已存在则更新姓氏/性别（用户主动"添加"语义即为更新）
-      await db.run(
-        'UPDATE customer SET surname = ?, gender = ?, phone_last4 = ?, updated_at = ? WHERE id = ?',
-        [surname, gender, phoneLast4, now, existing.id]
-      );
+      await db.run('UPDATE customer SET surname = ?, gender = ?, phone_last4 = ?, updated_at = ? WHERE id = ?', [
+        surname,
+        gender,
+        phoneLast4,
+        now,
+        existing.id
+      ]);
       return res.json({ code: 0, data: { id: existing.id }, message: '已更新该会员信息' });
     }
 
@@ -178,12 +275,15 @@ router.get('/list', async (req, res) => {
     }
 
     const totalRow = await db.get(`SELECT COUNT(*) AS c FROM customer c${where}`, params);
-    const rows = await db.all(`
+    const rows = await db.all(
+      `
       SELECT c.id, c.phone, c.surname, c.gender, c.created_at, ${CRM_SELECT}
       FROM customer c${where}
       ORDER BY c.id DESC
       LIMIT ? OFFSET ?
-    `, [...params, size, (cur - 1) * size]);
+    `,
+      [...params, size, (cur - 1) * size]
+    );
 
     res.json({
       code: 0,
@@ -199,10 +299,13 @@ router.get('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!id) return res.json({ code: 1, message: '参数错误' });
-    const row = await db.get(`
+    const row = await db.get(
+      `
       SELECT c.id, c.phone, c.surname, c.gender, c.created_at, ${CRM_SELECT}
       FROM customer c WHERE c.id = ? AND c.store_id = ?
-    `, [id, req.admin.storeId]);
+    `,
+      [id, req.admin.storeId]
+    );
     if (!row) return res.json({ code: 1, message: '会员不存在' });
     res.json({ code: 0, data: mapCustomer(row) });
   } catch (e) {
@@ -226,12 +329,15 @@ router.get('/:id/orders', async (req, res) => {
     const where = ' WHERE store_id = ? AND customer_id = ?';
     const params = [req.admin.storeId, id];
     const totalRow = await db.get(`SELECT COUNT(*) AS c FROM orders${where}`, params);
-    const list = await db.all(`
+    const list = await db.all(
+      `
       SELECT id, order_no, total_amount, pay_method, status, customer_phone, customer_name, created_at
       FROM orders${where}
       ORDER BY id DESC
       LIMIT ? OFFSET ?
-    `, [...params, size, (cur - 1) * size]);
+    `,
+      [...params, size, (cur - 1) * size]
+    );
 
     res.json({
       code: 0,
@@ -258,10 +364,12 @@ router.put('/:id', async (req, res) => {
     const row = await db.get('SELECT id FROM customer WHERE id = ? AND store_id = ?', [id, req.admin.storeId]);
     if (!row) return res.json({ code: 1, message: '会员不存在' });
 
-    await db.run(
-      'UPDATE customer SET surname = ?, gender = ?, updated_at = ? WHERE id = ?',
-      [surname, gender, nowStr(), id]
-    );
+    await db.run('UPDATE customer SET surname = ?, gender = ?, updated_at = ? WHERE id = ?', [
+      surname,
+      gender,
+      nowStr(),
+      id
+    ]);
     res.json({ code: 0, message: '已保存' });
   } catch (e) {
     res.status(500).json({ code: 1, message: e.message || '服务器内部错误' });

@@ -20,6 +20,98 @@ const auth = require('../middleware/auth');
 
 router.use(auth);
 
+/**
+ * @openapi
+ * /api/store/info:
+ *   get:
+ *     tags: [店铺]
+ *     summary: 当前店铺信息（未绑定返回 storeId=0）+ 成员列表 + 名下店铺 + 开单授权状态
+ *     responses:
+ *       200: { description: 'data = { storeId, role, store, members, billingEnabled, billingExpireAt, myStores, canCreateStore, ... }' }
+ * /api/store/create:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 创建店铺（创建者成为店主，最多 3 个店铺）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               storeName: { type: string, example: 我的服装店 }
+ *     responses:
+ *       200: { description: 'data = { token, admin }' }
+ * /api/store/switch:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 切换当前店铺（仅限店主名下店铺，返回新 token）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               storeId: { type: integer }
+ *     responses:
+ *       200: { description: 'data = { token, admin }' }
+ * /api/store/bind:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 绑定店铺（凭 8 位店铺码加入，商品/订单数据同步可见）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code: { type: string, example: ABCD2345 }
+ *     responses:
+ *       200: { description: 'data = { token, admin }' }
+ * /api/store/unbind:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 退出店铺（员工自行退出；店主不可退出）
+ *     responses:
+ *       200: { description: 'data = { token, admin }' }
+ * /api/store/rename:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 修改本店名称（仅平台管理员，名称全库唯一）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               storeName: { type: string }
+ *     responses:
+ *       200: { description: 'data = { storeName }' }
+ * /api/store/member/remove:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 移除店铺成员（仅店主，被移除成员立即失去本店数据权限）
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               memberId: { type: integer }
+ *     responses:
+ *       200: { description: '已将成员移出店铺' }
+ * /api/store/code:
+ *   post:
+ *     tags: [店铺]
+ *     summary: 重置店铺码（仅店主，旧码立即失效）
+ *     responses:
+ *       200: { description: 'data = { bindCode }' }
+ */
+
 /** 店铺名是否已被其他店铺占用（store_id 参数用于改名时排除自己） */
 async function nameExists(name, excludeStoreId = 0) {
   const row = await db.get('SELECT id FROM store WHERE name = ? AND id != ?', [name, excludeStoreId]);
@@ -50,18 +142,49 @@ function signToken(admin) {
 router.get('/info', async (req, res) => {
   try {
     // 名下店铺列表（owner_id 归属关系，与当前活跃店铺 store_id 无关）
-    const myStores = await db.all(
-      'SELECT id, name, created_at FROM store WHERE owner_id = ? ORDER BY id ASC',
-      [req.admin.id]
-    );
+    const myStores = await db.all('SELECT id, name, created_at FROM store WHERE owner_id = ? ORDER BY id ASC', [
+      req.admin.id
+    ]);
     const canCreateStore = myStores.length < STORE_LIMIT;
     if (!req.admin.storeId) {
-      return res.json({ code: 0, data: { storeId: 0, role: '', store: null, members: [], billingEnabled: false, billingExpireAt: '', canRename: false, nextRenameAt: '', myStores, storeLimit: STORE_LIMIT, canCreateStore } });
+      return res.json({
+        code: 0,
+        data: {
+          storeId: 0,
+          role: '',
+          store: null,
+          members: [],
+          billingEnabled: false,
+          billingExpireAt: '',
+          canRename: false,
+          nextRenameAt: '',
+          myStores,
+          storeLimit: STORE_LIMIT,
+          canCreateStore
+        }
+      });
     }
-    const store = await db.get('SELECT id, name, bind_code, owner_id, billing_expire_at, renamed_at, created_at FROM store WHERE id = ?',
-      [req.admin.storeId]);
+    const store = await db.get(
+      'SELECT id, name, bind_code, owner_id, billing_expire_at, renamed_at, created_at FROM store WHERE id = ?',
+      [req.admin.storeId]
+    );
     if (!store) {
-      return res.json({ code: 0, data: { storeId: 0, role: '', store: null, members: [], billingEnabled: false, billingExpireAt: '', canRename: false, nextRenameAt: '', myStores, storeLimit: STORE_LIMIT, canCreateStore } });
+      return res.json({
+        code: 0,
+        data: {
+          storeId: 0,
+          role: '',
+          store: null,
+          members: [],
+          billingEnabled: false,
+          billingExpireAt: '',
+          canRename: false,
+          nextRenameAt: '',
+          myStores,
+          storeLimit: STORE_LIMIT,
+          canCreateStore
+        }
+      });
     }
     const members = await db.all(
       "SELECT id, username, role, created_at FROM admin WHERE store_id = ? ORDER BY role = 'owner' DESC, id ASC",
@@ -75,7 +198,19 @@ router.get('/info', async (req, res) => {
     const nextRenameAt = '';
     res.json({
       code: 0,
-      data: { storeId: store.id, role: req.admin.role, store, members, billingEnabled, billingExpireAt, canRename, nextRenameAt, myStores, storeLimit: STORE_LIMIT, canCreateStore }
+      data: {
+        storeId: store.id,
+        role: req.admin.role,
+        store,
+        members,
+        billingEnabled,
+        billingExpireAt,
+        canRename,
+        nextRenameAt,
+        myStores,
+        storeLimit: STORE_LIMIT,
+        canCreateStore
+      }
     });
   } catch (e) {
     res.status(500).json({ code: 1, message: e.message || '服务器内部错误' });
@@ -103,8 +238,12 @@ router.post('/create', async (req, res) => {
 
     try {
       const storeId = await db.transaction(async (tx) => {
-        const info = await tx.run('INSERT INTO store (name, bind_code, owner_id, created_at) VALUES (?, ?, ?, ?)',
-          [storeName, await genBindCode(), req.admin.id, nowStr()]);
+        const info = await tx.run('INSERT INTO store (name, bind_code, owner_id, created_at) VALUES (?, ?, ?, ?)', [
+          storeName,
+          await genBindCode(),
+          req.admin.id,
+          nowStr()
+        ]);
         const newId = info.insertId;
         await tx.run("UPDATE admin SET store_id = ?, role = 'owner' WHERE id = ?", [newId, req.admin.id]);
         return newId;
@@ -115,7 +254,14 @@ router.post('/create', async (req, res) => {
         code: 0,
         data: {
           token: signToken(admin),
-          admin: { id: admin.id, username: admin.username, storeId, storeName, role: 'owner', isPlatform: !!admin.is_platform }
+          admin: {
+            id: admin.id,
+            username: admin.username,
+            storeId,
+            storeName,
+            role: 'owner',
+            isPlatform: !!admin.is_platform
+          }
         },
         message: '店铺创建成功'
       });
@@ -146,7 +292,14 @@ router.post('/switch', async (req, res) => {
       code: 0,
       data: {
         token: signToken(admin),
-        admin: { id: admin.id, username: admin.username, storeId: store.id, storeName: store.name, role: 'owner', isPlatform: !!admin.is_platform }
+        admin: {
+          id: admin.id,
+          username: admin.username,
+          storeId: store.id,
+          storeName: store.name,
+          role: 'owner',
+          isPlatform: !!admin.is_platform
+        }
       },
       message: `已切换到店铺【${store.name}】`
     });
@@ -161,7 +314,9 @@ router.post('/bind', async (req, res) => {
     if (req.admin.storeId) {
       return res.json({ code: 1, message: '您已绑定店铺，请先解绑后再加入其他店铺' });
     }
-    const code = String((req.body || {}).code || '').trim().toUpperCase();
+    const code = String((req.body || {}).code || '')
+      .trim()
+      .toUpperCase();
     if (!code) return res.json({ code: 1, message: '请输入店铺码' });
 
     const store = await db.get('SELECT * FROM store WHERE bind_code = ?', [code]);
@@ -174,7 +329,14 @@ router.post('/bind', async (req, res) => {
       code: 0,
       data: {
         token: signToken(admin),
-        admin: { id: admin.id, username: admin.username, storeId: store.id, storeName: store.name, role: 'staff', isPlatform: !!admin.is_platform }
+        admin: {
+          id: admin.id,
+          username: admin.username,
+          storeId: store.id,
+          storeName: store.name,
+          role: 'staff',
+          isPlatform: !!admin.is_platform
+        }
       },
       message: `已加入店铺【${store.name}】，商品与订单数据已同步`
     });
@@ -199,7 +361,14 @@ router.post('/unbind', async (req, res) => {
       code: 0,
       data: {
         token: signToken(admin),
-        admin: { id: admin.id, username: admin.username, storeId: 0, storeName: null, role: 'staff', isPlatform: !!admin.is_platform }
+        admin: {
+          id: admin.id,
+          username: admin.username,
+          storeId: 0,
+          storeName: null,
+          role: 'staff',
+          isPlatform: !!admin.is_platform
+        }
       },
       message: '已退出店铺，您可以创建新店铺或加入其他店铺'
     });
@@ -248,12 +417,15 @@ router.post('/member/remove', async (req, res) => {
     if (memberId === req.admin.id) {
       return res.json({ code: 1, message: '不能移除自己；店主如需退出请联系管理员处理' });
     }
-    const member = await db.get('SELECT id, username, role FROM admin WHERE id = ? AND store_id = ?', [memberId, req.admin.storeId]);
+    const member = await db.get('SELECT id, username, role FROM admin WHERE id = ? AND store_id = ?', [
+      memberId,
+      req.admin.storeId
+    ]);
     if (!member) return res.json({ code: 1, message: '该成员不存在或已不在本店铺' });
     if (member.role === 'owner') {
       return res.json({ code: 1, message: '不能移除店主' });
     }
-    await db.run('UPDATE admin SET store_id = 0, role = \'staff\' WHERE id = ?', [memberId]);
+    await db.run("UPDATE admin SET store_id = 0, role = 'staff' WHERE id = ?", [memberId]);
     res.json({ code: 0, message: `已将成员【${member.username}】移出店铺` });
   } catch (e) {
     res.status(500).json({ code: 1, message: e.message || '服务器内部错误' });

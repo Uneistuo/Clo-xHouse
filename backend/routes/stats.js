@@ -16,6 +16,22 @@ const requireStore = require('../middleware/requireStore');
 
 router.use(auth, requireStore);
 
+/**
+ * @openapi
+ * /api/stats/dashboard:
+ *   get:
+ *     tags: [统计]
+ *     summary: 首页数据面板（商品/订单/销售额/趋势/低库存/热销）
+ *     parameters:
+ *       - { in: query, name: range, schema: { type: string, enum: [today, week, month], default: today } }
+ *     responses:
+ *       200:
+ *         description: >-
+ *           data = { goodsTotal, goodsOnSale, goodsOffSale, todayOrders, todaySales, pendingOrders,
+ *           range, periodOrders, periodSales, trend[], lowStock[], topProducts[] }
+ *           销售额仅统计已收款/已完成订单
+ */
+
 /** 低库存阈值（与小程序端保持一致） */
 const LOW_STOCK = 5;
 
@@ -34,40 +50,57 @@ router.get('/dashboard', async (req, res) => {
     const todayStr = nowStr().slice(0, 10);
 
     // 商品统计（空表时 SUM 返回 null，用 COALESCE 兜底为 0；仅统计当前店铺）
-    const goods = await db.get(`
+    const goods = await db.get(
+      `
       SELECT COUNT(*) AS total,
              COALESCE(SUM(CASE WHEN on_sale = 1 THEN 1 ELSE 0 END), 0) AS on_sale_count,
              COALESCE(SUM(CASE WHEN on_sale = 0 THEN 1 ELSE 0 END), 0) AS off_sale_count
       FROM goods WHERE is_deleted = 0 AND store_id = ?
-    `, [storeId]);
+    `,
+      [storeId]
+    );
 
     // 今日（兼容旧字段）
-    const today = await db.get(`
+    const today = await db.get(
+      `
       SELECT COUNT(*) AS order_count,
              COALESCE(SUM(CASE WHEN status IN ('paid','done') THEN total_amount ELSE 0 END), 0) AS sales_amount
       FROM orders WHERE store_id = ? AND created_at >= ?
-    `, [storeId, todayStr]);
+    `,
+      [storeId, todayStr]
+    );
 
     // 周期（按 range）
-    const period = await db.get(`
+    const period = await db.get(
+      `
       SELECT COUNT(*) AS order_count,
              COALESCE(SUM(CASE WHEN status IN ('paid','done') THEN total_amount ELSE 0 END), 0) AS sales_amount
       FROM orders WHERE store_id = ? AND created_at >= ?
-    `, [storeId, start]);
+    `,
+      [storeId, start]
+    );
 
     // 待收款订单数（全部时间累计）
-    const pendingRow = await db.get('SELECT COUNT(*) AS c FROM orders WHERE store_id = ? AND status = ?', [storeId, 'pending']);
+    const pendingRow = await db.get('SELECT COUNT(*) AS c FROM orders WHERE store_id = ? AND status = ?', [
+      storeId,
+      'pending'
+    ]);
 
     // 近 7 天趋势（按天分组，缺失日期补 0）
-    const trendRows = await db.all(`
+    const trendRows = await db.all(
+      `
       SELECT SUBSTRING(created_at, 1, 10) AS d,
              COALESCE(SUM(CASE WHEN status IN ('paid','done') THEN total_amount ELSE 0 END), 0) AS amount,
              COUNT(*) AS orders
       FROM orders WHERE store_id = ? AND created_at >= ?
       GROUP BY d
-    `, [storeId, daysAgoStr(7)]);
+    `,
+      [storeId, daysAgoStr(7)]
+    );
     const trendMap = {};
-    trendRows.forEach((r) => { trendMap[r.d] = r; });
+    trendRows.forEach((r) => {
+      trendMap[r.d] = r;
+    });
     const trend = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(Date.now() - i * 86400000);
@@ -84,14 +117,17 @@ router.get('/dashboard', async (req, res) => {
     );
 
     // 周期内热销商品（按销量）
-    const topProducts = await db.all(`
+    const topProducts = await db.all(
+      `
       SELECT oi.goods_name AS name, SUM(oi.quantity) AS quantity
       FROM order_item oi JOIN orders o ON o.id = oi.order_id
       WHERE o.store_id = ? AND o.created_at >= ? AND o.status IN ('paid','done')
       GROUP BY oi.goods_name
       ORDER BY quantity DESC
       LIMIT 5
-    `, [storeId, start]);
+    `,
+      [storeId, start]
+    );
 
     res.json({
       code: 0,

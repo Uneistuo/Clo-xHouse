@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": false,
+    "removeComments": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "pretty": true,
+    "skipLibCheck": true,
+    "esModuleInterop": false,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2020"],
+    "types": ["miniprogram-api-typings"]
+  },
+  "include": ["utils/**/*.ts"],
+  "exclude": ["node_modules", "backend", "web", "miniapp"]
+}

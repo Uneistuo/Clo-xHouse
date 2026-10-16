@@ -19,15 +19,19 @@
            bindinput="onKeywordInput" placeholder-class="ph" />
   </view>
 
-  <!-- 商品列表（仅上架商品；空表显示空状态） -->
-  <view wx:if="{{goodsList.length === 0}}" class="empty-card">
+  <!-- 商品列表（仅上架商品）：加载中 / 空状态 / 分页列表（P1-3） -->
+  <view wx:if="{{loading && goodsList.length === 0}}" class="loading-tip">加载中…</view>
+  <view wx:elif="{{goodsList.length === 0}}" class="empty-card">
     <view class="empty-icon icon icon-shopping-bag"></view>
     <view class="empty-title">没有可开单的商品</view>
     <view class="empty-sub">请先在商品页录入并上架，有库存后即可选择。</view>
   </view>
 
   <view wx:for="{{goodsList}}" wx:key="id" class="card goods-row">
-    <image class="goods-img" src="{{item.cover}}" mode="aspectFill" />
+    <!-- P1-4：图片懒加载，加载失败/无图时展示占位图 -->
+    <image wx:if="{{item.cover}}" class="goods-img" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}"
+           binderror="onGoodsImgError" data-index="{{index}}" />
+    <view wx:else class="goods-img goods-img-empty"><view class="icon icon-shopping-bag"></view></view>
     <view class="goods-info">
       <view class="goods-name ellipsis">{{item.name}}</view>
       <view class="goods-price price">￥{{item.priceText}}</view>
@@ -36,10 +40,15 @@
     <view class="add-btn" data-id="{{item.id}}" bindtap="openSelect"><view class="icon icon-plus"></view></view>
   </view>
 
+  <!-- 分页加载提示 -->
+  <view wx:if="{{loading && goodsList.length > 0}}" class="loading-tip">加载中…</view>
+  <view wx:elif="{{hasMore && goodsList.length > 0}}" class="loading-tip">上拉加载更多</view>
+  <view wx:elif="{{goodsList.length > 0}}" class="loading-tip">没有更多商品了</view>
+
   <!-- 已选订单商品 -->
   <view wx:if="{{cart.length > 0}}" class="cart-title">已选商品（{{totalQuantity}} 件）</view>
   <view wx:for="{{cart}}" wx:key="index" class="card cart-item">
-    <image class="cart-img" src="{{item.cover}}" mode="aspectFill" />
+    <image class="cart-img" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}" />
     <view class="cart-info">
       <view class="goods-name ellipsis">{{item.name}}</view>
       <view class="cart-spec">

@@ -11,6 +11,12 @@ backend/data/*.db-shm
 backend/data/*.db-wal
 backend/uploads/
 
+# 测试覆盖率
+backend/coverage/
+
+# Husky 内部脚本（由 npm install 自动生成）
+.husky/_
+
 # 压缩包
 backend.zip
 

@@ -3,16 +3,56 @@
   "version": "1.0.0",
   "description": "服装店商家管理微信小程序 - Node.js 后端服务（Express + MySQL，部署至微信云托管）",
   "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "start:dev": "cross-env NODE_ENV=development node server.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "routes/auth.js",
+      "routes/orders.js",
+      "routes/goods.js",
+      "middleware/**/*.js"
+    ],
+    "coverageReporters": [
+      "text-summary",
+      "lcov"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 70
+      }
+    }
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "cos-nodejs-sdk-v5": "^2.14.0",
     "cors": "^2.8.5",
+    "cos-nodejs-sdk-v5": "^2.14.0",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.7.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.11.0"
+    "mysql2": "^3.11.0",
+    "pino": "^10.4.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "jest": "^30.5.2",
+    "pino-pretty": "^13.2.0",
+    "prettier": "^3.6.2",
+    "supertest": "^7.3.1"
   }
 }

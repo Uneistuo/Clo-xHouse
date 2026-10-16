@@ -62,7 +62,8 @@ CREATE TABLE IF NOT EXISTS goods (
   updated_at     VARCHAR(19) NOT NULL DEFAULT '',      -- 更新时间
   KEY idx_goods_name (name),
   KEY idx_goods_category (category_id),
-  KEY idx_goods_store (store_id)
+  KEY idx_goods_store (store_id),
+  KEY idx_goods_store_deleted_onsale (store_id, is_deleted, on_sale)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 3.1 商品规格库存表（SKU：按"颜色+尺码"组合区分库存）
@@ -73,7 +74,8 @@ CREATE TABLE IF NOT EXISTS goods_sku (
   color    VARCHAR(60)  NOT NULL DEFAULT '',         -- 颜色（空串表示无颜色属性）
   size     VARCHAR(60)  NOT NULL DEFAULT '',         -- 尺码（空串表示无尺码属性）
   stock    INT           NOT NULL DEFAULT 0,         -- 该规格库存数量
-  KEY idx_goods_sku_goods (goods_id)
+  KEY idx_goods_sku_goods (goods_id),
+  KEY idx_goods_sku_goods_spec (goods_id, color, size)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 4. 订单表
@@ -96,7 +98,9 @@ CREATE TABLE IF NOT EXISTS orders (
   KEY idx_orders_status (status),
   KEY idx_orders_time (created_at),
   KEY idx_orders_store (store_id),
-  KEY idx_orders_customer (customer_id)
+  KEY idx_orders_customer (customer_id),
+  KEY idx_orders_store_status_time (store_id, status, created_at),
+  KEY idx_orders_store_time (store_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 5. 订单明细表（goods_name/price 为下单时快照，保证商品后续修改/删除不影响历史订单）

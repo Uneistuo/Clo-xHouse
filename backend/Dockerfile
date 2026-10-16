@@ -6,6 +6,9 @@ FROM node:22-alpine
 RUN apk add --no-cache tzdata
 ENV TZ=Asia/Shanghai
 
+# 生产模式：未配置 JWT_SECRET 环境变量时服务将拒绝启动（安全要求，P0-1）
+ENV NODE_ENV=production
+
 WORKDIR /app
 
 # 先复制依赖清单并安装，充分利用镜像层缓存

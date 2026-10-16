@@ -13,6 +13,48 @@ const requirePlatform = require('../middleware/requirePlatform');
 
 router.use(auth, requirePlatform);
 
+/**
+ * @openapi
+ * /api/platform/stores:
+ *   get:
+ *     tags: [平台]
+ *     summary: 店铺列表（含店主/成员数/订单数/开单授权状态/改名资格）
+ *     responses:
+ *       200: { description: 'data = { list[] }（expireAt/enabled/daysLeft）' }
+ * /api/platform/stores/{id}/billing:
+ *   post:
+ *     tags: [平台]
+ *     summary: 设置店铺开单授权时效（days<=0 或不传 = 关闭授权，立即生效）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               days: { type: integer, example: 30, description: 从当前时间起算的授权天数 }
+ *               expireAt: { type: string, example: '2026-12-31', description: '自定义到期时间（优先于 days）' }
+ *     responses:
+ *       200: { description: 'data = { expireAt }' }
+ * /api/platform/stores/{id}/rename:
+ *   post:
+ *     tags: [平台]
+ *     summary: 修改任意店铺名称（名称全库唯一）
+ *     parameters:
+ *       - { in: path, name: id, required: true, schema: { type: integer } }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               storeName: { type: string }
+ *     responses:
+ *       200: { description: 'data = { storeName }' }
+ */
+
 /** 店铺名是否已被其他店铺占用（store_id 参数用于改名时排除自己） */
 async function nameExists(name, excludeStoreId = 0) {
   const row = await db.get('SELECT id FROM store WHERE name = ? AND id != ?', [name, excludeStoreId]);
@@ -54,10 +96,10 @@ router.get('/stores', async (req, res) => {
         owner_name: s.owner_name,
         member_count: s.member_count,
         order_count: s.order_count,
-        expireAt,                                                    // 到期时间（空=未授权）
-        enabled,                                                     // 当前是否有效
-        daysLeft: enabled ? Math.ceil((ts - now) / 86400000) : 0,    // 剩余天数（向上取整）
-        renamedAt: s.renamed_at || ''                                // 上次改名时间（仅审计，无冷却）
+        expireAt, // 到期时间（空=未授权）
+        enabled, // 当前是否有效
+        daysLeft: enabled ? Math.ceil((ts - now) / 86400000) : 0, // 剩余天数（向上取整）
+        renamedAt: s.renamed_at || '' // 上次改名时间（仅审计，无冷却）
       };
     });
     res.json({ code: 0, data: { list } });
@@ -97,9 +139,7 @@ router.post('/stores/:id/billing', async (req, res) => {
     res.json({
       code: 0,
       data: { expireAt },
-      message: expireAt
-        ? `已授权店铺【${store.name}】开单至 ${expireAt}`
-        : `已关闭店铺【${store.name}】的开单权限`
+      message: expireAt ? `已授权店铺【${store.name}】开单至 ${expireAt}` : `已关闭店铺【${store.name}】的开单权限`
     });
   } catch (e) {
     res.status(500).json({ code: 1, message: e.message || '服务器内部错误' });

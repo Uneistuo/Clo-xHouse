@@ -14,6 +14,10 @@ Page({
   data: {
     keyword: '',
     goodsList: [],
+    // 商品列表分页状态（P1-3：首屏只拉 20 条，触底加载更多，搜索走服务端）
+    page: 1,
+    hasMore: false,
+    loading: false,
     cart: [],
     totalAmount: '0.00',
     totalQuantity: 0,
@@ -52,13 +56,22 @@ Page({
     }
     this.restoreCart();
     this.checkBilling();
-    this.loadGoods();
+    this.loadGoods(true);
     this._ensurePrinterConnected();
+  },
+
+  onUnload() {
+    clearTimeout(this._searchTimer);
   },
 
   onPullDownRefresh() {
     this.checkBilling();
-    this.loadGoods().finally(() => wx.stopPullDownRefresh());
+    this.loadGoods(true).finally(() => wx.stopPullDownRefresh());
+  },
+
+  /** 触底加载更多商品（P1-3） */
+  onReachBottom() {
+    if (this.data.hasMore) this.loadGoods(false);
   },
 
   restoreCart() {
@@ -68,11 +81,13 @@ Page({
         this.setData({ cart });
         this.calcTotal();
       }
-    } catch (e) { }
+    } catch (e) {}
   },
 
   persistCart() {
-    try { wx.setStorageSync('billing_cart', this.data.cart); } catch (e) { }
+    try {
+      wx.setStorageSync('billing_cart', this.data.cart);
+    } catch (e) {}
   },
 
   _ensurePrinterConnected() {
@@ -106,7 +121,7 @@ Page({
       if (storeInfo && storeInfo.store) {
         storeName = storeInfo.store.name || storeName;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     const receiptBytes = buildReceipt({
       store: { name: storeName },
@@ -172,21 +187,34 @@ Page({
         restrictedExpired: !data.billingEnabled && !!expireAt,
         billingExpireText: data.billingEnabled ? expireAt : ''
       });
-    } catch (e) { }
+    } catch (e) {}
   },
 
   onKeywordInput(e) {
     this.setData({ keyword: e.detail.value });
-    this.filterGoods();
+    // 搜索走服务端：防抖 400ms 后重置分页并加载第一页（P1-3）
+    clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => this.loadGoods(true), 400);
   },
 
-  async loadGoods() {
+  /**
+   * 加载商品列表（P1-3 分页加载）
+   * - reset=true：搜索/下拉刷新/开单完成后重置到第一页
+   * - reset=false：onReachBottom 追加下一页
+   * 搜索词由服务端过滤（keyword 参数），保证“加载更多”的结果也参与匹配
+   */
+  async loadGoods(reset = true) {
+    if (!reset && (this.data.loading || !this.data.hasMore)) return;
+    const page = reset ? 1 : this.data.page + 1;
+    const seq = (this._goodsSeq = (this._goodsSeq || 0) + 1); // 丢弃过期响应（快速输入搜索词时）
+    this.setData({ loading: true });
     try {
       const data = await request({
         url: '/api/goods',
-        data: { status: 'on', page: 1, pageSize: 200 }
+        data: { keyword: this.data.keyword.trim(), status: 'on', page, pageSize: 20 }
       });
-      this.rawGoods = (data.list || []).map((g) => ({
+      if (seq !== this._goodsSeq) return;
+      const list = (data.list || []).map((g) => ({
         ...g,
         colorArr: g.colors ? g.colors.split(',').filter(Boolean) : [],
         sizeArr: g.sizes ? g.sizes.split(',').filter(Boolean) : [],
@@ -194,20 +222,29 @@ Page({
         priceText: fmtMoney(g.price),
         cover: g.image ? resolveImg(g.image.split(',')[0], BASE_URL) : ''
       }));
-      this.filterGoods();
-    } catch (e) { }
+      const merged = reset ? list : this.data.goodsList.concat(list);
+      this.setData({
+        goodsList: merged,
+        page,
+        hasMore: merged.length < (data.total || 0),
+        loading: false
+      });
+    } catch (e) {
+      if (seq === this._goodsSeq) this.setData({ loading: false });
+    }
+  },
+
+  /** 商品封面加载失败 -> 显示占位图（P1-4） */
+  onGoodsImgError(e) {
+    const index = e.currentTarget.dataset.index;
+    if (index === undefined || index === null) return;
+    this.setData({ [`goodsList[${index}].cover`]: '' });
   },
 
   getSkuStock(goods, color, size) {
     if (!goods.skus || goods.skus.length === 0) return goods.stock || 0;
     const sku = goods.skus.find((s) => (s.color || '') === (color || '') && (s.size || '') === (size || ''));
     return sku ? sku.stock : 0;
-  },
-
-  filterGoods() {
-    const kw = this.data.keyword.trim();
-    const list = (this.rawGoods || []).filter((g) => !kw || g.name.indexOf(kw) >= 0);
-    this.setData({ goodsList: list });
   },
 
   openSelect(e) {
@@ -267,10 +304,12 @@ Page({
     if (this.data.addingItem) return;
     const { selGoods, selColor, selSize, selQty, cart } = this.data;
     if (this.data.selColors.length && !selColor) {
-      toast('请选择颜色', 'none'); return;
+      toast('请选择颜色', 'none');
+      return;
     }
     if (this.data.selSizes.length && !selSize) {
-      toast('请选择尺码', 'none'); return;
+      toast('请选择尺码', 'none');
+      return;
     }
     const skuStock = this.getSkuStock(selGoods, selColor, selSize);
     if (skuStock <= 0) {
@@ -307,7 +346,9 @@ Page({
     this.persistCart();
   },
 
-  closeSelect() { this.setData({ selectVisible: false }); },
+  closeSelect() {
+    this.setData({ selectVisible: false });
+  },
 
   cartMinus(e) {
     const idx = e.currentTarget.dataset.index;
@@ -344,12 +385,17 @@ Page({
     const { cart } = this.data;
     let total = 0;
     let qty = 0;
-    cart.forEach((c) => { total += c.price * c.quantity; qty += c.quantity; });
+    cart.forEach((c) => {
+      total += c.price * c.quantity;
+      qty += c.quantity;
+    });
     this.setData({ totalAmount: fmtMoney(total), totalQuantity: qty });
   },
 
   onPhoneInput(e) {
-    const phone = String(e.detail.value || '').replace(/\D/g, '').slice(0, 11);
+    const phone = String(e.detail.value || '')
+      .replace(/\D/g, '')
+      .slice(0, 11);
     this.setData({
       customerPhone: phone,
       showAddCustomerBtn: false,
@@ -362,14 +408,18 @@ Page({
       this.matchCustomerByLast4(phone);
     }
   },
-  onRemarkInput(e) { this.setData({ remark: e.detail.value }); },
-  onPaidNowChange(e) { this.setData({ paidNow: e.detail.value }); },
+  onRemarkInput(e) {
+    this.setData({ remark: e.detail.value });
+  },
+  onPaidNowChange(e) {
+    this.setData({ paidNow: e.detail.value });
+  },
 
   async checkCustomerExists(phone) {
     try {
       const data = await request({ url: `/api/customer/exists?phone=${phone}`, method: 'GET' });
       this.setData({ showAddCustomerBtn: !data.exists });
-    } catch (e) { }
+    } catch (e) {}
   },
 
   async matchCustomerByLast4(suffix) {
@@ -416,7 +466,7 @@ Page({
         showAddCustomerBtn: false,
         selectedCustomerId: (r && r.id) || 0
       });
-    } catch (e) { }
+    } catch (e) {}
   },
 
   onSelectCustomer(e) {
@@ -434,7 +484,10 @@ Page({
     const { cart, customerPhone, remark, paidNow, submitting, restricted, selectedCustomerId } = this.data;
     if (submitting) return;
     if (restricted) {
-      toast(this.data.restrictedExpired ? '开单授权已到期，请联系平台管理员续期' : '开单功能未开通，请联系平台管理员', 'none');
+      toast(
+        this.data.restrictedExpired ? '开单授权已到期，请联系平台管理员续期' : '开单功能未开通，请联系平台管理员',
+        'none'
+      );
       return;
     }
     if (cart.length === 0) {
@@ -462,7 +515,12 @@ Page({
         customerPhone: customerPhone.trim(),
         remark: remark.trim(),
         items: cart.map((c) => ({
-          goodsNo: c.goodsNo, name: c.name, color: c.color, size: c.size, price: c.price, quantity: c.quantity
+          goodsNo: c.goodsNo,
+          name: c.name,
+          color: c.color,
+          size: c.size,
+          price: c.price,
+          quantity: c.quantity
         }))
       };
       this.setData({
@@ -479,14 +537,17 @@ Page({
       });
       this.calcTotal();
       this.persistCart();
-      this.loadGoods();
+      this.loadGoods(true);
       this._printReceipt(this._lastReceipt).catch((e) => console.error('[print]', e));
     } catch (e) {
       if (e && e.code === 1002) {
-        this.setData({ restricted: true, restrictedExpired: !!this.data.billingExpireText || this.data.restrictedExpired });
+        this.setData({
+          restricted: true,
+          restrictedExpired: !!this.data.billingExpireText || this.data.restrictedExpired
+        });
         this.checkBilling();
       }
-      this.loadGoods();
+      this.loadGoods(true);
     } finally {
       this.setData({ submitting: false });
     }

@@ -13,8 +13,16 @@
   padding: 16rpx 24rpx;
   border: 1rpx solid var(--border-strong);
 }
-.search-icon { font-size: 26rpx; margin-right: 12rpx; color: var(--text-2); }
-.search-input { flex: 1; font-size: 28rpx; color: var(--text-1); }
+.search-icon {
+  font-size: 26rpx;
+  margin-right: 12rpx;
+  color: var(--text-2);
+}
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--text-1);
+}
 
 /* 分类入口：纯图标按钮（三条横杠），无底框，位于搜索栏行首 */
 .category-entry {
@@ -28,7 +36,9 @@
   color: var(--text-2);
   font-size: 40rpx;
 }
-.category-entry:active { opacity: 0.5; }
+.category-entry:active {
+  opacity: 0.5;
+}
 
 .tabs {
   display: flex;
@@ -38,7 +48,11 @@
   margin-bottom: 24rpx;
   border: 1rpx solid var(--border);
 }
-.goods-no { font-size: 23rpx; color: var(--text-2); margin-top: 4rpx; }
+.goods-no {
+  font-size: 23rpx;
+  color: var(--text-2);
+  margin-top: 4rpx;
+}
 
 .tab {
   flex: 1;
@@ -54,8 +68,12 @@
   font-weight: bold;
 }
 
-.goods-card { padding: 20rpx; }
-.goods-main { display: flex; }
+.goods-card {
+  padding: 20rpx;
+}
+.goods-main {
+  display: flex;
+}
 .goods-img {
   width: 160rpx;
   height: 160rpx;
@@ -64,9 +82,30 @@
   flex-shrink: 0;
   border: 1rpx solid var(--border);
 }
-.goods-info { flex: 1; margin-left: 20rpx; overflow: hidden; }
-.goods-name { font-size: 30rpx; font-weight: bold; color: var(--text-1); }
-.goods-price { margin: 10rpx 0; font-size: 32rpx; }
+.goods-info {
+  flex: 1;
+  margin-left: 20rpx;
+  overflow: hidden;
+}
+/* P1-4：图片加载失败/无图占位 */
+.img-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+}
+.img-placeholder .icon {
+  font-size: 56rpx;
+}
+.goods-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--text-1);
+}
+.goods-price {
+  margin: 10rpx 0;
+  font-size: 32rpx;
+}
 .origin-price {
   color: var(--text-2);
   font-size: 22rpx;
@@ -80,7 +119,9 @@
   display: flex;
   align-items: center;
 }
-.goods-meta text:first-child { margin-right: 12rpx; }
+.goods-meta text:first-child {
+  margin-right: 12rpx;
+}
 .goods-actions {
   display: flex;
   justify-content: flex-end;
@@ -113,7 +154,10 @@
 }
 
 /* 搜索栏右侧入口 */
-.bar-actions { display: flex; align-items: center; }
+.bar-actions {
+  display: flex;
+  align-items: center;
+}
 .manage-entry {
   margin-left: 20rpx;
   font-size: 26rpx;
@@ -129,7 +173,10 @@
 }
 
 /* 低库存预警 */
-.stock-warn { color: var(--danger); font-weight: 700; }
+.stock-warn {
+  color: var(--danger);
+  font-weight: 700;
+}
 
 /* 批量选择圆点 */
 .select-dot {
@@ -141,7 +188,11 @@
   margin-right: 20rpx;
   flex-shrink: 0;
 }
-.select-dot.on { background: var(--primary); border-color: var(--primary); position: relative; }
+.select-dot.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  position: relative;
+}
 .select-dot.on::after {
   content: '';
   position: absolute;
@@ -153,7 +204,9 @@
   border-width: 0 3rpx 3rpx 0;
   transform: rotate(45deg);
 }
-.goods-selected { border: 1.5rpx solid var(--primary); }
+.goods-selected {
+  border: 1.5rpx solid var(--primary);
+}
 
 /* 批量操作栏 */
 .batch-bar {
@@ -170,12 +223,30 @@
   box-shadow: 0 -6rpx 18rpx rgba(20, 22, 26, 0.08);
   border-top: 1rpx solid var(--border);
 }
-.batch-all { display: flex; align-items: center; font-size: 28rpx; color: var(--text-1); }
-.batch-all .select-dot { margin-right: 12rpx; }
-.batch-actions { display: flex; align-items: center; }
-.batch-actions .btn-mini { margin-left: 16rpx; }
+.batch-all {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: var(--text-1);
+}
+.batch-all .select-dot {
+  margin-right: 12rpx;
+}
+.batch-actions {
+  display: flex;
+  align-items: center;
+}
+.batch-actions .btn-mini {
+  margin-left: 16rpx;
+}
 
 /* 适配自定义 TabBar */
-.page { padding-bottom: 180rpx; }
-.fab { bottom: calc(140rpx + env(safe-area-inset-bottom)); }
-.batch-bar { bottom: calc(100rpx + env(safe-area-inset-bottom)); }
+.page {
+  padding-bottom: 180rpx;
+}
+.fab {
+  bottom: calc(140rpx + env(safe-area-inset-bottom));
+}
+.batch-bar {
+  bottom: calc(100rpx + env(safe-area-inset-bottom));
+}

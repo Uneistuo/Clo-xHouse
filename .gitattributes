@@ -1,0 +1,5 @@
+# 统一换行符规则（Git for Windows）
+# husky 钩子必须为 LF，否则 sh 执行时报错
+.husky/** text eol=lf
+# Windows 批处理文件保持 CRLF
+*.bat text eol=crlf
