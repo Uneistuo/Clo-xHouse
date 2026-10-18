@@ -1,0 +1,360 @@
+/* 注册 + 绑定页样式（沿用登录页视觉语言） */
+
+.reg-page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-app);
+  overflow: hidden;
+}
+
+/* ===== 背景光晕 ===== */
+.glow {
+  position: fixed;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(60rpx);
+}
+.glow-1 {
+  width: 480rpx;
+  height: 480rpx;
+  top: -180rpx;
+  right: -160rpx;
+  background: radial-gradient(circle, rgba(225, 72, 60, 0.42) 0%, rgba(225, 72, 60, 0.08) 55%, transparent 75%);
+}
+.glow-2 {
+  width: 420rpx;
+  height: 420rpx;
+  left: -140rpx;
+  bottom: -160rpx;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.28) 0%, rgba(37, 99, 235, 0.06) 55%, transparent 75%);
+}
+
+.reg-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 720rpx;
+  margin: 0 auto;
+  padding: 80rpx 56rpx 60rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== 顶部标题区 ===== */
+.reg-brand {
+  text-align: center;
+  margin-bottom: 44rpx;
+}
+.reg-brand-title {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: var(--text-1);
+  letter-spacing: 12rpx;
+  text-indent: 12rpx;
+}
+.reg-step-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-top: 20rpx;
+}
+
+/* ===== 步骤条 ===== */
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.step-node {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 700;
+  background: var(--bg-subtle);
+  color: var(--text-3);
+  border: 2rpx solid var(--border);
+  transition: all 0.24s ease;
+}
+.step-node.active {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+  transform: scale(1.06);
+  box-shadow: 0 0 0 8rpx rgba(225, 72, 60, 0.1);
+}
+.step-node.done {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  border-color: transparent;
+}
+.step-line {
+  width: 96rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: var(--border);
+  margin: 0 16rpx;
+  transition: background 0.24s ease;
+}
+.step-line.fill {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+}
+.steps-labels {
+  display: flex;
+  justify-content: center;
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+.steps-labels text {
+  width: 168rpx;
+  text-align: center;
+}
+.steps-labels text.on {
+  color: var(--text-2);
+}
+
+.resume-hint {
+  margin-top: 28rpx;
+  font-size: 24rpx;
+  color: var(--primary-dark);
+  background: var(--primary-tint);
+  padding: 14rpx 24rpx;
+  border-radius: var(--radius-input);
+  text-align: center;
+}
+
+/* ===== 内容卡片 ===== */
+.panel {
+  width: 100%;
+  margin-top: 40rpx;
+  box-sizing: border-box;
+  background: var(--bg-card);
+  border-radius: 32rpx;
+  padding: 40rpx 40rpx 44rpx;
+  box-shadow: 0 12rpx 40rpx rgba(20, 22, 26, 0.1);
+  border: 1rpx solid var(--border);
+}
+
+/* ===== 输入项 ===== */
+.field {
+  margin-top: 28rpx;
+  background: var(--bg-subtle);
+  border: 2rpx solid transparent;
+  border-radius: var(--radius-input);
+  padding: 16rpx 26rpx;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.field.is-focus {
+  background: var(--bg-card);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 6rpx rgba(225, 72, 60, 0.08);
+}
+.field.is-error {
+  background: var(--bg-card);
+  border-color: var(--danger);
+}
+.field-label {
+  font-size: 22rpx;
+  color: var(--text-3);
+  margin-bottom: 6rpx;
+}
+.field-input {
+  width: 100%;
+  font-size: 30rpx;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+.ph {
+  color: var(--text-placeholder);
+}
+.field-tip {
+  font-size: 22rpx;
+  color: var(--danger);
+  margin-top: 8rpx;
+  padding-left: 10rpx;
+}
+.tip-link {
+  color: var(--primary-dark);
+  margin-left: 12rpx;
+  text-decoration: underline;
+}
+
+/* ===== 绑定方式切换 ===== */
+.segmented {
+  display: flex;
+  background: var(--bg-subtle);
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 6rpx;
+}
+.seg-item {
+  flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--text-2);
+  padding: 16rpx 0;
+  border-radius: var(--radius-pill);
+  transition: all 0.2s ease;
+}
+.seg-item.active {
+  background: var(--bg-card);
+  color: var(--primary-dark);
+  font-weight: 700;
+  box-shadow: var(--shadow-1);
+}
+.store-form {
+  margin-top: 32rpx;
+}
+
+/* ===== 主按钮 ===== */
+.login-btn {
+  width: 100%;
+  margin-top: 44rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  letter-spacing: 6rpx;
+  color: #fff;
+  line-height: 1.4;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-pill);
+  padding: 22rpx 0;
+  box-shadow: var(--shadow-primary);
+}
+.login-btn::after {
+  border: none;
+}
+.login-btn[disabled] {
+  background: #f0b4ae;
+  color: #fff;
+  box-shadow: none;
+}
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.login-btn.btn-loading::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34rpx;
+  height: 34rpx;
+  margin-left: -17rpx;
+  margin-top: -17rpx;
+  border: 3rpx solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: btnSpin 0.8s linear infinite;
+}
+@keyframes btnSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.register-hint {
+  margin-top: 26rpx;
+  font-size: 22rpx;
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.6;
+}
+.back-link {
+  margin-top: 24rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--text-2);
+}
+
+/* ===== 第 3 步：完成 ===== */
+.done-panel {
+  text-align: center;
+}
+.done-mark {
+  width: 120rpx;
+  height: 120rpx;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-size: 64rpx;
+  animation: popIn 0.42s cubic-bezier(0.18, 0.9, 0.32, 1.3);
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.done-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-top: 24rpx;
+}
+.info-card {
+  margin-top: 32rpx;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-input);
+  padding: 8rpx 28rpx;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--divider);
+}
+.info-row:last-child {
+  border-bottom: none;
+}
+.info-label {
+  font-size: 26rpx;
+  color: var(--text-3);
+}
+.info-value {
+  font-size: 28rpx;
+  color: var(--text-1);
+  font-weight: 600;
+}
+.role-tip {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ===== 底部 ===== */
+.foot {
+  margin-top: 40rpx;
+  font-size: 26rpx;
+  color: var(--text-2);
+}
+.foot-sub {
+  margin-top: 16rpx;
+}
+.foot-link {
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin-left: 6rpx;
+}

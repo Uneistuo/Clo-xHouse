@@ -1,0 +1,154 @@
+<!--注册 + 绑定页（独立页面）：第1步注册账号 → 第2步绑定店铺 → 第3步完成-->
+<view class="reg-page">
+  <!-- 背景光晕 -->
+  <view class="glow glow-1"></view>
+  <view class="glow glow-2"></view>
+
+  <view class="reg-wrap">
+    <!-- 顶部标题区 -->
+    <view class="reg-brand">
+      <view class="reg-brand-title">裁 间</view>
+      <view class="reg-step-title">{{stepTitle}}</view>
+    </view>
+
+    <!-- 步骤条：1 → 2 → 3 + 进度连接线 -->
+    <view class="steps">
+      <view class="step-node {{step > 1 ? 'done' : ''}} {{step === 1 ? 'active' : ''}}">
+        <text wx:if="{{step > 1}}">✓</text>
+        <text wx:else>1</text>
+      </view>
+      <view class="step-line {{step > 1 ? 'fill' : ''}}"></view>
+      <view class="step-node {{step > 2 ? 'done' : ''}} {{step === 2 ? 'active' : ''}}">
+        <text wx:if="{{step > 2}}">✓</text>
+        <text wx:else>2</text>
+      </view>
+      <view class="step-line {{step > 2 ? 'fill' : ''}}"></view>
+      <view class="step-node {{step === 3 ? 'active' : ''}}">3</view>
+    </view>
+    <view class="steps-labels">
+      <text class="{{step >= 1 ? 'on' : ''}}">注册账号</text>
+      <text class="{{step >= 2 ? 'on' : ''}}">绑定店铺</text>
+      <text class="{{step >= 3 ? 'on' : ''}}">完成</text>
+    </view>
+
+    <!-- 续注册提示 -->
+    <view wx:if="{{resumeHint}}" class="resume-hint">{{resumeHint}}</view>
+
+    <!-- ===== 第 1 步：注册账号 ===== -->
+    <view class="panel" wx:if="{{step === 1}}">
+      <view class="field {{focusField === 'username' ? 'is-focus' : ''}} {{usernameError ? 'is-error' : ''}}">
+        <view class="field-label">账号</view>
+        <input class="field-input" placeholder="3-20 位字母、数字或下划线" value="{{username}}"
+               bindinput="onUsernameInput" bindfocus="onFocus" bindblur="onBlur" data-name="username"
+               placeholder-class="ph" />
+      </view>
+      <view wx:if="{{usernameError}}" class="field-tip">
+        {{usernameError}}
+        <text wx:if="{{registerConflict}}" class="tip-link" bindtap="goLogin">去登录</text>
+      </view>
+
+      <view class="field {{focusField === 'password' ? 'is-focus' : ''}} {{passwordError ? 'is-error' : ''}}">
+        <view class="field-label">密码</view>
+        <input class="field-input" placeholder="6-32 位" password value="{{password}}"
+               bindinput="onPasswordInput" bindfocus="onFocus" bindblur="onBlur" data-name="password"
+               placeholder-class="ph" />
+      </view>
+      <view wx:if="{{passwordError}}" class="field-tip">{{passwordError}}</view>
+
+      <view class="field {{focusField === 'confirm' ? 'is-focus' : ''}} {{confirmError ? 'is-error' : ''}}">
+        <view class="field-label">确认密码</view>
+        <input class="field-input" placeholder="请再次输入密码" password value="{{confirmPassword}}"
+               bindinput="onConfirmInput" bindfocus="onFocus" bindblur="onBlur" data-name="confirm"
+               placeholder-class="ph" />
+      </view>
+      <view wx:if="{{confirmError}}" class="field-tip">{{confirmError}}</view>
+
+      <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleRegister" disabled="{{loading}}">
+        {{loading ? '注册中…' : '注 册'}}
+      </button>
+      <view class="register-hint">注册后即可创建自己的店铺，或凭店铺码加入已有店铺</view>
+    </view>
+
+    <!-- ===== 第 2 步：绑定店铺 ===== -->
+    <view class="panel" wx:elif="{{step === 2}}">
+      <view class="segmented">
+        <view class="seg-item {{bindMethod === 'create' ? 'active' : ''}}" data-method="create" bindtap="switchBindMethod">创建新店铺</view>
+        <view class="seg-item {{bindMethod === 'join' ? 'active' : ''}}" data-method="join" bindtap="switchBindMethod">加入已有店铺</view>
+      </view>
+
+      <!-- 创建店铺 -->
+      <view class="store-form" wx:if="{{bindMethod === 'create'}}">
+        <view class="field {{focusField === 'storeName' ? 'is-focus' : ''}}">
+          <view class="field-label">店铺名称</view>
+          <input class="field-input" placeholder="请输入店铺名称" value="{{storeName}}"
+                 bindinput="onStoreNameInput" bindfocus="onFocus" bindblur="onBlur" data-name="storeName"
+                 placeholder-class="ph" maxlength="30" />
+        </view>
+        <view class="register-hint">创建后您即店主，将获得专属店铺码供员工绑定</view>
+        <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleCreate" disabled="{{loading}}">
+          {{loading ? '创建中…' : '创建店铺'}}
+        </button>
+      </view>
+
+      <!-- 加入店铺 -->
+      <view class="store-form" wx:else>
+        <view class="field {{focusField === 'code' ? 'is-focus' : ''}}">
+          <view class="field-label">店铺码</view>
+          <input class="field-input" placeholder="请输入8位店铺码" value="{{code}}"
+                 bindinput="onCodeInput" bindfocus="onFocus" bindblur="onBlur" data-name="code"
+                 placeholder-class="ph" maxlength="8" />
+        </view>
+        <view class="register-hint">绑定后该店铺的商品、订单数据自动同步到您的账号</view>
+        <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleJoin" disabled="{{loading}}">
+          {{loading ? '绑定中…' : '加入店铺'}}
+        </button>
+      </view>
+
+      <view wx:if="{{canBackStep1}}" class="back-link" bindtap="goStep1">上一步</view>
+    </view>
+
+    <!-- ===== 第 3 步：完成确认 ===== -->
+    <view class="panel done-panel" wx:else>
+      <view class="done-mark">
+        <view class="icon icon-check-circle"></view>
+      </view>
+      <view class="done-title">一切就绪</view>
+
+      <view class="info-card">
+        <view class="info-row">
+          <text class="info-label">账号</text>
+          <text class="info-value">{{adminInfo.username}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">店铺</text>
+          <text class="info-value">{{adminInfo.storeName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">身份</text>
+          <text class="info-value">{{adminInfo.role === 'owner' ? '店主' : '员工'}}</text>
+        </view>
+      </view>
+
+      <view class="role-tip">
+        {{adminInfo.role === 'owner'
+          ? '你是店铺的创建者，可在“我的”页查看店铺码邀请员工'
+          : '已加入店铺，商品与订单数据已同步'}}
+      </view>
+
+      <button class="login-btn" bindtap="handleDone">{{mode === 'register' ? '进入裁间' : '进入应用'}}</button>
+    </view>
+
+    <!-- ===== 底部操作区 ===== -->
+    <view class="foot">
+      <block wx:if="{{mode === 'register'}}">
+        <text>已有账号？</text><text class="foot-link" bindtap="goLogin">返回登录</text>
+      </block>
+      <block wx:else>
+        <text class="foot-link" bindtap="handleLogout">退出登录</text>
+      </block>
+    </view>
+    <view wx:if="{{resumeHint}}" class="foot foot-sub">
+      <text class="foot-link" bindtap="resetRegister">注册新账号</text>
+    </view>
+  </view>
+</view>

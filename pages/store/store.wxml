@@ -55,38 +55,6 @@
     </view>
   </view>
 
-  <!-- ===== 未绑定店铺：创建 / 加入 ===== -->
-  <block wx:else>
-    <view class="action-tabs">
-      <view class="action-tab {{action === 'create' ? 'active' : ''}}" data-action="create" bindtap="switchAction">创建店铺</view>
-      <view class="action-tab {{action === 'join' ? 'active' : ''}}" data-action="join" bindtap="switchAction">加入店铺</view>
-    </view>
-
-    <!-- 创建店铺 -->
-    <view class="store-form" wx:if="{{action === 'create'}}">
-      <view class="form-item">
-        <text class="form-label">店铺名称</text>
-        <input class="form-input" placeholder="请输入店铺名称" value="{{storeName}}"
-               bindinput="onStoreNameInput" placeholder-class="placeholder" maxlength="30" />
-      </view>
-      <view class="form-tip">创建后您即店主，将获得专属店铺码供员工绑定</view>
-      <button class="btn-primary form-btn" bindtap="handleCreate"
-              disabled="{{loading}}">{{loading ? '创建中...' : '创建店铺'}}</button>
-    </view>
-
-    <!-- 加入店铺 -->
-    <view class="store-form" wx:else>
-      <view class="form-item">
-        <text class="form-label">店铺码</text>
-        <input class="form-input" placeholder="请输入8位店铺码" value="{{code}}"
-               bindinput="onCodeInput" placeholder-class="placeholder" maxlength="8" />
-      </view>
-      <view class="form-tip">绑定后该店铺的商品、订单数据自动同步到您的账号，修改实时互通</view>
-      <button class="btn-primary form-btn" bindtap="handleJoin"
-              disabled="{{loading}}">{{loading ? '绑定中...' : '加入店铺'}}</button>
-    </view>
-  </block>
-
   <!-- ===== 会员客户：已绑定店铺才显示（会员列表/消费记录/CRM） ===== -->
   <view class="platform-card" wx:if="{{storeId}}" bindtap="goCustomers">
     <view class="platform-info">

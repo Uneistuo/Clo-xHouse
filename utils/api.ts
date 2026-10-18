@@ -46,10 +46,10 @@ function handleResponse(
     return;
   }
   const body = res.data as { code?: number; message?: string; data?: any } | undefined;
-  // 未绑定店铺（code=1001）：引导到店铺创建/绑定页
+  // 未绑定店铺（code=1001）：引导到注册+绑定页（第 2 步）
   if (body && body.code === 1001) {
     wx.showToast({ title: body.message || '请先绑定店铺', icon: 'none' });
-    wx.reLaunch({ url: '/pages/store/store' });
+    wx.reLaunch({ url: '/pages/register/register?mode=bind' });
     reject(new Error(body.message || '请先绑定店铺'));
     return;
   }

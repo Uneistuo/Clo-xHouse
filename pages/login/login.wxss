@@ -83,30 +83,6 @@
   border: 1rpx solid var(--border);
 }
 
-/* ===== 模式切换（分段控件） ===== */
-.seg {
-  display: flex;
-  background: var(--bg-subtle);
-  border-radius: var(--radius-pill);
-  padding: 6rpx;
-  margin-bottom: 8rpx;
-}
-.seg-item {
-  flex: 1;
-  text-align: center;
-  font-size: 28rpx;
-  color: var(--text-2);
-  padding: 16rpx 0;
-  border-radius: var(--radius-pill);
-  transition: all 0.2s ease;
-}
-.seg-item.active {
-  background: var(--bg-card);
-  color: var(--primary-dark);
-  font-weight: 700;
-  box-shadow: var(--shadow-1);
-}
-
 /* ===== 输入项 ===== */
 .field {
   margin-top: 28rpx;
@@ -114,7 +90,10 @@
   border: 2rpx solid transparent;
   border-radius: var(--radius-input);
   padding: 16rpx 26rpx;
-  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .field.is-focus {
   background: var(--bg-card);
@@ -161,7 +140,9 @@
   padding: 22rpx 0;
   box-shadow: var(--shadow-primary);
 }
-.login-btn::after { border: none; }
+.login-btn::after {
+  border: none;
+}
 .login-btn[disabled] {
   background: #f0b4ae;
   color: #fff;
@@ -187,16 +168,9 @@
   animation: btnSpin 0.8s linear infinite;
 }
 @keyframes btnSpin {
-  to { transform: rotate(360deg); }
-}
-
-/* ===== 注册说明 ===== */
-.register-hint {
-  margin-top: 26rpx;
-  font-size: 22rpx;
-  color: var(--text-2);
-  text-align: center;
-  line-height: 1.6;
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== 底部切换 ===== */

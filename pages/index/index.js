@@ -5,7 +5,7 @@ const { fmtMoney } = require('../../utils/util');
 
 Page({
   data: {
-    dateText: '',           // 顶部日期，如：10月7日星期三
+    dateText: '', // 顶部日期，如：10月7日星期三
 
     // 周期切换（书签）
     ranges: [
@@ -20,13 +20,13 @@ Page({
     goodsTotal: 0,
     goodsOnSale: 0,
     goodsOffSale: 0,
-    pendingOrders: 0,       // 待收款订单数
-    periodOrders: 0,        // 周期订单数
-    periodSales: '0.00',    // 周期销售额
-    trend: [],              // 近 7 天趋势 [{ date, amount, amountText, orders, barH }]
-    trendIndex: 0,          // 趋势图当前选中项
-    trendSelected: null,    // 当前选中项数据
-    lowStock: []            // 低库存商品
+    pendingOrders: 0, // 待收款订单数
+    periodOrders: 0, // 周期订单数
+    periodSales: '0.00', // 周期销售额
+    trend: [], // 近 7 天趋势 [{ date, amount, amountText, orders, barH }]
+    trendIndex: 0, // 趋势图当前选中项
+    trendSelected: null, // 当前选中项数据
+    lowStock: [] // 低库存商品
   },
 
   onShow() {
@@ -38,7 +38,7 @@ Page({
     // 未绑定店铺拦截（引导到店铺创建/绑定页）
     const adminInfo = wx.getStorageSync('adminInfo') || {};
     if (!adminInfo.storeId) {
-      wx.reLaunch({ url: '/pages/store/store' });
+      wx.reLaunch({ url: '/pages/register/register?mode=bind' });
       return;
     }
     this.setData({ dateText: this.buildDateText() });
@@ -108,8 +108,12 @@ Page({
     this.loadDashboard().finally(() => wx.stopPullDownRefresh());
   },
 
-  goGoods() { wx.switchTab({ url: '/pages/goods/goods' }); },
-  goOrders() { wx.switchTab({ url: '/pages/orders/orders' }); },
+  goGoods() {
+    wx.switchTab({ url: '/pages/goods/goods' });
+  },
+  goOrders() {
+    wx.switchTab({ url: '/pages/orders/orders' });
+  },
 
   /** 点击低库存商品 -> 去编辑补货 */
   goRestock(e) {

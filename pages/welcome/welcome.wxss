@@ -1,0 +1,190 @@
+/* 欢迎页：暖色底 + 光晕 + 依次淡入上移动画 */
+
+.welcome-page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-app);
+  overflow: hidden;
+}
+
+.glow {
+  position: fixed;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(60rpx);
+}
+.glow-1 {
+  width: 520rpx;
+  height: 520rpx;
+  top: -200rpx;
+  right: -180rpx;
+  background: radial-gradient(circle, rgba(225, 72, 60, 0.4) 0%, rgba(225, 72, 60, 0.08) 55%, transparent 75%);
+}
+.glow-2 {
+  width: 440rpx;
+  height: 440rpx;
+  left: -160rpx;
+  bottom: -180rpx;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.26) 0%, rgba(37, 99, 235, 0.06) 55%, transparent 75%);
+}
+
+.welcome-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 110rpx 56rpx 80rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* ===== 品牌 + 成功标记 ===== */
+.wc-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wc-ring {
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 50%;
+  border: 4rpx solid var(--primary-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ringPulse 1.8s ease-out infinite;
+}
+.wc-ring-inner {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  font-size: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-primary);
+}
+@keyframes ringPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(225, 72, 60, 0.28);
+  }
+  70% {
+    box-shadow: 0 0 0 28rpx rgba(225, 72, 60, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(225, 72, 60, 0);
+  }
+}
+.wc-brand-title {
+  margin-top: 28rpx;
+  font-size: 44rpx;
+  font-weight: 800;
+  color: var(--text-1);
+  letter-spacing: 12rpx;
+  text-indent: 12rpx;
+}
+
+.wc-title {
+  margin-top: 40rpx;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--text-1);
+}
+.wc-sub {
+  margin-top: 14rpx;
+  font-size: 28rpx;
+  color: var(--primary-dark);
+}
+.wc-hello {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-2);
+}
+
+/* ===== 功能引导 ===== */
+.wc-guide {
+  width: 100%;
+  margin-top: 56rpx;
+  background: var(--bg-card);
+  border-radius: 32rpx;
+  padding: 12rpx 32rpx;
+  box-shadow: 0 12rpx 40rpx rgba(20, 22, 26, 0.08);
+  border: 1rpx solid var(--border);
+}
+.guide-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid var(--divider);
+  text-align: left;
+}
+.guide-item:last-child {
+  border-bottom: none;
+}
+.guide-icon {
+  flex-shrink: 0;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+  font-size: 38rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+.guide-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.guide-sub {
+  font-size: 23rpx;
+  color: var(--text-2);
+  margin-top: 6rpx;
+}
+
+/* ===== 主按钮 ===== */
+.wc-btn {
+  width: 100%;
+  margin-top: 60rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  letter-spacing: 6rpx;
+  color: #fff;
+  line-height: 1.4;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-pill);
+  padding: 24rpx 0;
+  box-shadow: var(--shadow-primary);
+}
+.wc-btn::after {
+  border: none;
+}
+
+.wc-foot {
+  margin-top: 32rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+/* ===== 依次淡入上移 ===== */
+.anim {
+  opacity: 0;
+  animation: fadeUp 0.5s ease forwards;
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

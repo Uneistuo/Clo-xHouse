@@ -1,4 +1,4 @@
-<!--裁间 · 登录 / 注册页-->
+<!--裁间 · 登录页-->
 <view class="login-page">
   <!-- 背景光晕 -->
   <view class="glow glow-1"></view>
@@ -14,12 +14,6 @@
 
     <!-- 主卡片 -->
     <view class="panel">
-      <!-- 模式切换 -->
-      <view class="seg">
-        <view class="seg-item {{mode === 'login' ? 'active' : ''}}" data-mode="login" bindtap="switchMode">登录</view>
-        <view class="seg-item {{mode === 'register' ? 'active' : ''}}" data-mode="register" bindtap="switchMode">注册</view>
-      </view>
-
       <!-- 账号 -->
       <view class="field {{focusField === 'username' ? 'is-focus' : ''}} {{usernameError ? 'is-error' : ''}}">
         <view class="field-label">账号</view>
@@ -38,34 +32,15 @@
       </view>
       <view wx:if="{{passwordError}}" class="field-tip">{{passwordError}}</view>
 
-      <!-- 确认密码（仅注册） -->
-      <block wx:if="{{mode === 'register'}}">
-        <view class="field {{focusField === 'confirm' ? 'is-focus' : ''}} {{confirmError ? 'is-error' : ''}}">
-          <view class="field-label">确认密码</view>
-          <input class="field-input" placeholder="请再次输入密码" password value="{{confirmPassword}}"
-                 bindinput="onConfirmInput" bindfocus="onFocus" bindblur="onBlur" data-name="confirm"
-                 placeholder-class="ph" />
-        </view>
-        <view wx:if="{{confirmError}}" class="field-tip">{{confirmError}}</view>
-      </block>
-
       <!-- 提交按钮 -->
       <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleSubmit" disabled="{{loading}}">
-        {{loading ? (mode === 'login' ? '登录中…' : '注册中…') : (mode === 'login' ? '登 录' : '注 册')}}
+        {{loading ? '登录中…' : '登 录'}}
       </button>
-
-      <!-- 注册说明 -->
-      <view wx:if="{{mode === 'register'}}" class="register-hint">注册后可创建自己的店铺，或凭店铺码加入已有店铺</view>
     </view>
 
-    <!-- 底部切换 -->
+    <!-- 底部：跳转独立的注册+绑定页 -->
     <view class="foot">
-      <block wx:if="{{mode === 'login'}}">
-        <text>还没有账号？</text><text class="foot-link" data-mode="register" bindtap="switchMode">立即注册</text>
-      </block>
-      <block wx:else>
-        <text>已有账号？</text><text class="foot-link" data-mode="login" bindtap="switchMode">返回登录</text>
-      </block>
+      <text>还没有账号？</text><text class="foot-link" bindtap="goRegister">立即注册</text>
     </view>
   </view>
 </view>

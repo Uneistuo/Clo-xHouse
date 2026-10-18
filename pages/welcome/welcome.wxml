@@ -1,0 +1,50 @@
+<!--欢迎页（仅注册完成后展示）：品牌 + 成功动效 + 功能引导 + 开始使用-->
+<view class="welcome-page">
+  <view class="glow glow-1"></view>
+  <view class="glow glow-2"></view>
+
+  <view class="welcome-wrap">
+    <!-- 品牌 + 成功标记 -->
+    <view class="wc-brand anim" style="animation-delay: 0ms;">
+      <view class="wc-ring">
+        <view class="wc-ring-inner">
+          <view class="icon icon-check-circle"></view>
+        </view>
+      </view>
+      <view class="wc-brand-title">裁 间</view>
+    </view>
+
+    <view class="wc-title anim" style="animation-delay: 120ms;">欢迎来到裁间</view>
+    <view class="wc-sub anim" style="animation-delay: 240ms;">{{storeName}} 已就绪</view>
+    <view class="wc-hello anim" style="animation-delay: 300ms;">{{username}}，你好</view>
+
+    <!-- 功能引导 -->
+    <view class="wc-guide anim" style="animation-delay: 420ms;">
+      <view class="guide-item">
+        <view class="guide-icon icon icon-package"></view>
+        <view class="guide-text">
+          <view class="guide-title">商品管理</view>
+          <view class="guide-sub">拍照上传，库存随时掌握</view>
+        </view>
+      </view>
+      <view class="guide-item">
+        <view class="guide-icon icon icon-receipt"></view>
+        <view class="guide-text">
+          <view class="guide-title">开单收银</view>
+          <view class="guide-sub">扫码开单，账目清晰</view>
+        </view>
+      </view>
+      <view class="guide-item">
+        <view class="guide-icon icon icon-clipboard"></view>
+        <view class="guide-text">
+          <view class="guide-title">订单与经营</view>
+          <view class="guide-sub">订单、销售额一目了然</view>
+        </view>
+      </view>
+    </view>
+
+    <button class="wc-btn anim" style="animation-delay: 560ms;" bindtap="handleStart">开始使用</button>
+
+    <view class="wc-foot anim" style="animation-delay: 680ms;">店铺信息可在“我的”页随时管理</view>
+  </view>
+</view>

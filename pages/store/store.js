@@ -8,26 +8,28 @@ const { confirm, toast } = require('../../utils/dialog');
 Page({
   data: {
     loading: true,
-    storeId: 0,          // 0 = 未绑定店铺
-    role: '',            // owner 店主 / staff 员工
-    store: null,         // { name, bind_code, created_at }
-    members: [],          // [{ id, username, role, created_at }]
-    canRename: false,     // 保留字段（暂未在页面使用；改名已统一移至平台管理页）
-    nextRenameAt: '',     // 保留字段
-    isPlatform: false,   // 平台管理员标记（显示"平台管理"入口）
+    storeId: 0, // 0 = 未绑定店铺
+    role: '', // owner 店主 / staff 员工
+    store: null, // { name, bind_code, created_at }
+    members: [], // [{ id, username, role, created_at }]
+    canRename: false, // 保留字段（暂未在页面使用；改名已统一移至平台管理页）
+    nextRenameAt: '', // 保留字段
+    isPlatform: false, // 平台管理员标记（显示"平台管理"入口）
     printerHint: '未连接打印机', // 打印设置卡片副标题
-    action: 'create',    // 未绑定时选择：create 创建 / join 加入
-    storeName: '',
-    code: '',
-    myStores: [],         // 店主名下店铺列表 [{ id, name, created_at }]
-    storeLimit: 3,        // 店主最多可绑定店铺数
+    myStores: [], // 店主名下店铺列表 [{ id, name, created_at }]
+    storeLimit: 3, // 店主最多可绑定店铺数
     canCreateStore: false, // 是否还能创建新店铺（名下店铺数 < 上限）
     showSwitchPopup: false, // 切换店铺弹窗显示标记
-    membersExpanded: false  // 「店铺成员 / 注册店铺」折叠区开关（默认收起）
+    membersExpanded: false // 「店铺成员 / 注册店铺」折叠区开关（默认收起）
   },
 
   onShow() {
     if (!getApp().checkLogin()) return;
+    // 未绑定店铺：跳到注册+绑定页（第 2 步，非 tabBar 页，不显示底部导航）
+    if (!(wx.getStorageSync('adminInfo') || {}).storeId) {
+      wx.reLaunch({ url: '/pages/register/register?mode=bind' });
+      return;
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 4 });
     }
@@ -79,22 +81,9 @@ Page({
     }
   },
 
-  // 切换 创建 / 加入
-  switchAction(e) {
-    this.setData({ action: e.currentTarget.dataset.action });
-  },
-
   /** 切换「店铺成员 / 注册店铺」折叠区显隐 */
   toggleMembers() {
     this.setData({ membersExpanded: !this.data.membersExpanded });
-  },
-
-  onStoreNameInput(e) {
-    this.setData({ storeName: e.detail.value });
-  },
-
-  onCodeInput(e) {
-    this.setData({ code: e.detail.value.toUpperCase() });
   },
 
   /** 绑定/创建成功后更新本地登录态（后端重签了携带店铺身份的 Token） */
@@ -102,30 +91,6 @@ Page({
     wx.setStorageSync('token', data.token);
     wx.setStorageSync('adminInfo', data.admin);
     this.loadInfo();
-  },
-
-  // 创建店铺（创建者即店主，获得唯一店铺码）
-  async handleCreate() {
-    const { storeName, loading } = this.data;
-    if (loading) return;
-    if (!storeName.trim()) {
-      toast('请填写店铺名称', 'none');
-      return;
-    }
-    this.setData({ loading: true });
-    try {
-      const data = await request({
-        url: '/api/store/create',
-        method: 'POST',
-        data: { storeName: storeName.trim() }
-      });
-      toast('店铺创建成功', 'success');
-      this.saveNewToken(data);
-    } catch (e) {
-      // 错误提示已由请求封装统一处理
-    } finally {
-      this.setData({ loading: false });
-    }
   },
 
   // 注册新店铺（仅店主；已有店铺后仍可继续创建，上限 3 个，创建后自动切换为当前店铺）
@@ -195,30 +160,6 @@ Page({
       this.saveNewToken(data);
     } catch (e) {
       // 错误提示已由请求封装统一处理
-    }
-  },
-
-  // 凭店铺码加入店铺（商品/订单数据自动同步）
-  async handleJoin() {
-    const { code, loading } = this.data;
-    if (loading) return;
-    if (!code.trim()) {
-      toast('请输入店铺码', 'none');
-      return;
-    }
-    this.setData({ loading: true });
-    try {
-      const data = await request({
-        url: '/api/store/bind',
-        method: 'POST',
-        data: { code: code.trim() }
-      });
-      toast('已加入，数据已同步', 'success');
-      this.saveNewToken(data);
-    } catch (e) {
-      // 错误提示已由请求封装统一处理
-    } finally {
-      this.setData({ loading: false });
     }
   },
 
