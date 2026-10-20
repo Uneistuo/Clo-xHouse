@@ -1,36 +1,132 @@
 /* ============================================================
-   app.wxss 全局样式与设计变量（Design Tokens）
-   方向：新零售工作台 · 干净中性底 + 时尚红主色 + 高对比文字
-   —— 所有颜色/圆角/阴影统一走变量，换肤只需改这里 ——
+   app.wxss 全局样式（清透质感 UI：Glassmorphism × Soft UI）
+   蓝紫主色 + 暖橙点缀；三层背景模型（底色 / 光晕 / 内容）
+   所有颜色/圆角/阴影统一走变量（styles/tokens.wxss）
    ============================================================ */
-@import "styles/icons.wxss";
-@import "styles/tokens.wxss";
+@import 'styles/icons.wxss';
+@import 'styles/tokens.wxss';
 
+/* ========== 页面底色 + 固定光晕（三层背景模型） ========== */
 page {
-  background: var(--bg-app);
+  position: relative;
+  z-index: 0;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text-1);
+}
+/* 光晕：radial-gradient 直接绘制，不用 filter: blur()（省 GPU） */
+page::before,
+page::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+page::before {
+  width: 640rpx;
+  height: 640rpx;
+  top: -220rpx;
+  left: -180rpx;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(140, 150, 255, 0.32) 0%,
+    rgba(140, 150, 255, 0.15) 40%,
+    transparent 70%
+  );
+}
+page::after {
+  width: 560rpx;
+  height: 560rpx;
+  right: -200rpx;
+  bottom: 120rpx;
+  background: radial-gradient(
+    circle at 70% 70%,
+    rgba(255, 176, 140, 0.26) 0%,
+    rgba(255, 176, 140, 0.12) 40%,
+    transparent 70%
+  );
+}
+
+/* ========== 玻璃五档（全局配方） ========== */
+/* Wash 薄纱层：输入框底 / TabBar / 分段控件轨道 */
+.glass-wash {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-input);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+/* Standard 标准层：大多数功能卡 */
+.glass-card {
+  background: var(--bg-card);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+}
+/* Dense 密集层：长列表、表格（不模糊，性能优先） */
+.glass-dense {
+  background: var(--bg-card-strong);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-1);
+}
+/* Hero 主卡：首页销售额、登录面板 */
+.glass-hero {
+  background: linear-gradient(135deg, rgba(138, 155, 249, 0.92), rgba(179, 161, 251, 0.9));
+  color: #fff;
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-primary), var(--inner-light);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+}
+/* Overlay 浮层：弹窗面板 */
+.glass-overlay {
+  background: var(--bg-overlay);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-float), var(--inner-light);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
 }
 
 /* ========== 通用页面容器 ========== */
 .page {
   min-height: 100vh;
-  background: var(--bg-app);
+  background: transparent;
   padding: 24rpx;
   box-sizing: border-box;
 }
 
-/* ========== 卡片 ========== */
+/* ========== 卡片（Standard 层） ==========
+   注：随页面滚动的内容卡不启用 backdrop-filter
+   （背景平滑时无视觉收益，且需保证「单屏模糊层 ≤ 4」；
+   背景光晕仍可从 68% 白玻璃后透出，玻璃质感成立） */
 .card {
   background: var(--bg-card);
+  border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-card);
-  padding: 24rpx;
+  padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+}
+
+/* ========== 列表项（Dense 层：长列表不加模糊） ========== */
+.list-card {
+  background: var(--bg-card-strong);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 24rpx 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-soft-1);
 }
 
 /* ========== 按钮 ========== */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   color: #fff;
   border-radius: var(--radius-pill);
   font-size: 30rpx;
@@ -38,32 +134,64 @@ page {
   padding: 20rpx 0;
   text-align: center;
   box-shadow: var(--shadow-primary);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
-.btn-primary::after { border: none; }
-.btn-primary[disabled] { background: #f0b4ae; color: #fff; box-shadow: none; }
+.btn-primary::after {
+  border: none;
+}
+.btn-primary:active {
+  transform: scale(var(--scale-press));
+  box-shadow: 0 8rpx 20rpx rgba(123, 140, 247, 0.18);
+}
+.btn-primary[disabled] {
+  opacity: 0.45;
+  box-shadow: none;
+}
 
 .btn-ghost {
   background: var(--bg-card);
-  color: var(--text-1);
-  border: 1.5rpx solid var(--border-strong);
+  color: var(--primary-dark);
+  border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-pill);
   font-size: 28rpx;
   padding: 14rpx 28rpx;
   display: inline-block;
   text-align: center;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
-.btn-ghost::after { border: none; }
+.btn-ghost::after {
+  border: none;
+}
+.btn-ghost:active {
+  transform: scale(var(--scale-press));
+  opacity: 0.85;
+}
 
 .btn-danger {
-  background: var(--bg-card);
-  color: var(--danger);
-  border: 1.5rpx solid #f0b8b2;
+  background: linear-gradient(135deg, #e87872 0%, #d95750 100%);
+  color: #fff;
+  border: none;
   border-radius: var(--radius-pill);
   font-size: 28rpx;
   padding: 14rpx 28rpx;
   display: inline-block;
+  text-align: center;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
-.btn-danger::after { border: none; }
+.btn-danger::after {
+  border: none;
+}
+.btn-danger:active {
+  transform: scale(var(--scale-press));
+  opacity: 0.9;
+}
 
 .btn-mini {
   font-size: 24rpx;
@@ -78,9 +206,11 @@ page {
   display: flex;
   align-items: center;
   padding: 24rpx 0;
-  border-bottom: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--hairline);
 }
-.form-item:last-child { border-bottom: none; }
+.form-item:last-child {
+  border-bottom: none;
+}
 .form-label {
   width: 170rpx;
   font-size: 28rpx;
@@ -88,7 +218,7 @@ page {
   flex-shrink: 0;
 }
 .form-label.required::before {
-  content: "*";
+  content: '*';
   color: var(--danger);
   margin-right: 4rpx;
 }
@@ -103,10 +233,87 @@ page {
   color: var(--text-1);
   height: 140rpx;
 }
-.form-arrow { color: var(--text-placeholder); font-size: 26rpx; }
-.ph, .placeholder { color: var(--text-placeholder); }
+.form-arrow {
+  color: var(--text-placeholder);
+  font-size: 26rpx;
+}
+.ph,
+.placeholder {
+  color: var(--text-placeholder);
+}
 
-/* ========== 标签 / 徽标 ========== */
+/* ========== 搜索框清除按钮 ========== */
+.search-clear {
+  flex-shrink: 0;
+  color: var(--text-3);
+  font-size: 32rpx;
+  line-height: 1;
+  padding: 0 12rpx;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.search-clear:active {
+  color: var(--text-2);
+}
+
+/* ========== 密码可见性切换 ========== */
+.pwd-field {
+  position: relative;
+}
+.pwd-field .field-input {
+  box-sizing: border-box;
+  padding-right: 76rpx;
+}
+.pwd-toggle {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx;
+  color: var(--text-3);
+  font-size: 36rpx;
+  line-height: 1;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.pwd-toggle:active {
+  color: var(--primary-dark);
+}
+
+/* ========== 性别二选一（开单/会员列表/会员详情共用） ========== */
+.gender-options {
+  display: flex;
+  flex: 1;
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.4);
+}
+.gender-options.inline {
+  flex: 0 0 230rpx;
+  margin-left: 20rpx;
+}
+.gender-option {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  color: var(--text-2);
+  background: transparent;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.gender-option + .gender-option {
+  border-left: 1rpx solid var(--hairline);
+}
+.gender-option.active {
+  color: var(--primary-dark);
+  background: var(--primary-tint);
+  font-weight: bold;
+}
+
+/* ========== 标签 / 徽标（语义色 12% 透明底） ========== */
 .tag {
   display: inline-block;
   font-size: 22rpx;
@@ -114,11 +321,37 @@ page {
   border-radius: var(--radius-pill);
   margin-right: 12rpx;
 }
-.tag-blue { background: var(--primary-tint); color: var(--primary-dark); }
-.tag-green { background: var(--success-tint); color: var(--success); }
-.tag-gray { background: var(--bg-subtle); color: var(--text-2); }
-.tag-red { background: var(--danger-tint); color: var(--danger); }
-.tag-orange { background: var(--warning-tint); color: var(--warning); }
+.tag-blue {
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+}
+.tag-green {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.tag-gray {
+  background: var(--bg-subtle);
+  color: var(--text-2);
+}
+.tag-red {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+.tag-orange {
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+
+/* ========== 库存风险分级 ========== */
+/* 提升一级优先级，避免被页面内同名的 .goods-stock 等基础样式覆盖 */
+page .stock-zero {
+  color: var(--stock-critical);
+  font-weight: 800;
+}
+page .stock-low {
+  color: var(--stock-warning);
+  font-weight: 700;
+}
 
 /* ========== 空状态 ========== */
 .empty {
@@ -127,23 +360,41 @@ page {
   color: var(--text-3);
   font-size: 26rpx;
 }
-.empty-icon { font-size: 80rpx; margin-bottom: 16rpx; }
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+  opacity: 0.4;
+}
 
-/* ========== 骨架屏 ========== */
+/* ========== 骨架屏（柔和白 / 紫灰渐变） ========== */
 .skeleton {
-  background: linear-gradient(90deg, #eef0f3 25%, #f6f7f9 37%, #eef0f3 63%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    rgba(255, 255, 255, 0.85) 37%,
+    rgba(255, 255, 255, 0.5) 63%
+  );
   background-size: 400% 100%;
   animation: skeleton-loading 1.4s ease infinite;
   border-radius: 12rpx;
 }
 @keyframes skeleton-loading {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
 
 /* ========== 价格 ========== */
-.price { color: var(--primary); font-weight: bold; }
-.price-symbol { font-size: 22rpx; }
+.price {
+  color: var(--primary);
+  font-weight: bold;
+}
+.price-symbol {
+  font-size: 22rpx;
+}
 
 /* ========== 列表项通用 ========== */
 .row-between {
@@ -158,33 +409,76 @@ page {
 }
 
 /* ========== 分区标题 ========== */
-.section-title { font-size: 30rpx; font-weight: bold; color: var(--text-1); margin-bottom: 20rpx; }
-.section-tip { font-size: 22rpx; color: var(--text-3); font-weight: normal; }
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--text-1);
+  margin-bottom: 20rpx;
+}
+.section-tip {
+  font-size: 22rpx;
+  color: var(--text-3);
+  font-weight: normal;
+}
 
-/* ========== 全局遮罩 / 弹层（各页统一复用，勿再各写一份） ========== */
+/* ========== 全局遮罩 / 弹层（Overlay 浮层） ========== */
 .mask {
   position: fixed;
   inset: 0;
-  background: rgba(20, 22, 26, 0.5);
+  background: rgba(20, 25, 40, 0.32);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 .modal {
   width: 640rpx;
   max-height: 80vh;
   overflow-y: auto;
-  background: var(--bg-card);
-  border-radius: var(--radius-sheet);
+  background: var(--bg-overlay);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-hero);
   padding: 40rpx 32rpx;
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--shadow-float), var(--inner-light);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+  animation: modal-in var(--duration-slow) var(--ease-spring) both;
 }
-.modal-title { text-align: center; font-size: 32rpx; font-weight: bold; color: var(--text-1); margin-bottom: 12rpx; }
-.modal-sub { text-align: center; font-size: 24rpx; color: var(--text-3); margin-bottom: 24rpx; }
-.modal-btns { display: flex; margin-top: 36rpx; }
-.modal-btn { flex: 1; }
-.modal-btn.primary { margin-left: 24rpx; }
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.modal-title {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: var(--text-1);
+  margin-bottom: 12rpx;
+}
+.modal-sub {
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--text-3);
+  margin-bottom: 24rpx;
+}
+.modal-btns {
+  display: flex;
+  margin-top: 36rpx;
+}
+.modal-btn {
+  flex: 1;
+}
+.modal-btn.primary {
+  margin-left: 24rpx;
+}
 
 /* ========== 按钮加载状态（统一用于提交按钮） ========== */
 .btn-loading {
@@ -207,11 +501,13 @@ page {
   animation: btnSpin 0.8s linear infinite;
 }
 @keyframes btnSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 /* 浅色底按钮的加载转圈（描边为深色） */
 .btn-loading.btn-loading-dark::after {
-  border-color: rgba(20, 22, 26, 0.15);
+  border-color: rgba(29, 34, 43, 0.15);
   border-top-color: var(--primary);
 }
 
@@ -231,7 +527,7 @@ page {
 .empty-state-icon {
   font-size: 96rpx;
   margin-bottom: 24rpx;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 .empty-state-title {
   font-size: 30rpx;
@@ -248,16 +544,7 @@ page {
 /* ========== 统一页面容器 ========== */
 .page-container {
   min-height: 100vh;
-  background: var(--bg-app);
-}
-
-/* ========== 列表项（卡片式） ========== */
-.list-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-card);
-  padding: 24rpx 30rpx;
-  margin-bottom: 20rpx;
-  box-shadow: var(--shadow-1);
+  background: transparent;
 }
 
 /* ========== 输入框聚焦/错误 ========== */
@@ -266,5 +553,71 @@ page {
 }
 .input-error:focus {
   border-color: var(--danger) !important;
-  box-shadow: 0 0 0 6rpx rgba(220, 38, 38, 0.08);
+  box-shadow: 0 0 0 6rpx rgba(224, 93, 87, 0.08);
+}
+
+/* ========== 无障碍降级 ========== */
+/* 降低透明度：玻璃退化为不透明纯色底 */
+@media (prefers-reduced-transparency: reduce) {
+  page,
+  :host {
+    --bg-card: #ffffff;
+    --bg-card-strong: #ffffff;
+    --bg-subtle: #f4f6fa;
+    --bg-overlay: #ffffff;
+  }
+  .glass-wash,
+  .glass-card,
+  .glass-dense,
+  .glass-hero,
+  .glass-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .gender-options {
+    background: #f4f6fa;
+  }
+}
+/* 减少动态效果：过渡与动画全部静止 */
+@media (prefers-reduced-motion: reduce) {
+  view,
+  text,
+  button,
+  input,
+  textarea,
+  image,
+  scroll-view {
+    transition: none !important;
+    animation: none !important;
+  }
+  .btn-primary:active,
+  .btn-ghost:active,
+  .btn-danger:active {
+    transform: none;
+  }
+}
+/* 增强对比度：文字加深、描边实心、去透明底 */
+@media (prefers-contrast: more) {
+  page,
+  :host {
+    --text-1: #0c1016;
+    --text-2: #3c434f;
+    --text-3: #5f6874;
+    --bg-card: #ffffff;
+    --bg-card-strong: #ffffff;
+    --bg-subtle: #f2f4f8;
+    --bg-overlay: #ffffff;
+    --glass-border: rgba(29, 34, 43, 0.35);
+    --hairline: rgba(29, 34, 43, 0.25);
+    --divider: rgba(29, 34, 43, 0.25);
+    --border: rgba(29, 34, 43, 0.35);
+  }
+  .glass-wash,
+  .glass-card,
+  .glass-dense,
+  .glass-hero,
+  .glass-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }

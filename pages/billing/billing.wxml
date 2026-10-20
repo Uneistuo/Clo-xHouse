@@ -17,6 +17,7 @@
     <view class="icon icon-search search-icon"></view>
     <input class="search-input" placeholder="搜索在售商品" value="{{keyword}}"
            bindinput="onKeywordInput" placeholder-class="ph" />
+    <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
   </view>
 
   <!-- 商品列表（仅上架商品）：加载中 / 空状态 / 分页列表（P1-3） -->
@@ -35,7 +36,7 @@
     <view class="goods-info">
       <view class="goods-name ellipsis">{{item.name}}</view>
       <view class="goods-price price">￥{{item.priceText}}</view>
-      <view class="goods-stock {{item.stock <= 0 ? 'stock-warn' : ''}}">库存 {{item.stock}}</view>
+      <view class="goods-stock {{item.stock <= 0 ? 'stock-zero' : ''}}">库存 {{item.stock}}</view>
     </view>
     <view class="add-btn" data-id="{{item.id}}" bindtap="openSelect"><view class="icon icon-plus"></view></view>
   </view>
@@ -71,10 +72,11 @@
   <view class="field-block">
     <view class="field-label">顾客手机（选填）</view>
     <view class="phone-input-wrap">
-      <input class="field-input phone-input" type="number" placeholder="方便售后联系" value="{{customerPhone}}"
+      <input class="field-input phone-input" type="number" placeholder="11 位手机号" value="{{customerPhone}}"
              bindinput="onPhoneInput" placeholder-class="ph" maxlength="11" />
       <view class="add-customer-btn" wx:if="{{showAddCustomerBtn}}" bindtap="onAddCustomerTap">+ 添加会员</view>
     </view>
+    <view class="phone-count {{customerPhone.length === 11 ? 'done' : ''}}">{{customerPhone.length}} / 11</view>
 
     <!-- 会员预选：输入 4 位后显示匹配的老客户 -->
     <view class="customer-matches" wx:if="{{customerMatches.length > 0}}">
@@ -94,18 +96,7 @@
               bindinput="onRemarkInput" placeholder-class="ph" auto-height maxlength="200" />
   </view>
 
-  <!-- 当场已收款 -->
-  <view class="paid-card">
-    <view class="paid-info">
-      <view class="paid-title">当场已收款</view>
-      <view class="paid-sub">现金 / 微信转账给店主</view>
-    </view>
-    <switch checked="{{paidNow}}" bindchange="onPaidNowChange" color="#e1483c" />
-  </view>
-
-  <view class="page-bottom-space"></view>
-
-  <!-- 底部结算栏 -->
+  <!-- 底部结算栏：固定并与 TabBar 拼接 -->
   <view class="footer-bar">
     <view class="footer-left">
       <view class="footer-spec">{{cart.length}} 种规格</view>

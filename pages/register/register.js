@@ -16,6 +16,8 @@ Page({
     username: '',
     password: '',
     confirmPassword: '',
+    showPassword: false,
+    showConfirmPassword: false,
     storeName: '',
     code: '',
 
@@ -89,6 +91,12 @@ Page({
   },
   onConfirmInput(e) {
     this.setData({ confirmPassword: e.detail.value, confirmError: '' });
+  },
+  togglePassword() {
+    this.setData({ showPassword: !this.data.showPassword });
+  },
+  toggleConfirmPassword() {
+    this.setData({ showConfirmPassword: !this.data.showConfirmPassword });
   },
   onStoreNameInput(e) {
     this.setData({ storeName: e.detail.value });
@@ -237,6 +245,8 @@ Page({
       username: '',
       password: '',
       confirmPassword: '',
+      showPassword: false,
+      showConfirmPassword: false,
       storeName: '',
       code: '',
       adminInfo: {}

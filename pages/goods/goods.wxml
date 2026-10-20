@@ -3,12 +3,13 @@
   <!-- 搜索栏 + 分类/管理入口（分类为图标按钮，置于行首） -->
   <view class="search-bar">
     <view class="category-entry" bindtap="goCategory">
-      <view class="icon icon-menu"></view>
+      <view class="icon icon-folder"></view>
     </view>
     <view class="search-input-wrap">
       <view class="icon icon-search search-icon"></view>
       <input class="search-input" placeholder="搜索商品名称" value="{{keyword}}"
              bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
     </view>
     <view class="bar-actions">
       <view class="manage-entry {{manageMode ? 'active' : ''}}" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
@@ -61,7 +62,7 @@
             <text wx:if="{{item.original_price > 0}}" class="origin-price">￥{{item.originalPriceText}}</text>
           </view>
           <view class="goods-meta">
-            <text class="{{item.stockWarn ? 'stock-warn' : ''}}">库存 {{item.stock}}</text>
+            <text class="{{item.stock === 0 ? 'stock-zero' : (item.stockWarn ? 'stock-low' : '')}}">库存 {{item.stock}}</text>
             <text wx:if="{{item.stockWarn}}" class="tag tag-red">低库存</text>
             <text wx:if="{{item.category_name}}" class="tag tag-blue">{{item.category_name}}</text>
           </view>
@@ -86,7 +87,10 @@
   </block>
 
   <!-- 新增商品悬浮按钮 -->
-  <view wx:if="{{!manageMode}}" class="fab" bindtap="goAdd"><view class="icon icon-plus"></view></view>
+  <view wx:if="{{!manageMode}}" class="fab fab-goods" bindtap="goAdd">
+    <view class="icon icon-plus"></view>
+    <view class="fab-label">新商品</view>
+  </view>
 
   <!-- 批量操作栏 -->
   <view wx:if="{{manageMode}}" class="batch-bar">

@@ -1,32 +1,15 @@
-/* 欢迎页：暖色底 + 光晕 + 依次淡入上移动画 */
+/* 欢迎页：冷调底 + 全局光晕 + 依次淡入上移动画（Standard 玻璃引导卡） */
 
 .welcome-page {
   position: relative;
   min-height: 100vh;
-  background: var(--bg-app);
+  background: transparent;
   overflow: hidden;
 }
 
+/* ===== 背景光晕：统一由全局 page::before / ::after 提供 ===== */
 .glow {
-  position: fixed;
-  border-radius: 50%;
-  z-index: 0;
-  pointer-events: none;
-  filter: blur(60rpx);
-}
-.glow-1 {
-  width: 520rpx;
-  height: 520rpx;
-  top: -200rpx;
-  right: -180rpx;
-  background: radial-gradient(circle, rgba(225, 72, 60, 0.4) 0%, rgba(225, 72, 60, 0.08) 55%, transparent 75%);
-}
-.glow-2 {
-  width: 440rpx;
-  height: 440rpx;
-  left: -160rpx;
-  bottom: -180rpx;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.26) 0%, rgba(37, 99, 235, 0.06) 55%, transparent 75%);
+  display: none;
 }
 
 .welcome-wrap {
@@ -60,7 +43,7 @@
   width: 128rpx;
   height: 128rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   color: #fff;
   font-size: 68rpx;
   display: flex;
@@ -70,13 +53,13 @@
 }
 @keyframes ringPulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(225, 72, 60, 0.28);
+    box-shadow: 0 0 0 0 rgba(123, 140, 247, 0.28);
   }
   70% {
-    box-shadow: 0 0 0 28rpx rgba(225, 72, 60, 0);
+    box-shadow: 0 0 0 28rpx rgba(123, 140, 247, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(225, 72, 60, 0);
+    box-shadow: 0 0 0 0 rgba(123, 140, 247, 0);
   }
 }
 .wc-brand-title {
@@ -105,21 +88,21 @@
   color: var(--text-2);
 }
 
-/* ===== 功能引导 ===== */
+/* ===== 功能引导（Standard 玻璃） ===== */
 .wc-guide {
   width: 100%;
   margin-top: 56rpx;
   background: var(--bg-card);
-  border-radius: 32rpx;
+  border-radius: var(--radius-card);
   padding: 12rpx 32rpx;
-  box-shadow: 0 12rpx 40rpx rgba(20, 22, 26, 0.08);
-  border: 1rpx solid var(--border);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  border: 1rpx solid var(--glass-border);
 }
 .guide-item {
   display: flex;
   align-items: center;
   padding: 28rpx 0;
-  border-bottom: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--hairline);
   text-align: left;
 }
 .guide-item:last-child {
@@ -149,7 +132,7 @@
   margin-top: 6rpx;
 }
 
-/* ===== 主按钮 ===== */
+/* ===== 主按钮（渐变是状态） ===== */
 .wc-btn {
   width: 100%;
   margin-top: 60rpx;
@@ -158,13 +141,20 @@
   letter-spacing: 6rpx;
   color: #fff;
   line-height: 1.4;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   border-radius: var(--radius-pill);
   padding: 24rpx 0;
   box-shadow: var(--shadow-primary);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 .wc-btn::after {
   border: none;
+}
+.wc-btn:active {
+  transform: scale(var(--scale-press));
+  box-shadow: 0 8rpx 20rpx rgba(123, 140, 247, 0.18);
 }
 
 .wc-foot {
@@ -186,5 +176,22 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .anim {
+    opacity: 1;
+    animation: none !important;
+  }
+  .wc-ring {
+    animation: none !important;
+  }
+  .wc-btn {
+    transition: none !important;
+  }
+  .wc-btn:active {
+    transform: none;
   }
 }

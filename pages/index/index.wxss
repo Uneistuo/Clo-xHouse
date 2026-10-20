@@ -1,28 +1,40 @@
-/* 首页样式（优化版：CSS 变量 + 统一空状态） */
+/* 首页样式（清透质感：Hero 销售额卡 + Standard 玻璃指标卡 + Dense 低库存列表） */
 .home {
-  background: var(--bg-app);
+  background: transparent;
   padding: 20rpx 30rpx 0;
 }
 
-.head { padding: 10rpx 6rpx 24rpx; position: relative; }
-.head-date { font-size: 24rpx; color: var(--text-2); }
+.head {
+  padding: 10rpx 6rpx 24rpx;
+  position: relative;
+}
+.head-date {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
 .head-title {
-  font-size: 52rpx;
+  font-size: 36rpx;
   font-weight: bold;
   color: var(--text-1);
   margin-top: 8rpx;
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
 }
 
-/* 销售额主卡 */
+/* ===== 销售额主卡（Hero 玻璃） ===== */
 .sales-card {
-  background: var(--primary);
-  border-radius: 28rpx;
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
   padding: 40rpx 36rpx 34rpx;
+  border-radius: var(--radius-hero);
   color: #fff;
-  box-shadow: var(--shadow-primary);
+  box-shadow: var(--shadow-primary), var(--inner-light);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
 }
-.sales-label { font-size: 26rpx; opacity: 0.85; }
+.sales-label {
+  font-size: 26rpx;
+  opacity: 0.92;
+}
 /* 总额与单数同一行：基线对齐，两者字号各自保持不变 */
 .sales-figure-row {
   display: flex;
@@ -34,63 +46,115 @@
   font-weight: bold;
   line-height: 1.25;
 }
-.sales-note { font-size: 22rpx; opacity: 0.7; margin-left: 20rpx; }
+.sales-note {
+  font-size: 22rpx;
+  opacity: 0.78;
+  margin-left: 20rpx;
+}
 
-/* 双卡 */
-.duo-row { display: flex; margin-top: 24rpx; }
+/* ===== 双卡（Standard 玻璃） ===== */
+.duo-row {
+  display: flex;
+  margin-top: 24rpx;
+}
 .duo-card {
   flex: 1;
   background: var(--bg-card);
-  border-radius: 24rpx;
+  border-radius: var(--radius-card);
   padding: 28rpx 30rpx;
-  box-shadow: var(--shadow-1);
-  border: 1rpx solid var(--border);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  border: 1rpx solid var(--glass-border);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
-.duo-card:first-child { margin-right: 24rpx; }
-.duo-label { font-size: 24rpx; color: var(--text-2); }
-.duo-num { font-size: 52rpx; font-weight: bold; color: var(--text-1); margin-top: 8rpx; }
+.duo-card:first-child {
+  margin-right: 24rpx;
+}
+.duo-card:active {
+  transform: scale(var(--scale-press));
+}
+.duo-label {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+.duo-num {
+  font-size: 52rpx;
+  font-weight: bold;
+  color: var(--text-1);
+  margin-top: 8rpx;
+}
 
-/* 三栏 */
+/* ===== 三栏（Standard 玻璃） ===== */
 .tri-row {
   display: flex;
   background: var(--bg-card);
-  border-radius: 24rpx;
+  border-radius: var(--radius-card);
   margin-top: 24rpx;
   padding: 26rpx 0;
-  box-shadow: var(--shadow-1);
-  border: 1rpx solid var(--border);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  border: 1rpx solid var(--glass-border);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
-.tri-item { flex: 1; text-align: center; }
-.tri-num { font-size: 38rpx; font-weight: bold; color: var(--text-1); }
-.tri-label { font-size: 24rpx; color: var(--text-2); margin-top: 6rpx; }
+.tri-row:active {
+  transform: scale(var(--scale-press));
+}
+.tri-item {
+  flex: 1;
+  text-align: center;
+}
+.tri-num {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: var(--text-1);
+}
+.tri-label {
+  font-size: 24rpx;
+  color: var(--text-2);
+  margin-top: 6rpx;
+}
 
-/* 分区标题行 */
+/* ===== 分区标题行 ===== */
 .section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 40rpx 6rpx 20rpx;
 }
-.section-head .section-title { font-size: 34rpx; font-weight: bold; color: var(--text-1); }
-.section-link { font-size: 26rpx; color: var(--primary-dark); }
+.section-head .section-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: var(--text-1);
+}
+.section-link {
+  font-size: 26rpx;
+  color: var(--primary-dark);
+}
 
-.page-bottom-space { height: 180rpx; }
+/* 底部占位：悬浮玻璃 TabBar（108rpx + 16rpx 间距）+ 安全区 */
+.page-bottom-space {
+  height: calc(var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom) + 40rpx);
+}
 
-/* 书签式周期切换 */
-.sales-card { padding: 0; overflow: hidden; }
-.bookmark-tabs { display: flex; background: rgba(255, 255, 255, 0.18); }
+/* ===== 书签式周期切换（Hero 卡内的状态切换） ===== */
+.sales-card {
+  padding: 0;
+  overflow: hidden;
+}
+.bookmark-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.16);
+}
 .bookmark-tab {
   position: relative;
   flex: 1;
   text-align: center;
   font-size: 25rpx;
   padding: 22rpx 0;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.85);
   background: transparent;
 }
 .bookmark-tab.active {
   color: #ffffff;
-  background: var(--primary);
+  background: rgba(255, 255, 255, 0.28);
   border-radius: 18rpx 18rpx 0 0;
   font-weight: 700;
 }
@@ -104,31 +168,62 @@
 }
 .bookmark-tab.active::before {
   left: -16rpx;
-  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, var(--primary) 16rpx);
+  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, rgba(255, 255, 255, 0.28) 16rpx);
 }
 .bookmark-tab.active::after {
   right: -16rpx;
-  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, var(--primary) 16rpx);
+  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, rgba(255, 255, 255, 0.28) 16rpx);
 }
-.sales-body { padding: 26rpx 36rpx 34rpx; }
+.sales-body {
+  padding: 26rpx 36rpx 34rpx;
+}
 
-.card .section-head { margin: 0 0 20rpx; }
+.card .section-head {
+  margin: 0 0 20rpx;
+}
 
-/* 趋势图 */
-.trend { display: flex; align-items: flex-end; justify-content: space-between; height: 200rpx; }
-.trend-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
-.trend-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+/* ===== 趋势图 ===== */
+.trend {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 200rpx;
+}
+.trend-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+.trend-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
 .trend-bar {
-  width: 30rpx;
+  width: 100%;
+  max-width: 48rpx;
+  min-width: 24rpx;
   border-radius: 8rpx 8rpx 0 0;
-  background: #f0cfcb;
+  background: rgba(123, 140, 247, 0.18);
   transition: background 0.15s;
 }
 .trend-bar.active {
-  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(180deg, #8a9bf9 0%, #7b8cf7 100%);
 }
-.trend-date { font-size: 20rpx; color: var(--text-2); margin-top: 10rpx; }
-.trend-date.active { color: var(--primary); font-weight: 600; }
+.trend-date {
+  font-size: 20rpx;
+  color: var(--text-2);
+  margin-top: 10rpx;
+}
+.trend-date.active {
+  color: var(--primary);
+  font-weight: 600;
+}
 
 .trend-info {
   display: flex;
@@ -136,21 +231,61 @@
   gap: 12rpx;
   margin-top: 20rpx;
   padding-top: 18rpx;
-  border-top: 1rpx solid var(--divider);
+  border-top: 1rpx solid var(--hairline);
 }
-.trend-info-date { font-size: 24rpx; color: var(--text-2); }
-.trend-info-amount { font-size: 36rpx; font-weight: bold; color: var(--primary); }
-.trend-info-orders { font-size: 22rpx; color: var(--text-2); }
+.trend-info-date {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+.trend-info-amount {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: var(--primary);
+}
+.trend-info-orders {
+  font-size: 22rpx;
+  color: var(--text-2);
+}
 
-/* 低库存提醒 */
+/* ===== 低库存提醒 ===== */
 .low-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 18rpx 0;
-  border-bottom: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--hairline);
 }
-.low-item:last-child { border-bottom: none; }
-.low-name { flex: 1; font-size: 28rpx; color: var(--text-1); margin-right: 20rpx; }
-.low-stock { font-size: 26rpx; color: var(--danger); font-weight: 700; }
-.low-arrow { font-size: 30rpx; color: var(--text-2); margin-left: 12rpx; }
+.low-item:last-child {
+  border-bottom: none;
+}
+.low-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--text-1);
+  margin-right: 20rpx;
+}
+.low-stock {
+  font-size: 26rpx;
+}
+.low-arrow {
+  font-size: 30rpx;
+  color: var(--text-2);
+  margin-left: 12rpx;
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .sales-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trend-bar {
+    transition: none;
+  }
+  .duo-card:active,
+  .tri-row:active {
+    transform: none;
+  }
+}

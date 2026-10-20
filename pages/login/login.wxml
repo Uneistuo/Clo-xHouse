@@ -24,11 +24,14 @@
       <view wx:if="{{usernameError}}" class="field-tip">{{usernameError}}</view>
 
       <!-- 密码 -->
-      <view class="field {{focusField === 'password' ? 'is-focus' : ''}} {{passwordError ? 'is-error' : ''}}">
+      <view class="field pwd-field {{focusField === 'password' ? 'is-focus' : ''}} {{passwordError ? 'is-error' : ''}}">
         <view class="field-label">密码</view>
-        <input class="field-input" placeholder="请输入密码" password value="{{password}}"
+        <input class="field-input" placeholder="请输入密码" password="{{!showPassword}}" value="{{password}}"
                bindinput="onPasswordInput" bindfocus="onFocus" bindblur="onBlur" data-name="password"
                placeholder-class="ph" />
+        <view class="pwd-toggle" bindtap="togglePassword">
+          <view class="icon {{showPassword ? 'icon-eye-off' : 'icon-eye'}}"></view>
+        </view>
       </view>
       <view wx:if="{{passwordError}}" class="field-tip">{{passwordError}}</view>
 

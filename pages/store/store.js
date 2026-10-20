@@ -25,15 +25,16 @@ Page({
 
   onShow() {
     if (!getApp().checkLogin()) return;
-    // 未绑定店铺：跳到注册+绑定页（第 2 步，非 tabBar 页，不显示底部导航）
-    if (!(wx.getStorageSync('adminInfo') || {}).storeId) {
-      wx.reLaunch({ url: '/pages/register/register?mode=bind' });
-      return;
-    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 4 });
     }
-    this.setData({ isPlatform: !!(wx.getStorageSync('adminInfo') || {}).isPlatform });
+    // 先用本地缓存兜底，避免接口返回前/失败时误显示未绑定引导
+    const cached = wx.getStorageSync('adminInfo') || {};
+    this.setData({
+      isPlatform: !!cached.isPlatform,
+      storeId: cached.storeId || this.data.storeId || 0
+    });
+    // 未绑定店铺时不再强制跳转，由页面内的引导卡片提供注册/加入入口
     this.loadInfo();
     this.refreshPrinterHint();
   },
@@ -227,6 +228,11 @@ Page({
   // 平台管理：控制各店铺开单白名单（仅平台管理员可见入口）
   goPlatform() {
     wx.navigateTo({ url: '/pages/platform/stores' });
+  },
+
+  // 未绑定店铺引导：进入注册+绑定页（第 2 步）
+  goRegister() {
+    wx.navigateTo({ url: '/pages/register/register?mode=bind' });
   },
 
   // 打印设置：跳转配对页

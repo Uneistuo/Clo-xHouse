@@ -35,7 +35,7 @@
           bindtouchmove="{{manageMode ? 'onTouchMove' : ''}}"
           bindtouchend="{{manageMode ? 'onTouchEnd' : ''}}"
           hover-class="{{manageMode ? '' : 'weui-active'}}"
-          style="height: {{itemHrpx}}rpx; transform: translateY({{item.shiftY || 0}}px) {{(dragging && dragIndex === index) ? 'scale(1.04)' : 'scale(1)'}}; transition: {{(dragging && dragIndex === index) ? 'box-shadow 0.2s ease' : 'transform 0.2s cubic-bezier(0.22, 0.8, 0.28, 1), box-shadow 0.2s ease'}}; z-index: {{(dragging && dragIndex === index) ? 10 : 1}}; box-shadow: {{(dragging && dragIndex === index) ? '0 12rpx 28rpx rgba(225,72,60,0.22)' : 'none'}};">
+          style="height: {{itemHrpx}}rpx; transform: translateY({{item.shiftY || 0}}px) {{(dragging && dragIndex === index) ? 'scale(1.04)' : 'scale(1)'}}; transition: {{(dragging && dragIndex === index) ? 'box-shadow 0.2s ease' : 'transform 0.2s cubic-bezier(0.22, 0.8, 0.28, 1), box-shadow 0.2s ease'}}; z-index: {{(dragging && dragIndex === index) ? 10 : 1}}; box-shadow: {{(dragging && dragIndex === index) ? '0 12rpx 28rpx rgba(123,140,247,0.22)' : 'none'}};">
       <view class="cat-info">
         <view class="cat-name">{{item.name}}</view>
         <view class="cat-meta">{{item.goods_count}} 个商品</view>

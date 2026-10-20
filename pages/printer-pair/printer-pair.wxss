@@ -1,15 +1,15 @@
 /*
- * 打印机配对页样式（CSS 变量）
+ * 打印机配对页样式（清透质感：Standard 状态/说明卡 + 渐变扫描按钮）
  */
 
 .page {
   min-height: 100vh;
-  background: var(--bg-app);
+  background: transparent;
   padding: 32rpx 24rpx 48rpx;
   box-sizing: border-box;
 }
 
-/* 状态卡 */
+/* 状态卡（Standard 玻璃） */
 .status-card {
   background: var(--bg-card);
   border-radius: var(--radius-card);
@@ -18,11 +18,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2rpx solid var(--border);
-  box-shadow: var(--shadow-1);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
 }
-.status-card.status-connected { border-color: var(--success); }
-.status-card.status-disconnected { border-color: var(--border-strong); }
+.status-card.status-connected {
+  border-color: rgba(59, 174, 118, 0.35);
+}
+.status-card.status-disconnected {
+  border-color: var(--glass-border);
+}
 
 .status-icon {
   font-size: 80rpx;
@@ -36,8 +42,12 @@
   color: var(--text-1);
   margin-bottom: 8rpx;
 }
-.status-card.status-connected .status-title { color: var(--success); }
-.status-card.status-disconnected .status-title { color: var(--text-1); }
+.status-card.status-connected .status-title {
+  color: var(--success);
+}
+.status-card.status-disconnected .status-title {
+  color: var(--text-1);
+}
 
 .status-sub {
   font-size: 24rpx;
@@ -62,8 +72,12 @@
   height: 12rpx;
   border-radius: 50%;
 }
-.dot-on { background: var(--success); }
-.dot-off { background: var(--text-3); }
+.dot-on {
+  background: var(--success);
+}
+.dot-off {
+  background: var(--text-3);
+}
 
 /* 按钮（作用域限定在 .actions 内，避免与全局 .btn-* 冲突） */
 .actions {
@@ -76,52 +90,77 @@
   height: 88rpx;
   line-height: 88rpx;
   font-size: 28rpx;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-pill);
+  border: none;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+.actions .btn::after {
   border: none;
 }
-.actions .btn::after { border: none; }
+.actions .btn:active {
+  transform: scale(var(--scale-press));
+}
 .actions .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   color: #ffffff;
   box-shadow: var(--shadow-primary);
 }
 .actions .btn-warn {
-  background: var(--text-3);
-  color: #ffffff;
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+@keyframes scan-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(214, 154, 60, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12rpx rgba(214, 154, 60, 0);
+  }
+}
+.actions .btn-warn.scanning {
+  animation: scan-pulse 1.2s ease infinite;
 }
 .actions .btn-ghost {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.55);
   color: var(--primary-dark);
-  border: 2rpx solid var(--primary);
+  border: 1rpx solid var(--glass-border);
 }
 .actions .btn-danger {
-  background: transparent;
-  color: var(--text-2);
-  border: 2rpx solid var(--border-strong);
+  background: var(--danger-tint);
+  color: var(--danger);
+  border: none;
 }
 
-/* 设备列表 */
+/* 设备列表（Dense 密集层） */
 .device-list {
-  background: var(--bg-card);
+  background: var(--bg-card-strong);
   border-radius: var(--radius-card);
   overflow: hidden;
   margin-bottom: 24rpx;
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-soft-1);
 }
 .device-list-title {
   padding: 16rpx 24rpx;
   font-size: 24rpx;
   color: var(--text-2);
-  border-bottom: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--hairline);
 }
 .device-item {
   display: flex;
   align-items: center;
   padding: 24rpx;
-  border-bottom: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--hairline);
 }
-.device-item:last-child { border-bottom: none; }
-.device-item:active { background: var(--primary-tint); }
+.device-item:last-child {
+  border-bottom: none;
+}
+.device-item:active {
+  background: var(--primary-tint);
+}
 
 .device-name {
   flex: 1;
@@ -133,11 +172,22 @@
   color: var(--text-3);
   margin-top: 4rpx;
 }
-.device-info { flex: 1; }
+.device-info {
+  flex: 1;
+}
 .device-rssi {
   font-size: 20rpx;
   color: var(--text-2);
   margin-top: 4rpx;
+}
+.device-rssi.strong {
+  color: var(--rssi-strong);
+}
+.device-rssi.normal {
+  color: var(--rssi-normal);
+}
+.device-rssi.weak {
+  color: var(--rssi-weak);
 }
 .device-arrow {
   color: var(--text-3);
@@ -154,13 +204,16 @@
   line-height: 1.8;
 }
 
-/* 帮助 */
+/* 帮助（Standard 玻璃） */
 .help {
   background: var(--bg-card);
   border-radius: var(--radius-card);
   padding: 28rpx;
   margin-top: 32rpx;
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
 }
 .help-title {
   font-size: 26rpx;
@@ -173,4 +226,37 @@
   color: var(--text-2);
   line-height: 1.8;
   margin-bottom: 8rpx;
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .status-card,
+  .help {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .actions .btn-ghost {
+    background: #f4f6fa;
+  }
+  .saved-device {
+    background: #eaf7f0;
+  }
+  .actions .btn-warn {
+    background: #fbf1e2;
+  }
+  .actions .btn-danger {
+    background: #fdeeed;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .actions .btn {
+    transition: none !important;
+  }
+  .actions .btn-warn.scanning {
+    animation: none !important;
+  }
+  .actions .btn:active {
+    transform: none;
+  }
 }

@@ -80,7 +80,7 @@
     <view wx:for="{{lowStock}}" wx:key="id" class="low-item"
           data-id="{{item.id}}" bindtap="goRestock">
       <view class="low-name ellipsis">{{item.name}}</view>
-      <view class="low-stock">剩余 {{item.stock}}</view>
+      <view class="low-stock {{item.stock === 0 ? 'stock-zero' : 'stock-low'}}">剩余 {{item.stock}}</view>
       <view class="low-arrow icon icon-chevron-right"></view>
     </view>
   </view>

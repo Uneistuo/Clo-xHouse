@@ -1,5 +1,6 @@
 /* ============================================================
    styles/tokens.wxss —— 设计变量（Design Tokens）
+   清透质感改版：Glassmorphism × Soft UI（蓝紫 + 暖橙）
    选择器说明：
      · page   —— 页面上下文（app.wxss 引入）
      · :host  —— 自定义组件根节点（如 custom-tab-bar 等组件内引入）
@@ -8,44 +9,99 @@
    ============================================================ */
 page,
 :host {
-  /* ---------- 中性色 ---------- */
-  --bg-app: #f4f5f7;        /* 页面底 */
-  --bg-card: #ffffff;       /* 卡片 */
-  --bg-subtle: #f0f1f4;     /* 分区/输入底 */
-  --border: #e6e8ec;
-  --border-strong: #d3d7de;
-  --divider: #eceef1;
+  /* ---------- 基底 ---------- */
+  --bg-app: #f3f5fa; /* 页面底色（冷灰蓝） */
+  --bg-gradient: linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%);
+  --bg-card: rgba(255, 255, 255, 0.68); /* Standard 标准玻璃卡 */
+  --bg-card-strong: rgba(255, 255, 255, 0.86); /* Dense 密集列表 */
+  --bg-subtle: rgba(255, 255, 255, 0.46); /* 分区/输入底/嵌套内层 */
+  --bg-overlay: rgba(255, 255, 255, 0.82); /* Overlay 浮层面板 */
+
+  /* ---------- 描边 ---------- */
+  --glass-border: rgba(255, 255, 255, 0.72); /* 玻璃外描边 */
+  --hairline: rgba(29, 34, 43, 0.06); /* 发丝分割线 */
+  --border: rgba(29, 34, 43, 0.08); /* 通用描边 */
+  --border-strong: rgba(29, 34, 43, 0.16);
+  --divider: rgba(29, 34, 43, 0.06);
 
   /* ---------- 文字 ---------- */
-  --text-1: #14161a;        /* 主 */
-  --text-2: #5b616e;        /* 次 */
-  --text-3: #9aa0ac;        /* 弱 */
-  --text-placeholder: #b9bfc9;
+  --text-1: #1d222b; /* 主 */
+  --text-2: #5a6270; /* 次 */
+  --text-3: #97a0ae; /* 弱 */
+  --text-placeholder: #b6bdc9;
 
-  /* ---------- 品牌主色（时尚红） ---------- */
-  --primary: #e1483c;
-  --primary-dark: #c5362c;
-  --primary-tint: #fdecea;
+  /* ---------- 品牌主色（蓝紫） ---------- */
+  --primary: #7b8cf7;
+  --primary-dark: #6675e8;
+  --primary-tint: rgba(123, 140, 247, 0.12);
 
-  /* ---------- 语义色 ---------- */
-  --success: #16a34a;
-  --success-tint: #e7f6ec;
-  --warning: #b45309;
-  --warning-tint: #fef3e2;
-  --danger: #dc2626;
-  --danger-tint: #fdecea;
-  --info: #2563eb;
-  --info-tint: #e6efff;
+  /* ---------- 点缀（暖橙） ---------- */
+  --warm: #f2a57c;
+  --warm-tint: rgba(242, 165, 124, 0.16);
+
+  /* ---------- 语义色（12% 透明底） ---------- */
+  --success: #3bae76;
+  --success-tint: rgba(59, 174, 118, 0.12);
+  --warning: #d69a3c;
+  --warning-tint: rgba(214, 154, 60, 0.12);
+  --danger: #e05d57;
+  --danger-tint: rgba(224, 93, 87, 0.12);
+  --info: #4c8fe8;
+  --info-tint: rgba(76, 143, 232, 0.12);
+
+  /* ---------- 风险分级 / 信号强度 ---------- */
+  --stock-critical: #e05d57; /* 断货 */
+  --stock-warning: #d69a3c; /* 低库存预警 */
+  --rssi-strong: #3bae76;
+  --rssi-normal: #d69a3c;
+  --rssi-weak: #e05d57;
+
+  /* ---------- 模糊（仅供 backdrop-filter 使用） ---------- */
+  --blur-sm: 14px; /* Wash 薄纱层 */
+  --blur-md: 20px; /* Standard 标准层 */
+  --blur-lg: 26px; /* Hero / Overlay 高浮层 */
 
   /* ---------- 圆角 ---------- */
-  --radius-card: 24rpx;
-  --radius-input: 16rpx;
-  --radius-sheet: 28rpx;
+  --radius-card: 36rpx;
+  --radius-hero: 44rpx;
+  --radius-input: 24rpx;
+  --radius-sheet: 44rpx;
   --radius-pill: 999rpx;
 
-  /* ---------- 阴影 ---------- */
-  --shadow-1: 0 2rpx 10rpx rgba(20, 22, 26, 0.05);
-  --shadow-2: 0 8rpx 24rpx rgba(20, 22, 26, 0.08);
-  --shadow-3: 0 16rpx 48rpx rgba(20, 22, 26, 0.18);
-  --shadow-primary: 0 8rpx 20rpx rgba(225, 72, 60, 0.28);
+  /* ---------- 间距（8rpx 基准） ---------- */
+  --space-1: 8rpx;
+  --space-2: 16rpx;
+  --space-3: 24rpx;
+  --space-4: 32rpx;
+  --space-5: 40rpx;
+  --space-6: 48rpx;
+
+  /* ---------- 底部悬浮/固定元素安全区间距 ---------- */
+  --space-tabbar-height: 108rpx;
+  --space-tabbar-gap: 16rpx;
+  --space-tabbar-bottom: 124rpx; /* = 108rpx 栏高 + 16rpx 间距 */
+  --space-fab-bottom: 160rpx;
+  --space-fixed-bar-bottom: 140rpx;
+  --space-fixed-bottom: 140rpx; /* 兼容旧命名 */
+
+  /* ---------- Ambient 环境阴影（蓝灰调） ---------- */
+  --shadow-soft-1: 0 6rpx 20rpx rgba(35, 45, 75, 0.06);
+  --shadow-soft-2: 0 14rpx 40rpx rgba(35, 45, 75, 0.08);
+  --shadow-float: 0 24rpx 60rpx rgba(35, 45, 75, 0.12);
+  --shadow-1: 0 6rpx 20rpx rgba(35, 45, 75, 0.06);
+  --shadow-2: 0 14rpx 40rpx rgba(35, 45, 75, 0.08);
+  --shadow-3: 0 24rpx 60rpx rgba(35, 45, 75, 0.12);
+  --shadow-primary: 0 16rpx 36rpx rgba(123, 140, 247, 0.26);
+
+  /* ---------- 内高光（左上光源） ---------- */
+  --inner-light: inset 0 1rpx 0 rgba(255, 255, 255, 0.85);
+
+  /* ---------- 动效 ---------- */
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-slow: 350ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --scale-press: 0.98;
+  --scale-press-dock: 0.94; /* TabBar 中间圆钮更深 */
 }

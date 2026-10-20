@@ -1,6 +1,6 @@
 {
   "name": "clothing-store-miniprogram",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "private": true,
   "description": "裁间 · 服装店商家管理（微信小程序 + Web 管理后台）：小程序端工具链与代码规范配置",
   "scripts": {

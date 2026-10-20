@@ -35,10 +35,20 @@ Page({
     // kind: 'saved' | 'scanning' | 'connected' | 'failed' | 'disconnected'
     const map = {
       saved: { icon: 'icon-clipboard', title: '已配对打印机', sub: '点击"重新连接"以连接', cls: 'status-disconnected' },
-      scanning: { icon: 'icon-search', title: '正在扫描...', sub: '请确保打印机已开机并处于配对模式', cls: 'status-disconnected' },
+      scanning: {
+        icon: 'icon-search',
+        title: '正在扫描...',
+        sub: '请确保打印机已开机并处于配对模式',
+        cls: 'status-disconnected'
+      },
       connected: { icon: 'icon-check-circle', title: '打印机已连接', sub: '可以正常打印小票', cls: 'status-connected' },
       failed: { icon: 'icon-x-circle', title: '操作失败', sub: '请重试或检查打印机状态', cls: 'status-disconnected' },
-      disconnected: { icon: 'icon-printer', title: '尚未连接打印机', sub: '点击下方按钮开始扫描', cls: 'status-disconnected' }
+      disconnected: {
+        icon: 'icon-printer',
+        title: '尚未连接打印机',
+        sub: '点击下方按钮开始扫描',
+        cls: 'status-disconnected'
+      }
     };
     const s = map[kind] || map.saved;
     this.setData({
@@ -48,6 +58,13 @@ Page({
       stateClass: s.cls,
       connected: kind === 'connected'
     });
+  },
+
+  /** RSSI 信号强度分级（strong / normal / weak） */
+  getRssiClass(rssi) {
+    if (rssi >= -60) return 'strong';
+    if (rssi >= -80) return 'normal';
+    return 'weak';
   },
 
   async onScan() {
@@ -66,7 +83,9 @@ Page({
       printer.onDeviceFound((devices) => {
         // 过滤：去重
         const seen = new Set(this.data.devices.map((d) => d.deviceId));
-        const fresh = devices.filter((d) => !seen.has(d.deviceId));
+        const fresh = devices
+          .filter((d) => !seen.has(d.deviceId))
+          .map((d) => ({ ...d, rssiClass: this.getRssiClass(d.RSSI) }));
         if (fresh.length) {
           this.setData({ devices: this.data.devices.concat(fresh) });
         }

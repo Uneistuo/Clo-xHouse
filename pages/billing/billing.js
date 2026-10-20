@@ -34,7 +34,6 @@ Page({
 
     customerPhone: '',
     remark: '',
-    paidNow: false,
     submitting: false,
     restricted: false,
     restrictedExpired: false,
@@ -195,6 +194,13 @@ Page({
     // 搜索走服务端：防抖 400ms 后重置分页并加载第一页（P1-3）
     clearTimeout(this._searchTimer);
     this._searchTimer = setTimeout(() => this.loadGoods(true), 400);
+  },
+
+  /** 清空搜索词并重新加载 */
+  clearKeyword() {
+    clearTimeout(this._searchTimer);
+    this.setData({ keyword: '' });
+    this.loadGoods(true);
   },
 
   /**
@@ -411,9 +417,6 @@ Page({
   onRemarkInput(e) {
     this.setData({ remark: e.detail.value });
   },
-  onPaidNowChange(e) {
-    this.setData({ paidNow: e.detail.value });
-  },
 
   async checkCustomerExists(phone) {
     try {
@@ -481,7 +484,7 @@ Page({
   },
 
   async submitOrder() {
-    const { cart, customerPhone, remark, paidNow, submitting, restricted, selectedCustomerId } = this.data;
+    const { cart, customerPhone, remark, submitting, restricted, selectedCustomerId } = this.data;
     if (submitting) return;
     if (restricted) {
       toast(
@@ -505,13 +508,13 @@ Page({
           customerPhone: customerPhone.trim(),
           customerId: selectedCustomerId || 0,
           remark: remark.trim(),
-          paidNow
+          paidNow: false
         }
       });
       this._lastReceipt = {
         orderNo: data.orderNo,
         totalAmount: data.totalAmount,
-        paidNow,
+        paidNow: false,
         customerPhone: customerPhone.trim(),
         remark: remark.trim(),
         items: cart.map((c) => ({
@@ -527,12 +530,11 @@ Page({
         cart: [],
         customerPhone: '',
         remark: '',
-        paidNow: false,
         successInfo: {
           orderId: data.id,
           orderNo: data.orderNo,
           totalAmount: fmtMoney(data.totalAmount),
-          paid: paidNow
+          paid: false
         }
       });
       this.calcTotal();

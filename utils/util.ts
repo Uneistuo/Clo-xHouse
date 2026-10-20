@@ -27,11 +27,11 @@ export const STATUS_TEXT: Record<string, string> = {
   refunded: '已售后'
 };
 
-/** 订单状态 -> 标签样式类名 */
+/** 订单状态 -> 标签样式类名（与 Web 端 badge 语义保持一致） */
 export const STATUS_CLASS: Record<string, string> = {
   pending: 'tag-orange',
-  paid: 'tag-blue',
-  done: 'tag-green',
+  paid: 'tag-green',
+  done: 'tag-blue',
   cancelled: 'tag-gray',
   refunded: 'tag-red'
 };

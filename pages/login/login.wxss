@@ -1,33 +1,15 @@
-/* 裁间 · 登录 / 注册页 */
+/* 裁间 · 登录 / 注册页（清透质感：Hero 玻璃面板 + Wash 输入框） */
 
 .login-page {
   position: relative;
   min-height: 100vh;
-  background: var(--bg-app);
+  background: transparent;
   overflow: hidden;
 }
 
-/* ===== 背景光晕 ===== */
+/* ===== 背景光晕：统一由全局 page::before / ::after 提供 ===== */
 .glow {
-  position: fixed;
-  border-radius: 50%;
-  z-index: 0;
-  pointer-events: none;
-  filter: blur(60rpx);
-}
-.glow-1 {
-  width: 480rpx;
-  height: 480rpx;
-  top: -180rpx;
-  right: -160rpx;
-  background: radial-gradient(circle, rgba(225, 72, 60, 0.42) 0%, rgba(225, 72, 60, 0.08) 55%, transparent 75%);
-}
-.glow-2 {
-  width: 420rpx;
-  height: 420rpx;
-  left: -140rpx;
-  bottom: -160rpx;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.28) 0%, rgba(37, 99, 235, 0.06) 55%, transparent 75%);
+  display: none;
 }
 
 /* ===== 布局 ===== */
@@ -63,7 +45,7 @@
   height: 8rpx;
   border-radius: 4rpx;
   margin: 22rpx auto 0;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(90deg, #8a9bf9 0%, #b3a1fb 100%);
 }
 .brand-sub {
   font-size: 24rpx;
@@ -72,37 +54,40 @@
   margin-top: 22rpx;
 }
 
-/* ===== 主卡片 ===== */
+/* ===== 主卡片（Hero 白玻璃：透光 + 高浮层阴影） ===== */
 .panel {
   width: 100%;
   box-sizing: border-box;
-  background: var(--bg-card);
-  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.62);
+  border-radius: var(--radius-hero);
   padding: 40rpx 40rpx 44rpx;
-  box-shadow: 0 12rpx 40rpx rgba(20, 22, 26, 0.1);
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-float), var(--inner-light);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
 }
 
-/* ===== 输入项 ===== */
+/* ===== 输入项（Wash 层玻璃化） ===== */
 .field {
   margin-top: 28rpx;
-  background: var(--bg-subtle);
-  border: 2rpx solid transparent;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-input);
   padding: 16rpx 26rpx;
   transition:
-    border-color 0.2s ease,
     background 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 .field.is-focus {
-  background: var(--bg-card);
-  border-color: var(--primary);
-  box-shadow: 0 0 0 6rpx rgba(225, 72, 60, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: transparent;
+  box-shadow: 0 0 0 6rpx rgba(123, 140, 247, 0.14);
 }
 .field.is-error {
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.85);
   border-color: var(--danger);
+  box-shadow: 0 0 0 6rpx rgba(224, 93, 87, 0.08);
 }
 .field-label {
   font-size: 22rpx;
@@ -126,7 +111,7 @@
   padding-left: 10rpx;
 }
 
-/* ===== 提交按钮 ===== */
+/* ===== 提交按钮（渐变是状态：主色渐变 + 主色投影） ===== */
 .login-btn {
   width: 100%;
   margin-top: 48rpx;
@@ -135,17 +120,24 @@
   letter-spacing: 6rpx;
   color: #fff;
   line-height: 1.4;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   border-radius: var(--radius-pill);
   padding: 22rpx 0;
   box-shadow: var(--shadow-primary);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
 .login-btn::after {
   border: none;
 }
+.login-btn:active {
+  transform: scale(var(--scale-press));
+  box-shadow: 0 8rpx 20rpx rgba(123, 140, 247, 0.18);
+}
 .login-btn[disabled] {
-  background: #f0b4ae;
-  color: #fff;
+  opacity: 0.45;
   box-shadow: none;
 }
 .btn-loading {
@@ -183,4 +175,29 @@
   color: var(--primary-dark);
   font-weight: 600;
   margin-left: 6rpx;
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .panel {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .field {
+    background: #f4f6fa;
+    border-color: rgba(29, 34, 43, 0.1);
+  }
+  .field.is-focus {
+    background: #ffffff;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field,
+  .login-btn {
+    transition: none !important;
+  }
+  .login-btn:active {
+    transform: none;
+  }
 }

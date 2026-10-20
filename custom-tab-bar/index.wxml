@@ -1,5 +1,5 @@
 <!--自定义底部导航：中间"开单"凸起-->
-<view class="tabbar">
+<view class="tabbar {{selected === 2 ? 'tabbar-billing' : ''}}">
   <view wx:for="{{list}}" wx:key="pagePath"
         class="tabbar-item {{item.middle ? 'tabbar-item-middle' : ''}} {{selected === index ? 'active' : ''}}"
         data-index="{{index}}" data-path="{{item.pagePath}}" bindtap="switchTab">

@@ -51,8 +51,15 @@
 
     <!-- 折叠控制开关（卡片底边，水滴形图标按钮，点击展开/收起店铺成员） -->
     <view class="fold-toggle" bindtap="toggleMembers" hover-class="fold-toggle-hover">
-      <text class="fold-toggle-arrow {{membersExpanded ? 'fold-arrow-up' : ''}}">▾</text>
+      <view class="icon icon-chevron-down fold-toggle-arrow {{membersExpanded ? 'fold-arrow-up' : ''}}"></view>
     </view>
+  </view>
+
+  <view wx:else class="guide-card">
+    <view class="guide-icon icon icon-store"></view>
+    <view class="guide-title">还没有绑定店铺？</view>
+    <view class="guide-sub">注册账号后即可创建或加入店铺</view>
+    <button class="btn-primary guide-btn" bindtap="goRegister">去注册</button>
   </view>
 
   <!-- ===== 会员客户：已绑定店铺才显示（会员列表/消费记录/CRM） ===== -->

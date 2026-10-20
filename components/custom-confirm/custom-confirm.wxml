@@ -5,7 +5,7 @@
     <view class="c-confirm-content">{{content}}</view>
     <view class="c-confirm-btns">
       <view class="c-confirm-btn c-confirm-btn-cancel" bindtap="onCancel">{{cancelText || '取消'}}</view>
-      <view class="c-confirm-btn c-confirm-btn-confirm" bindtap="onConfirm">{{confirmText || '确定'}}</view>
+      <view class="c-confirm-btn c-confirm-btn-confirm type-{{type}}" bindtap="onConfirm">{{confirmText || '确定'}}</view>
     </view>
   </view>
 </view>

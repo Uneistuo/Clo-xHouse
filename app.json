@@ -17,16 +17,16 @@
     "pages/welcome/welcome"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#F3EFE7",
+    "navigationBarBackgroundColor": "#F3F5FA",
     "navigationBarTitleText": "裁间",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F3EFE7"
+    "backgroundColor": "#F3F5FA"
   },
   "tabBar": {
     "custom": true,
-    "color": "#9AA0AC",
-    "selectedColor": "#E1483C",
-    "backgroundColor": "#FFFFFF",
+    "color": "#97A0AE",
+    "selectedColor": "#7B8CF7",
+    "backgroundColor": "#F3F5FA",
     "borderStyle": "white",
     "list": [
       { "pagePath": "pages/index/index", "text": "首页" },

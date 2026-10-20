@@ -1,34 +1,128 @@
-/* 订单详情页样式（CSS 变量） */
-.status-card { text-align: center; padding: 44rpx 24rpx; }
-.status-tag { font-size: 28rpx; padding: 8rpx 30rpx; }
-.status-amount { font-size: 28rpx; color: var(--text-1); margin-top: 20rpx; }
-.status-amount .price { font-size: 46rpx; }
-.status-sub { font-size: 24rpx; color: var(--text-2); margin-top: 12rpx; }
+/* 订单详情页样式（清透质感：Standard 分区卡 + 主色金额强调） */
+
+/* 状态卡（Hero 白玻璃质感由全局 .card 提供，这里强化金额） */
+.status-card {
+  text-align: center;
+  padding: 44rpx 24rpx;
+}
+.status-tag {
+  font-size: 28rpx;
+  padding: 8rpx 30rpx;
+}
+.status-pending {
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+.status-paid {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.status-done {
+  background: var(--info-tint);
+  color: var(--info);
+}
+.status-cancelled {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
+.status-refunded {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+.status-amount {
+  font-size: 28rpx;
+  color: var(--text-1);
+  margin-top: 20rpx;
+}
+.status-amount .price {
+  font-size: 46rpx;
+  color: var(--primary);
+  font-weight: 800;
+  letter-spacing: 0.5rpx;
+}
+.status-sub {
+  font-size: 24rpx;
+  color: var(--text-2);
+  margin-top: 12rpx;
+}
 
 .item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--hairline);
 }
-.item-info { flex: 1; overflow: hidden; margin-right: 20rpx; }
-.item-name { font-size: 28rpx; color: var(--text-1); font-weight: 700; }
-.item-spec { display: flex; align-items: center; margin-top: 10rpx; flex-wrap: wrap; }
-.item-price { font-size: 24rpx; color: var(--text-2); margin-left: 12rpx; }
-.item-amount { font-size: 28rpx; color: var(--primary-dark); font-weight: 700; }
+.item-info {
+  flex: 1;
+  overflow: hidden;
+  margin-right: 20rpx;
+}
+.item-name {
+  font-size: 28rpx;
+  color: var(--text-1);
+  font-weight: 700;
+}
+.item-spec {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+  flex-wrap: wrap;
+}
+.item-price {
+  font-size: 24rpx;
+  color: var(--text-2);
+  margin-left: 12rpx;
+}
+.item-amount {
+  font-size: 28rpx;
+  color: var(--primary);
+  font-weight: 700;
+}
 .total-row {
   text-align: right;
   font-size: 28rpx;
   color: var(--text-1);
   padding-top: 22rpx;
 }
+.total-row .price {
+  font-size: 36rpx;
+  font-weight: 800;
+}
 
-.info-row { display: flex; padding: 16rpx 0; }
-.info-label { width: 150rpx; font-size: 26rpx; color: var(--text-2); flex-shrink: 0; }
-.info-value { flex: 1; font-size: 26rpx; color: var(--text-1); word-break: break-all; }
+.info-row {
+  display: flex;
+  padding: 16rpx 0;
+}
+.info-label {
+  width: 150rpx;
+  font-size: 26rpx;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+.info-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--text-1);
+  word-break: break-all;
+}
 
-.action-card { display: flex; flex-wrap: wrap; }
-.action-btn { width: 100%; margin: 12rpx 0; font-size: 28rpx; }
-.action-btn::after { border: none; }
-.action-none { width: 100%; text-align: center; color: var(--text-3); font-size: 26rpx; padding: 20rpx 0; }
+.action-card {
+  display: flex;
+  flex-wrap: wrap;
+}
+.action-btn {
+  width: 100%;
+  margin: 12rpx 0;
+  font-size: 28rpx;
+}
+.action-btn::after {
+  border: none;
+}
+.action-none {
+  width: 100%;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 26rpx;
+  padding: 20rpx 0;
+}

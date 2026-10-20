@@ -55,6 +55,13 @@ Page({
     this.loadGoods(true);
   },
 
+  /** 清空搜索词并重新加载 */
+  clearKeyword() {
+    clearTimeout(this._searchTimer);
+    this.setData({ keyword: '' });
+    this.loadGoods(true);
+  },
+
   switchTab(e) {
     const key = e.currentTarget.dataset.key;
     this.setData({ statusTab: key });

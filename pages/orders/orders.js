@@ -43,8 +43,18 @@ Page({
     this.loadOrders(true);
   },
 
-  onKeywordInput(e) { this.setData({ keyword: e.detail.value }); },
-  handleSearch() { this.loadOrders(true); },
+  onKeywordInput(e) {
+    this.setData({ keyword: e.detail.value });
+  },
+  handleSearch() {
+    this.loadOrders(true);
+  },
+
+  /** 清空搜索词并重新加载 */
+  clearKeyword() {
+    this.setData({ keyword: '' });
+    this.loadOrders(true);
+  },
 
   /** 切换状态筛选 tab */
   switchStatus(e) {

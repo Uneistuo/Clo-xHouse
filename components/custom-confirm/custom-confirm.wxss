@@ -1,29 +1,54 @@
+@import '../../styles/tokens.wxss';
+
+/* ============================================================
+   自定义确认对话框（Overlay 浮层 · 清透质感）
+   遮罩：深蓝 32% + 6px 模糊；面板：白 82% 玻璃 + 内高光。
+   组件样式隔离，var() 带新版兜底色值。
+   ============================================================ */
 .c-confirm-mask {
   position: fixed;
   inset: 0;
-  background: rgba(20, 22, 26, 0.45);
+  background: rgba(20, 25, 40, 0.32);
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 .c-confirm-modal {
-  width: 680rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
-  padding: 48rpx 40rpx;
-  box-shadow: 0 20rpx 50rpx rgba(20, 22, 26, 0.16);
+  width: 640rpx;
+  background: var(--bg-overlay, rgba(255, 255, 255, 0.82));
+  border: 1rpx solid var(--glass-border, rgba(255, 255, 255, 0.72));
+  border-radius: var(--radius-hero, 44rpx);
+  padding: 44rpx 36rpx;
+  box-shadow:
+    var(--shadow-float, 0 24rpx 60rpx rgba(35, 45, 75, 0.12)),
+    var(--inner-light, inset 0 1rpx 0 rgba(255, 255, 255, 0.85));
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+  animation: c-confirm-in var(--duration-slow, 350ms) var(--ease-spring, cubic-bezier(0.175, 0.885, 0.32, 1.275)) both;
+}
+@keyframes c-confirm-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 .c-confirm-title {
   font-size: 34rpx;
   font-weight: 700;
-  color: #14161a;
+  color: var(--text-1, #1d222b);
   text-align: center;
   margin-bottom: 20rpx;
 }
 .c-confirm-content {
   font-size: 28rpx;
-  color: #5b616e;
+  color: var(--text-2, #5a6270);
   text-align: center;
   line-height: 1.6;
   margin-bottom: 44rpx;
@@ -35,16 +60,48 @@
   flex: 1;
   font-size: 30rpx;
   font-weight: 600;
-  padding: 22rpx 0;
+  padding: 20rpx 0;
   text-align: center;
-  border-radius: 16rpx;
+  border-radius: var(--radius-pill, 999rpx);
+  transition:
+    transform var(--duration-fast, 150ms) var(--ease-out, cubic-bezier(0, 0, 0.2, 1)),
+    opacity var(--duration-fast, 150ms) var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+.c-confirm-btn:active {
+  transform: scale(var(--scale-press, 0.98));
 }
 .c-confirm-btn-cancel {
-  color: #5b616e;
-  background: #f4f5f7;
+  color: var(--text-2, #5a6270);
+  background: var(--bg-subtle, rgba(255, 255, 255, 0.46));
+  border: 1rpx solid var(--glass-border, rgba(255, 255, 255, 0.72));
 }
 .c-confirm-btn-confirm {
   color: #ffffff;
-  background: linear-gradient(135deg, #e1483c 0%, #c5362c 100%);
+  background: linear-gradient(135deg, #e87872 0%, #d95750 100%);
+  box-shadow: 0 12rpx 28rpx rgba(224, 93, 87, 0.22);
   margin-left: 16rpx;
+}
+.c-confirm-btn-confirm.type-primary {
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
+  box-shadow: var(--shadow-primary, 0 16rpx 36rpx rgba(123, 140, 247, 0.26));
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .c-confirm-modal {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c-confirm-modal {
+    animation: none;
+  }
+  .c-confirm-btn {
+    transition: none;
+  }
+  .c-confirm-btn:active {
+    transform: none;
+  }
 }

@@ -1,7 +1,7 @@
 {
   "navigationBarTitleText": "裁间",
-  "navigationBarBackgroundColor": "#F3EFE7",
+  "navigationBarBackgroundColor": "#F3F5FA",
   "navigationBarTextStyle": "black",
-  "backgroundColor": "#F3EFE7",
+  "backgroundColor": "#F3F5FA",
   "usingComponents": {}
 }

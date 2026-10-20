@@ -6,6 +6,7 @@
       <view class="icon icon-search search-icon"></view>
       <input class="search-input" placeholder="搜索订单号" value="{{keyword}}"
              bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
     </view>
     <picker range="{{rangeTexts}}" value="{{rangeIndex}}" bindchange="onRangeChange">
       <view class="filter-entry">{{ranges[rangeIndex].text}} ▾</view>

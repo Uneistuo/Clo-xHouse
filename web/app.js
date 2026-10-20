@@ -257,7 +257,7 @@ function renderSetup(root) {
             <label class="field"><span class="lbl">创建新店铺</span><input name="storeName" placeholder="店铺名称（最多 30 字）" maxlength="30" required></label>
             <button class="btn" type="submit">创建店铺</button>
           </form>
-          <hr style="border:none;border-top:1px dashed #e5ddd0;margin:22px 0">
+          <hr style="border:none;border-top:1px dashed var(--divider);margin:22px 0">
           <form id="bind-form">
             <label class="field"><span class="lbl">使用店铺码加入</span><input name="code" placeholder="8 位店铺码" maxlength="8" required></label>
             <button class="btn ghost" type="submit">加入店铺</button>
@@ -339,7 +339,7 @@ async function renderDashboard(view) {
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <b>今日订单</b>
-        <a href="#/orders" style="color:#e1483c;font-size:13px">查看全部 →</a>
+        <a href="#/orders" style="color:var(--primary-dark);font-size:13px">查看全部 →</a>
       </div>
       <div id="dash-orders"><div class="empty">加载中…</div></div>
     </div>`;
@@ -397,7 +397,7 @@ async function renderGoods(view) {
                   <td><b>${esc(g.name)}</b>${g.skus && g.skus.length ? `<div class="muted" style="font-size:12px">${g.skus.map((s) => `${esc(s.color || '默认')}/${esc(s.size || '默认')}×${s.stock}`).join('，')}</div>` : ''}</td>
                   <td class="muted">${esc(g.goods_no || '-')}</td>
                   <td class="muted">${esc(g.category_name || '-')}</td>
-                  <td style="color:#e1483c;font-weight:700">¥${g.price}</td>
+                  <td style="color:var(--primary-dark);font-weight:700">¥${g.price}</td>
                   <td class="${g.stock <= 5 ? 'stock-warn' : ''}">${g.stock}</td>
                   <td><span class="badge ${g.on_sale ? 'on' : 'off'}">${g.on_sale ? '在售' : '下架'}</span></td>
                   <td class="t-right">
@@ -625,7 +625,7 @@ async function renderBilling(view) {
             <div id="bl-matches" style="margin-top:8px"></div>
           </div>
           <label class="field"><span class="lbl">备注（选填）</span><input id="bl-remark" placeholder="如：打折、包邮" value="${esc(blRemark)}"></label>
-          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:#555;margin-bottom:6px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2);margin-bottom:6px">
             <input type="checkbox" id="bl-paid" style="width:auto">顾客已现场付款（直接记为已收款）
           </label>
           <button class="btn" id="btn-submit" style="width:100%;padding:12px;font-size:15px" ${cart.length === 0 ? 'disabled' : ''}>确认开单</button>
@@ -674,7 +674,7 @@ async function renderBilling(view) {
           if (list.length) {
             matchesEl.innerHTML = list.map((c) => `
               <div class="bl-match" data-id="${c.id}" data-phone="${esc(c.phone)}" data-name="${esc(c.displayName)}"
-                   style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f6f7f9;border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:13px">
+                   style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg-subtle);border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:13px">
                 <b>${esc(c.displayName)}</b><span class="muted">${esc(c.phone)}</span>
               </div>`).join('');
             $$('.bl-match').forEach((el) => el.addEventListener('click', () => {
@@ -820,7 +820,7 @@ async function renderOrders(view) {
                 <tr>
                   <td><b>${esc(o.order_no)}</b></td>
                   <td>${o.quantity_count || 0} 件</td>
-                  <td style="color:#e1483c;font-weight:700">¥${o.total_amount}</td>
+                  <td style="color:var(--primary-dark);font-weight:700">¥${o.total_amount}</td>
                   <td><span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span></td>
                   <td class="muted">${esc(o.customer_name ? `${o.customer_name} ${o.customer_phone || ''}` : (o.customer_phone || '-'))}</td>
                   <td class="muted">${esc(o.created_at)}</td>
@@ -870,7 +870,7 @@ async function renderCustomers(view) {
                   <td><b>${esc(c.displayName)}</b></td>
                   <td class="muted">${esc(c.phone)}</td>
                   <td>${c.orderCount} 次</td>
-                  <td style="color:#e1483c;font-weight:700">¥${c.totalAmount}</td>
+                  <td style="color:var(--primary-dark);font-weight:700">¥${c.totalAmount}</td>
                   <td class="muted">${esc(c.lastOrderAt || '-')}</td>
                   <td class="t-right">
                     <button class="btn small ghost" data-edit="${c.id}" data-surname="${esc(c.surname)}" data-gender="${c.gender}">编辑</button>
@@ -977,7 +977,7 @@ window.showOrder = async function (id) {
   }
   openModal(`
     <h3>订单详情</h3>
-    <div class="card" style="box-shadow:none;border:1px solid #eef0f3;margin-bottom:14px;padding:14px">
+    <div class="card" style="box-shadow:none;border:1px solid var(--hairline);margin-bottom:14px;padding:14px">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
         <b>${esc(o.order_no)}</b>
         <span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span>
@@ -1030,14 +1030,14 @@ async function renderStore(view) {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <div>
           <b style="font-size:17px">${esc(s ? s.name : '未绑定店铺')}</b>
-          <div class="muted" style="margin-top:4px">我的身份：${isOwner ? '店主' : '员工'}　${d.billingEnabled ? `开单授权至 ${esc(d.billingExpireAt)}` : '<span style="color:#b45309">开单功能未授权</span>'}</div>
+          <div class="muted" style="margin-top:4px">我的身份：${isOwner ? '店主' : '员工'}　${d.billingEnabled ? `开单授权至 ${esc(d.billingExpireAt)}` : '<span style="color:var(--warning-ink)">开单功能未授权</span>'}</div>
         </div>
       </div>
     </div>
 
     <div class="card">
       <b>店铺码（员工凭此码加入）</b>
-      <div style="font-size:26px;letter-spacing:6px;color:#e1483c;font-weight:700;margin:10px 0">${esc(s ? s.bind_code : '-')}</div>
+      <div style="font-size:26px;letter-spacing:6px;color:var(--primary-dark);font-weight:700;margin:10px 0">${esc(s ? s.bind_code : '-')}</div>
       ${isOwner ? '<button class="btn small light" id="btn-code">重置店铺码</button>' : ''}
     </div>
 
@@ -1108,7 +1108,7 @@ async function renderPlatform(view) {
   const list = data.list || [];
 
   view.innerHTML = `
-    <div class="page-title">平台管理 <span style="font-size:13px;color:#999;font-weight:400">共 ${list.length} 家店铺</span></div>
+    <div class="page-title">平台管理 <span style="font-size:13px;color:var(--text-3);font-weight:400">共 ${list.length} 家店铺</span></div>
     <div class="card">
       ${list.length === 0
         ? '<div class="empty">暂无店铺</div>'

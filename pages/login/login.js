@@ -8,6 +8,7 @@ Page({
 
     username: '',
     password: '',
+    showPassword: false,
 
     usernameError: '',
     passwordError: ''
@@ -34,6 +35,9 @@ Page({
   },
   onPasswordInput(e) {
     this.setData({ password: e.detail.value, passwordError: '' });
+  },
+  togglePassword() {
+    this.setData({ showPassword: !this.data.showPassword });
   },
 
   validate() {

@@ -1,44 +1,131 @@
-/* 订单管理页样式（优化版：CSS 变量） */
-.order-page { padding-bottom: 180rpx; }
+/* 订单管理页样式（清透质感：Wash 搜索 + Dense 订单卡 + 渐变状态筛选） */
+.order-page {
+  padding-bottom: calc(var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom) + 96rpx);
+}
 
-.search-bar { display: flex; align-items: center; margin-bottom: 20rpx; }
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
 .search-input-wrap {
   flex: 1;
   display: flex;
   align-items: center;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
   padding: 16rpx 24rpx;
-  border: 1rpx solid var(--border-strong);
+  border: 1rpx solid var(--glass-border);
 }
-.search-icon { font-size: 26rpx; margin-right: 12rpx; color: var(--text-2); }
-.search-input { flex: 1; font-size: 28rpx; color: var(--text-1); }
-.filter-entry { margin-left: 20rpx; color: var(--primary-dark); font-size: 26rpx; padding: 12rpx 4rpx; }
+.search-icon {
+  font-size: 26rpx;
+  margin-right: 12rpx;
+  color: var(--text-3);
+}
+.search-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+  color: var(--text-1);
+}
+.filter-entry {
+  margin-left: 20rpx;
+  color: var(--primary-dark);
+  font-size: 26rpx;
+  padding: 12rpx 4rpx;
+}
 
-.status-tabs { display: flex; gap: 12rpx; margin-bottom: 24rpx; overflow-x: auto; white-space: nowrap; }
+/* 状态筛选：玻璃胶囊；选中态用主色渐变（渐变是状态） */
+.status-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+  overflow-x: auto;
+  white-space: nowrap;
+}
 .status-tab {
   flex-shrink: 0;
   font-size: 26rpx;
   color: var(--text-2);
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
   padding: 12rpx 28rpx;
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
+  transition: all 0.2s ease;
 }
 .status-tab.active {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
+  border-color: transparent;
   font-weight: 600;
+  box-shadow: var(--shadow-soft-1);
 }
 
-.order-card { padding: 24rpx; }
-.order-no { font-size: 26rpx; color: var(--text-1); font-weight: bold; }
-.order-mid { margin-top: 16rpx; }
-.order-time { font-size: 24rpx; color: var(--text-2); }
-.order-amount { font-size: 34rpx; font-weight: bold; color: var(--primary-dark); }
-.order-bottom { margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid var(--divider); }
-.order-sub { font-size: 24rpx; color: var(--text-2); }
-.order-arrow { font-size: 24rpx; color: var(--primary-dark); }
+/* 订单卡：Dense 密集层 */
+.order-card {
+  padding: 24rpx;
+  background: var(--bg-card-strong);
+  border-radius: var(--radius-card);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-soft-1);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.order-card:active {
+  transform: scale(var(--scale-press));
+}
+.order-no {
+  font-size: 26rpx;
+  color: var(--text-1);
+  font-weight: bold;
+}
+.order-mid {
+  margin-top: 16rpx;
+}
+.order-time {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+.order-amount {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--primary);
+}
+.order-bottom {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid var(--hairline);
+}
+.order-sub {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+.order-arrow {
+  font-size: 24rpx;
+  color: var(--primary-dark);
+}
 
-.empty-btn { margin: 30rpx auto 0; }
-.loading-tip { text-align: center; color: var(--text-2); font-size: 24rpx; padding: 20rpx 0; }
+.empty-btn {
+  margin: 30rpx auto 0;
+}
+.loading-tip {
+  text-align: center;
+  color: var(--text-2);
+  font-size: 24rpx;
+  padding: 20rpx 0;
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .search-input-wrap,
+  .status-tab {
+    background: #f4f6fa;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-tab {
+    transition: none !important;
+  }
+  .order-card:active {
+    transform: none;
+  }
+}

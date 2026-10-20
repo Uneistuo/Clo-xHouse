@@ -1,4 +1,4 @@
-/* 商品管理页样式（优化版：CSS 变量） */
+/* 商品管理页样式（清透质感：Wash 搜索/分段 + Dense 商品行 + 玻璃批量栏） */
 .search-bar {
   display: flex;
   align-items: center;
@@ -8,18 +8,19 @@
   flex: 1;
   display: flex;
   align-items: center;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
   padding: 16rpx 24rpx;
-  border: 1rpx solid var(--border-strong);
+  border: 1rpx solid var(--glass-border);
 }
 .search-icon {
   font-size: 26rpx;
   margin-right: 12rpx;
-  color: var(--text-2);
+  color: var(--text-3);
 }
 .search-input {
   flex: 1;
+  min-width: 0;
   font-size: 28rpx;
   color: var(--text-1);
 }
@@ -40,13 +41,14 @@
   opacity: 0.5;
 }
 
+/* 分段控件：Wash 层轨道 + 白色胶囊滑块 */
 .tabs {
   display: flex;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
   padding: 6rpx;
   margin-bottom: 24rpx;
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
 }
 .goods-no {
   font-size: 23rpx;
@@ -61,13 +63,16 @@
   color: var(--text-2);
   padding: 16rpx 0;
   border-radius: 999rpx;
+  transition: all 0.2s ease;
 }
 .tab-active {
-  color: #ffffff;
-  background: var(--primary);
+  color: var(--primary-dark);
+  background: rgba(255, 255, 255, 0.92);
   font-weight: bold;
+  box-shadow: var(--shadow-soft-1);
 }
 
+/* 商品行：Dense 密集层（不模糊，长列表性能优先） */
 .goods-card {
   padding: 20rpx;
 }
@@ -77,10 +82,10 @@
 .goods-img {
   width: 160rpx;
   height: 160rpx;
-  border-radius: 16rpx;
-  background: var(--bg-subtle);
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #eef0f9 0%, #f7f4f0 100%);
   flex-shrink: 0;
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
 }
 .goods-info {
   flex: 1;
@@ -93,9 +98,12 @@
   align-items: center;
   justify-content: center;
   color: var(--text-3);
+  background: linear-gradient(135deg, #eef0f9 0%, #f7f4f0 100%);
+  border: 1rpx solid var(--glass-border);
 }
 .img-placeholder .icon {
   font-size: 56rpx;
+  opacity: 0.6;
 }
 .goods-name {
   font-size: 30rpx;
@@ -127,7 +135,7 @@
   justify-content: flex-end;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid var(--divider);
+  border-top: 1rpx solid var(--hairline);
 }
 
 .loading-tip {
@@ -141,16 +149,30 @@
 .fab {
   position: fixed;
   right: 40rpx;
-  bottom: 60rpx;
   width: 100rpx;
   height: 100rpx;
   line-height: 96rpx;
   text-align: center;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   color: #fff;
   font-size: 56rpx;
   border-radius: 50%;
   box-shadow: var(--shadow-primary);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.fab:active {
+  transform: scale(var(--scale-press));
+}
+.fab-label {
+  position: absolute;
+  left: 50%;
+  bottom: -28rpx;
+  transform: translateX(-50%);
+  font-size: 20rpx;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--primary-dark);
+  white-space: nowrap;
 }
 
 /* 搜索栏右侧入口 */
@@ -162,21 +184,22 @@
   margin-left: 20rpx;
   font-size: 26rpx;
   color: var(--text-2);
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
   padding: 12rpx 26rpx;
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 .manage-entry.active {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
+  border-color: transparent;
+}
+.manage-entry:active {
+  opacity: 0.85;
 }
 
-/* 低库存预警 */
-.stock-warn {
-  color: var(--danger);
-  font-weight: 700;
-}
+/* 库存风险分级的颜色由 app.wxss 的 .stock-zero / .stock-low 统一提供 */
 
 /* 批量选择圆点 */
 .select-dot {
@@ -205,23 +228,27 @@
   transform: rotate(45deg);
 }
 .goods-selected {
-  border: 1.5rpx solid var(--primary);
+  border: 1rpx solid var(--primary);
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
 }
 
-/* 批量操作栏 */
+/* 批量操作栏（浮层玻璃，固定于 TabBar 上方） */
 .batch-bar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 60;
+  z-index: 101;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-card);
-  padding: 20rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -6rpx 18rpx rgba(20, 22, 26, 0.08);
-  border-top: 1rpx solid var(--border);
+  background: var(--bg-overlay);
+  padding: 20rpx 30rpx;
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-hero) var(--radius-hero) 0 0;
+  box-shadow: var(--shadow-float);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
 }
 .batch-all {
   display: flex;
@@ -240,13 +267,40 @@
   margin-left: 16rpx;
 }
 
-/* 适配自定义 TabBar */
+/* 适配悬浮玻璃 TabBar（108rpx 栏高 + 16rpx 间距 + 安全区） */
 .page {
-  padding-bottom: 180rpx;
+  padding-bottom: calc(var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom) + 96rpx);
 }
-.fab {
-  bottom: calc(140rpx + env(safe-area-inset-bottom));
+.fab-goods {
+  bottom: calc(var(--space-fab-bottom, 160rpx) + env(safe-area-inset-bottom));
 }
 .batch-bar {
-  bottom: calc(100rpx + env(safe-area-inset-bottom));
+  bottom: calc(var(--space-fixed-bar-bottom, 140rpx) + env(safe-area-inset-bottom));
+}
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .search-input-wrap,
+  .tabs,
+  .manage-entry {
+    background: #f4f6fa;
+  }
+  .tab-active {
+    background: #ffffff;
+  }
+  .batch-bar {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .fab,
+  .manage-entry {
+    transition: none !important;
+  }
+  .fab:active {
+    transform: none;
+  }
 }

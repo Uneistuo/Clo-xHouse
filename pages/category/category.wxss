@@ -1,4 +1,4 @@
-/* 分类管理页样式（CSS 变量） */
+/* 分类管理页样式（清透质感：Dense 分类行 + Overlay 底部新增栏） */
 .page {
   display: flex;
   flex-direction: column;
@@ -8,7 +8,7 @@
 .cat-scroll {
   flex: 1;
   /* 底部固定栏高度 + 安全区，避免列表最后一项被遮住 */
-  padding-bottom: 180rpx;
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 /* 页面顶部：标题 + 右上角管理按钮 */
@@ -25,14 +25,19 @@
   letter-spacing: 1rpx;
 }
 .cat-manage-btn {
-  background: var(--primary);
   color: #fff;
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   padding: 12rpx 32rpx;
   border-radius: var(--radius-pill);
   font-size: 26rpx;
   letter-spacing: 2rpx;
+  box-shadow: var(--shadow-soft-1);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
-.cat-manage-btn:active { opacity: 0.85; }
+.cat-manage-btn:active {
+  transform: scale(var(--scale-press));
+  opacity: 1;
+}
 
 /* 管理模式提示条 */
 .manage-hint {
@@ -41,31 +46,37 @@
   font-size: 24rpx;
   color: var(--primary-dark);
   background: var(--primary-tint);
-  border-radius: 12rpx;
+  border-radius: var(--radius-input);
 }
 
 /* 新增分类行 */
-.add-row { display: flex; align-items: center; }
+.add-row {
+  display: flex;
+  align-items: center;
+}
 
-/* 固定在页面最底部的新增分类栏（仅在有分类时显示） */
+/* 固定在页面最底部的新增分类栏（Overlay 玻璃） */
 .add-card-fixed {
   position: fixed;
   left: 0;
   right: 0;
+  /* 分类页为非 TabBar 页面，无需避让悬浮 TabBar；底部安全区由内边距处理 */
   bottom: 0;
-  z-index: 50;
-  background: var(--bg-card);
-  border-top: 1rpx solid var(--border);
-  border-radius: 24rpx 24rpx 0 0;
-  box-shadow: 0 -6rpx 18rpx rgba(20, 22, 26, 0.06);
+  z-index: 101;
+  background: var(--bg-overlay);
+  border: 1rpx solid var(--glass-border);
+  border-radius: var(--radius-hero) var(--radius-hero) 0 0;
+  box-shadow: var(--shadow-float);
   padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
   margin: 0;
   box-sizing: border-box;
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
 }
 .add-input {
   flex: 1;
   background: var(--bg-subtle);
-  border: 1rpx solid var(--border);
+  border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-input);
   padding: 14rpx 20rpx;
   font-size: 28rpx;
@@ -73,16 +84,22 @@
   margin-right: 16rpx;
 }
 
-/* 分类卡片行（统一固定高度，便于长按拖动时位移计算） */
+/* 分类卡片行：Dense 密集层（统一固定高度，便于长按拖动时位移计算） */
 .cat-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
   position: relative;
+  background: var(--bg-card-strong);
+  border-radius: var(--radius-card);
+  border: 1rpx solid var(--glass-border);
   will-change: transform;
 }
-.cat-info { flex: 1; min-width: 0; }
+.cat-info {
+  flex: 1;
+  min-width: 0;
+}
 .cat-name {
   font-size: 30rpx;
   font-weight: bold;
@@ -91,6 +108,34 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cat-meta { font-size: 24rpx; color: var(--text-3); margin-top: 6rpx; }
-.cat-actions { display: flex; align-items: center; flex-shrink: 0; }
+.cat-meta {
+  font-size: 24rpx;
+  color: var(--text-3);
+  margin-top: 6rpx;
+}
+.cat-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
 /* 空状态使用全局 .empty / .empty-icon */
+
+/* ===== 无障碍降级 ===== */
+@media (prefers-reduced-transparency: reduce) {
+  .add-card-fixed {
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .add-input {
+    background: #f4f6fa;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cat-manage-btn {
+    transition: none !important;
+  }
+  .cat-manage-btn:active {
+    transform: none;
+  }
+}

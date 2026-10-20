@@ -1,6 +1,6 @@
 // 订单详情页：查看订单明细 + 状态操作（标记已收款/已完成、取消、售后、补打小票）
 const { request } = require('../../utils/api');
-const { fmtMoney, STATUS_TEXT, STATUS_CLASS, PAY_METHOD_TEXT } = require('../../utils/util');
+const { fmtMoney, STATUS_TEXT, PAY_METHOD_TEXT } = require('../../utils/util');
 const { printer } = require('../../utils/printer');
 const { buildReceipt } = require('../../utils/receipt');
 const { confirm, alert, toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
@@ -12,10 +12,9 @@ Page({
     items: [],
     amountText: '0.00',
     statusText: '',
-    statusClass: '',
     payText: '',
     loading: true,
-    actionLoading: false   // 订单状态操作进行中（禁用按钮 + 加载态）
+    actionLoading: false // 订单状态操作进行中（禁用按钮 + 加载态）
   },
 
   onLoad(options) {
@@ -42,7 +41,6 @@ Page({
         items: (o.items || []).map((it) => ({ ...it, amountText: fmtMoney(it.price * it.quantity) })),
         amountText: fmtMoney(o.total_amount),
         statusText: STATUS_TEXT[o.status] || o.status,
-        statusClass: STATUS_CLASS[o.status] || 'tag-gray',
         payText: PAY_METHOD_TEXT[o.pay_method] || o.pay_method,
         loading: false
       });
@@ -147,7 +145,9 @@ Page({
       try {
         const info = await request({ url: '/api/store/info' });
         if (info && info.store) storeName = info.store.name || storeName;
-      } catch (e) { /* 用已有信息继续 */ }
+      } catch (e) {
+        /* 用已有信息继续 */
+      }
 
       // 若未连接则静默尝试连接
       if (!printer.connected) {

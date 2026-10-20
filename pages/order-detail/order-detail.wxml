@@ -2,7 +2,7 @@
 <view class="page" wx:if="{{order}}">
   <!-- 订单状态 -->
   <view class="card status-card">
-    <view class="tag {{statusClass}} status-tag">{{statusText}}</view>
+    <view class="tag status-{{order.status}} status-tag">{{statusText}}</view>
     <view class="status-amount">订单金额 <text class="price">￥{{amountText}}</text></view>
     <view class="status-sub">收款方式：{{payText}}</view>
   </view>
