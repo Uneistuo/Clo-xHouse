@@ -1,11 +1,14 @@
+<page-meta page-style="{{pageStyle}}"></page-meta>
 <!--店铺页（tab）：店铺信息+成员合并板块；圆形图标弹窗切换店铺；底部注册店铺（店主，上限3家）-->
 <view class="store-page">
   <view class="store-head">
     <view class="store-title">我的店铺</view>
   </view>
 
-  <!-- ===== 已绑定店铺：店铺信息（名称/店铺码）+ 店铺成员（合并板块） ===== -->
-  <view class="store-card" wx:if="{{storeId}}">
+  <!-- ===== 已绑定店铺：店铺信息（名称/店铺码）+ 可拉伸展开的成员区 ===== -->
+  <view class="store-card {{isDragging ? 'is-dragging' : ''}} {{canExpandMembers ? '' : 'is-static'}}"
+        style="height: {{cardHeight ? cardHeight + 'rpx' : 'auto'}};"
+        wx:if="{{storeId}}">
     <!-- 店铺名称 + 切换店铺图标（仅图标，无圆圈与背景） -->
     <view class="store-name-row">
       <view class="store-name">{{store.name}}</view>
@@ -15,7 +18,7 @@
 
     <view class="code-box">
       <view class="code-head">
-        <view class="code-label">店铺码（分享给员工，绑定后数据自动同步）</view>
+        <view class="code-label">店铺码</view>
         <view class="reset-icon" wx:if="{{role === 'owner'}}" bindtap="handleResetCode"><view class="icon icon-refresh"></view></view>
       </view>
       <view class="code-value" bindtap="handleCopyCode">
@@ -27,31 +30,44 @@
       <button class="btn-ghost" bindtap="handleUnbind">退出店铺</button>
     </view>
 
-    <!-- 折叠区：店铺成员 + 注册店铺（默认收起） -->
-    <block wx:if="{{membersExpanded}}">
-      <!-- 店铺成员（与店铺信息同一板块）：店主可移除员工，员工可自行退出 -->
-      <view class="member-section">
-        <view class="member-title">店铺成员（{{members.length}}）</view>
-        <view class="member-item" wx:for="{{members}}" wx:key="id">
-          <view class="member-info">
-            <view class="member-name">{{item.username}}</view>
-            <view class="member-role {{item.role === 'owner' ? 'role-owner' : ''}}">
-              {{item.role === 'owner' ? '店主' : '员工'}}
+    <!-- 展开区域：高度跟随拖拽，内容溢出裁剪 -->
+    <view class="expand-area {{membersExpanded ? '' : 'is-closed'}}"
+          style="height: {{expandHeight}}rpx;"
+          aria-hidden="{{!membersExpanded}}">
+      <view class="expand-inner">
+        <!-- 店铺成员（与店铺信息同一板块） -->
+        <view class="member-section">
+          <view class="member-title">店铺成员（{{members.length}}）</view>
+          <view class="member-item" wx:for="{{members}}" wx:key="id">
+            <view class="member-info">
+              <view class="member-name">{{item.username}}</view>
+              <view class="member-role {{item.role === 'owner' ? 'role-owner' : ''}}">
+                {{item.role === 'owner' ? '店主' : '员工'}}
+              </view>
             </view>
+            <view class="member-remove" wx:if="{{role === 'owner' && item.role !== 'owner'}}"
+                  data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
           </view>
-          <view class="member-remove" wx:if="{{role === 'owner' && item.role !== 'owner'}}"
-                data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
+
+          <!-- 注册店铺：店主名下不满 3 家时显示（满 3 家自动隐藏） -->
+          <button class="btn-primary register-btn" wx:if="{{role === 'owner' && canCreateStore}}"
+                  bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
         </view>
       </view>
+    </view>
 
-      <!-- 注册店铺：店主名下不满 3 家时显示（满 3 家自动隐藏） -->
-      <button class="btn-primary register-btn" wx:if="{{role === 'owner' && canCreateStore}}"
-              bindtap="handleCreateNew" disabled="{{loading}}">注册店铺</button>
-    </block>
-
-    <!-- 折叠控制开关（卡片底边，水滴形图标按钮，点击展开/收起店铺成员） -->
-    <view class="fold-toggle" bindtap="toggleMembers" hover-class="fold-toggle-hover">
-      <view class="icon icon-chevron-down fold-toggle-arrow {{membersExpanded ? 'fold-arrow-up' : ''}}"></view>
+    <!-- 右下角把手：收起态下拉展开，展开态上拖收起 -->
+    <view class="drag-handle-bottom"
+          wx:if="{{canExpandMembers}}"
+          data-mode="{{membersExpanded ? 'collapse' : 'expand'}}"
+          aria-role="button"
+          aria-label="{{membersExpanded ? '收起店铺成员' : '展开店铺成员'}}"
+          bindtouchstart="onDragStart"
+          catchtouchmove="onDragMove"
+          bindtouchend="onDragEnd"
+          bindtouchcancel="onDragCancel">
+      <view class="drag-handle-bar"></view>
+      <view class="drag-handle-hint">{{membersExpanded ? '收起' : '下拉查看成员'}}</view>
     </view>
   </view>
 

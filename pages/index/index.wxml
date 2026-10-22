@@ -8,7 +8,7 @@
 
   <!-- 销售额主卡（书签式周期切换） -->
   <view class="sales-card">
-    <view class="bookmark-tabs">
+    <view class="bookmark-tabs range-{{rangeKey}}">
       <view wx:for="{{ranges}}" wx:key="key"
             class="bookmark-tab {{rangeKey === item.key ? 'active' : ''}}"
             data-key="{{item.key}}" bindtap="switchRange">{{item.text}}</view>

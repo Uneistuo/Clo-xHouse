@@ -3,6 +3,10 @@
   /* 固定结算栏（约 134rpx）+ 悬浮 TabBar（124rpx）+ 呼吸间距 */
   padding-bottom: calc(var(--space-tabbar-bottom, 124rpx) + 160rpx + env(safe-area-inset-bottom));
 }
+/* 未获开单权限时，无结算栏，底部只需避让 TabBar */
+.bill-page.restricted {
+  padding-bottom: calc(var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom));
+}
 
 .search-wrap {
   display: flex;

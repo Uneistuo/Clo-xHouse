@@ -128,15 +128,7 @@
   font-weight: 600;
 }
 
-/* ===== 开单页：与固定结算栏拼接，中间"开单"回归普通 Tab ===== */
-.tabbar-billing {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-top-color: transparent;
-  background: var(--bg-overlay, rgba(255, 255, 255, 0.82));
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-}
+/* ===== 开单页：中间"开单"回归普通 Tab ===== */
 .tabbar-billing .tabbar-item-middle::before {
   display: block;
 }
@@ -161,6 +153,16 @@
 }
 .tabbar-billing .tabbar-item-middle:active .tabbar-icon-wrap {
   transform: scale(0.88);
+}
+
+/* 仅当开单页结算栏可见时，TabBar 才与结算栏拼接（无授权时保持完整胶囊） */
+.tabbar-billing-docked {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top-color: transparent;
+  background: var(--bg-overlay, rgba(255, 255, 255, 0.82));
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
 }
 
 /* ===== 无障碍降级 ===== */

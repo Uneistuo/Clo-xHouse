@@ -26,14 +26,24 @@
   background: rgba(255, 255, 255, 0.4);
 }
 
-/* 店铺头部：Hero 白玻璃（透光 + 高浮层阴影） */
+/* 店铺头部：Hero 白玻璃（透光 + 高浮层阴影）；高度由拖拽逻辑控制 */
 .store-card {
   position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
   background: rgba(255, 255, 255, 0.62);
   border-radius: var(--radius-hero);
-  padding: 48rpx 40rpx;
+  padding: 48rpx 40rpx 88rpx; /* 底部预留右下角拖拽把手空间 */
   box-shadow: var(--shadow-float), var(--inner-light);
   border: 1rpx solid var(--glass-border);
+  transition: height 0.28s var(--ease-spring);
+}
+.store-card.is-dragging {
+  transition: none;
+}
+/* 无成员且无可注册内容：隐藏把手，底部不再预留把手空间 */
+.store-card.is-static {
+  padding-bottom: 48rpx;
 }
 
 /* 未绑定店铺引导卡 */
@@ -95,8 +105,7 @@
 }
 
 .member-section {
-  margin-top: 44rpx;
-  padding-top: 32rpx;
+  padding: 28rpx 4rpx 0;
   border-top: 1rpx solid var(--hairline);
 }
 
@@ -295,55 +304,60 @@
   line-height: 1.6;
 }
 
-/* 折叠控制开关（卡片底边，水滴形图标按钮） */
-.fold-toggle {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40rpx;
-  height: 36rpx;
-  background: var(--primary);
-  border-top-left-radius: 20rpx;
-  border-top-right-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
+/* ===== 拉伸展开交互 ===== */
+/* 展开区：高度由 JS 跟随手指设置，overflow 裁剪内容 */
+.expand-area {
+  overflow: hidden;
+  transition: height 0.28s var(--ease-spring);
 }
-.fold-toggle-hover {
-  background: var(--primary-dark);
-}
-.fold-toggle::before,
-.fold-toggle::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  width: 14rpx;
-  height: 14rpx;
+/* 收起动画期间内容仍可能短暂可见，禁用点击避免误触 */
+.expand-area.is-closed {
   pointer-events: none;
 }
-.fold-toggle::before {
-  left: -14rpx;
-  background: radial-gradient(circle 14rpx at 0 0, transparent 13rpx, var(--primary) 14rpx);
+.expand-inner {
+  padding-top: 16rpx;
 }
-.fold-toggle::after {
-  right: -14rpx;
-  background: radial-gradient(circle 14rpx at 100% 0, transparent 13rpx, var(--primary) 14rpx);
+.store-card.is-dragging .expand-area {
+  transition: none;
 }
-.fold-toggle-arrow {
-  position: relative;
-  z-index: 1;
-  display: inline-block;
-  color: #ffffff;
-  font-size: 24rpx;
+
+/* 右下角拖拽把手：收起态下拉展开，展开态上拖收起 */
+.drag-handle-bottom {
+  position: absolute;
+  right: 28rpx;
+  bottom: 24rpx;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 12rpx 20rpx;
+  border: 1rpx solid var(--glass-border);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-soft-1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.drag-handle-bottom:active {
+  background: rgba(255, 255, 255, 0.78);
+}
+.drag-handle-bar {
+  width: 40rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: var(--text-3);
+  flex-shrink: 0;
+}
+.drag-handle-hint {
+  font-size: 22rpx;
   line-height: 1;
-  transform: rotate(0deg);
-  transition: transform 0.2s ease;
-  margin-top: -2rpx;
+  color: var(--text-2);
+  white-space: nowrap;
+  /* 避免用透明度压低小字号提示的对比度；拖拽时改用文字色阶高亮 */
+  transition: color var(--duration-fast) var(--ease-out);
 }
-.fold-arrow-up {
-  transform: rotate(180deg);
+.store-card.is-dragging .drag-handle-hint {
+  color: var(--text-1);
 }
 
 /* 功能卡：Standard 玻璃 */
@@ -420,14 +434,21 @@
   }
   .store-back,
   .popup-store-arrow,
-  .reset-icon {
+  .reset-icon,
+  .drag-handle-bottom {
     background: #f4f6fa;
+  }
+  .drag-handle-bottom {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fold-toggle-arrow,
+  .store-card,
+  .expand-area,
   .platform-card,
-  .popup-panel {
+  .popup-panel,
+  .drag-handle-hint {
     transition: none !important;
     animation: none !important;
   }

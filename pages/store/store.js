@@ -5,6 +5,12 @@ const { request } = require('../../utils/api');
 const { printer } = require('../../utils/printer');
 const { confirm, toast } = require('../../utils/dialog');
 
+/** px -> rpx 换算比例（750rpx = 屏幕宽度） */
+function getRpxRatio() {
+  const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+  return 750 / (info.windowWidth || 375);
+}
+
 Page({
   data: {
     loading: true,
@@ -19,12 +25,23 @@ Page({
     myStores: [], // 店主名下店铺列表 [{ id, name, created_at }]
     storeLimit: 3, // 店主最多可绑定店铺数
     canCreateStore: false, // 是否还能创建新店铺（名下店铺数 < 上限）
+    canExpandMembers: false, // 是否有可展开的成员/注册内容；无内容时隐藏拖拽把手
     showSwitchPopup: false, // 切换店铺弹窗显示标记
-    membersExpanded: false // 「店铺成员 / 注册店铺」折叠区开关（默认收起）
+    membersExpanded: false, // 成员区是否已完全展开（默认收起）
+    cardHeight: 0, // 卡片当前总高度（rpx），0 = 由内容自适应
+    expandHeight: 0, // 展开区当前高度（rpx）
+    isDragging: false, // 是否正在拖拽
+    pageStyle: '', // 拖拽时锁定页面滚动，避免触发下拉刷新
+    maxExpandHeight: 0, // 完全展开时卡片总高度（rpx）
+    collapseHeight: 0 // 收起状态卡片高度（rpx）
   },
 
   onShow() {
     if (!getApp().checkLogin()) return;
+    if (this.data.isDragging) {
+      this._dragMoved = false;
+      this._setExpanded(this.data.membersExpanded);
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 4 });
     }
@@ -39,8 +56,27 @@ Page({
     this.refreshPrinterHint();
   },
 
-  /** 下拉刷新：重新拉取店铺信息 */
+  onHide() {
+    // 拖拽中切走页面时，按当前状态回弹，避免残留 isDragging / 页面滚动锁
+    if (this.data.isDragging) {
+      this._dragMoved = false;
+      this._setExpanded(this.data.membersExpanded);
+      return;
+    }
+    if (this.data.pageStyle) this.setData({ pageStyle: '' });
+  },
+
+  /**
+   * 下拉刷新：重新拉取店铺信息
+   * 店铺卡片支持下拉展开，原生下拉刷新会与拖拽手势冲突，因此 store.json 已关闭 enablePullDownRefresh；
+   * 页面在 onShow 时会自动刷新。保留该回调，便于后续恢复原生刷新时兜底。
+   */
   onPullDownRefresh() {
+    // 拖拽把手时若被系统误判为下拉刷新，直接忽略，避免打断手势
+    if (this.data.isDragging) {
+      wx.stopPullDownRefresh();
+      return;
+    }
     this.loadInfo().finally(() => wx.stopPullDownRefresh());
   },
 
@@ -58,18 +94,41 @@ Page({
   async loadInfo() {
     try {
       const data = await request({ url: '/api/store/info' });
-      this.setData({
-        loading: false,
-        storeId: data.storeId || 0,
-        role: data.role || '',
-        store: data.store,
-        members: data.members || [],
-        canRename: !!data.canRename,
-        nextRenameAt: data.nextRenameAt || '',
-        myStores: data.myStores || [],
-        storeLimit: data.storeLimit || 3,
-        canCreateStore: !!data.canCreateStore
-      });
+      const members = data.members || [];
+      const canExpandMembers =
+        !!data.storeId && (members.length > 0 || (data.role === 'owner' && !!data.canCreateStore));
+      // 切换店铺/解绑/无展开内容时需要重置展开状态，避免沿用上一家店铺的卡片高度
+      const resetCard = !data.storeId || (!!this.data.storeId && data.storeId !== this.data.storeId);
+      const resetExpand = resetCard || !canExpandMembers;
+      this.setData(
+        {
+          loading: false,
+          storeId: data.storeId || 0,
+          role: data.role || '',
+          store: data.store,
+          members,
+          canRename: !!data.canRename,
+          nextRenameAt: data.nextRenameAt || '',
+          myStores: data.myStores || [],
+          storeLimit: data.storeLimit || 3,
+          canCreateStore: !!data.canCreateStore,
+          canExpandMembers,
+          ...(resetExpand
+            ? {
+                membersExpanded: false,
+                cardHeight: 0,
+                expandHeight: 0,
+                isDragging: false,
+                pageStyle: '',
+                maxExpandHeight: 0,
+                collapseHeight: 0
+              }
+            : {})
+        },
+        () => {
+          if (this.data.storeId && this.data.canExpandMembers) wx.nextTick(() => this._measureCard());
+        }
+      );
       // 同步本地缓存的 adminInfo（店铺名/店铺ID）
       const adminInfo = wx.getStorageSync('adminInfo') || {};
       wx.setStorageSync('adminInfo', {
@@ -82,15 +141,148 @@ Page({
     }
   },
 
-  /** 切换「店铺成员 / 注册店铺」折叠区显隐 */
+  /** 测量收起高度与展开内容高度，换算成 rpx 后驱动拖拽/回弹 */
+  _measureCard() {
+    if (!this.data.storeId || !this.data.canExpandMembers) return;
+    const query = wx.createSelectorQuery().in(this);
+    query.select('.store-card').boundingClientRect();
+    query.select('.expand-area').boundingClientRect();
+    query.select('.expand-inner').boundingClientRect();
+    query.exec((res) => {
+      const cardRect = res[0];
+      const expandRect = res[1];
+      const innerRect = res[2];
+      if (!cardRect || !expandRect || !innerRect) return;
+      if (this.data.isDragging) return; // 拖拽中不打断手指跟随
+
+      const ratio = getRpxRatio();
+      const collapseHeight = Math.max(0, Math.round((cardRect.height - expandRect.height) * ratio));
+      const contentHeight = Math.max(0, Math.round(innerRect.height * ratio));
+      const maxExpandHeight = collapseHeight + contentHeight;
+      const expanded = this.data.membersExpanded;
+      this.setData({
+        collapseHeight,
+        maxExpandHeight,
+        expandHeight: expanded ? contentHeight : 0,
+        cardHeight: collapseHeight + (expanded ? contentHeight : 0)
+      });
+    });
+  },
+
+  /** 展开/收起成员区（点击把手时调用） */
   toggleMembers() {
-    this.setData({ membersExpanded: !this.data.membersExpanded });
+    this._setExpanded(!this.data.membersExpanded);
+  },
+
+  /** 设置展开状态并同步卡片/展开区高度 */
+  _setExpanded(expanded) {
+    if (!this.data.canExpandMembers) {
+      this.setData({
+        isDragging: false,
+        pageStyle: '',
+        membersExpanded: false,
+        expandHeight: 0,
+        cardHeight: 0
+      });
+      return;
+    }
+    const contentHeight = Math.max(0, this.data.maxExpandHeight - this.data.collapseHeight);
+    if (expanded && contentHeight <= 0) {
+      this.setData({ isDragging: false, pageStyle: '' });
+      return;
+    }
+    this.setData({
+      isDragging: false,
+      pageStyle: '',
+      membersExpanded: expanded,
+      expandHeight: expanded ? contentHeight : 0,
+      cardHeight: this.data.collapseHeight + (expanded ? contentHeight : 0)
+    });
+  },
+
+  /** 触摸开始：记录起点与当前展开高度 */
+  onDragStart(e) {
+    if (!this.data.canExpandMembers) return;
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+    const mode = (e.currentTarget.dataset || {}).mode || 'expand';
+    if (mode === 'expand' && this.data.membersExpanded) return;
+    if (mode === 'collapse' && !this.data.membersExpanded) return;
+    if (this.data.maxExpandHeight - this.data.collapseHeight <= 0) return;
+
+    this._dragMode = mode;
+    this._dragStartY = touch.clientY;
+    this._dragStartExpand = this.data.expandHeight;
+    this._dragMoved = false;
+    this._rpxRatio = getRpxRatio();
+    // 锁定页面滚动，避免拖拽时页面跟随移动；同时兜底停止可能残留的下拉刷新
+    // overscroll-behavior 在部分安卓机型会被忽略，保留作为支持机型的增强；overflow 负责基础锁定
+    wx.stopPullDownRefresh();
+    this.setData({
+      isDragging: true,
+      pageStyle: 'overflow: hidden; overscroll-behavior: none;'
+    });
+  },
+
+  /** 触摸移动：展开区高度跟随手指，向上/向下都受最大/最小值约束 */
+  onDragMove(e) {
+    if (!this.data.isDragging) return;
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+
+    const deltaPx = touch.clientY - this._dragStartY;
+    if (Math.abs(deltaPx) > 4) this._dragMoved = true;
+    const contentHeight = Math.max(0, this.data.maxExpandHeight - this.data.collapseHeight);
+    const nextExpand = Math.round(
+      Math.max(0, Math.min(contentHeight, this._dragStartExpand + deltaPx * (this._rpxRatio || 1)))
+    );
+    this.setData({
+      expandHeight: nextExpand,
+      cardHeight: this.data.collapseHeight + nextExpand
+    });
+  },
+
+  /** 触摸结束：未移动视为点击，移动则按 40% 阈值吸附 */
+  onDragEnd() {
+    if (!this.data.isDragging) return;
+    const contentHeight = Math.max(0, this.data.maxExpandHeight - this.data.collapseHeight);
+    const moved = this._dragMoved;
+    this._dragMoved = false;
+
+    if (!moved) {
+      this.toggleMembers();
+      return;
+    }
+
+    const threshold = contentHeight * 0.4;
+    const shouldExpand =
+      this._dragMode === 'collapse'
+        ? this.data.expandHeight > contentHeight - threshold
+        : this.data.expandHeight >= threshold;
+    this._setExpanded(shouldExpand);
+  },
+
+  /** 触摸被系统打断：按当前状态回弹，不触发点击切换 */
+  onDragCancel() {
+    if (!this.data.isDragging) return;
+    this._dragMoved = false;
+    this._setExpanded(this.data.membersExpanded);
   },
 
   /** 绑定/创建成功后更新本地登录态（后端重签了携带店铺身份的 Token） */
   saveNewToken(data) {
     wx.setStorageSync('token', data.token);
     wx.setStorageSync('adminInfo', data.admin);
+    // 切换/新建/退出店铺后先收起卡片，避免旧店铺的展开高度残留
+    this.setData({
+      membersExpanded: false,
+      cardHeight: 0,
+      expandHeight: 0,
+      maxExpandHeight: 0,
+      collapseHeight: 0,
+      isDragging: false,
+      pageStyle: ''
+    });
     this.loadInfo();
   },
 

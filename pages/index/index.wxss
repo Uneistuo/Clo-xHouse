@@ -140,8 +140,20 @@
   overflow: hidden;
 }
 .bookmark-tabs {
+  /* 未选中书签的叠加色；选中项保持透明，直接透出卡片渐变 */
+  --bookmark-tab-bg: rgba(255, 255, 255, 0.16);
+  /* 凹角过渡色：取卡片渐变在书签下缘处的近似值 */
+  --bookmark-fillet-left: #979dfa;
+  --bookmark-fillet-right: #979dfa;
   display: flex;
-  background: rgba(255, 255, 255, 0.16);
+  background: transparent;
+}
+.bookmark-tabs.range-week {
+  --bookmark-fillet-right: #a19efa;
+}
+.bookmark-tabs.range-month {
+  --bookmark-fillet-left: #a19efa;
+  --bookmark-fillet-right: #a19efa;
 }
 .bookmark-tab {
   position: relative;
@@ -150,13 +162,31 @@
   font-size: 25rpx;
   padding: 22rpx 0;
   color: rgba(255, 255, 255, 0.85);
-  background: transparent;
+  /* 未选中：在卡片底色上叠一层浅色，比卡片更浅 */
+  background: var(--bookmark-tab-bg);
 }
 .bookmark-tab.active {
+  z-index: 1;
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.28);
-  border-radius: 18rpx 18rpx 0 0;
   font-weight: 700;
+  /* 选中：主体透出卡片渐变；顶部两角用未选中色补出圆角 */
+  background-color: transparent;
+  background-image:
+    radial-gradient(circle 18rpx at 100% 100%, transparent 16rpx, var(--bookmark-tab-bg) 18rpx),
+    radial-gradient(circle 18rpx at 0 100%, transparent 16rpx, var(--bookmark-tab-bg) 18rpx);
+  background-position:
+    left top,
+    right top;
+  background-size: 18rpx 18rpx;
+  background-repeat: no-repeat;
+}
+.bookmark-tabs.range-today .bookmark-tab.active {
+  background-image: radial-gradient(circle 18rpx at 0 100%, transparent 16rpx, var(--bookmark-tab-bg) 18rpx);
+  background-position: right top;
+}
+.bookmark-tabs.range-month .bookmark-tab.active {
+  background-image: radial-gradient(circle 18rpx at 100% 100%, transparent 16rpx, var(--bookmark-tab-bg) 18rpx);
+  background-position: left top;
 }
 .bookmark-tab.active::before,
 .bookmark-tab.active::after {
@@ -165,14 +195,15 @@
   bottom: 0;
   width: 16rpx;
   height: 16rpx;
+  pointer-events: none;
 }
 .bookmark-tab.active::before {
   left: -16rpx;
-  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, rgba(255, 255, 255, 0.28) 16rpx);
+  background: radial-gradient(circle 16rpx at 0 0, transparent 14rpx, var(--bookmark-fillet-left) 16rpx);
 }
 .bookmark-tab.active::after {
   right: -16rpx;
-  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, rgba(255, 255, 255, 0.28) 16rpx);
+  background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, var(--bookmark-fillet-right) 16rpx);
 }
 .sales-body {
   padding: 26rpx 36rpx 34rpx;

@@ -50,13 +50,22 @@ Page({
 
   onShow() {
     if (!getApp().checkLogin()) return;
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 });
-    }
+    this._syncTabBar();
     this.restoreCart();
     this.checkBilling();
     this.loadGoods(true);
     this._ensurePrinterConnected();
+  },
+
+  /** 同步 TabBar：开单页隐藏悬浮圆钮；仅结算栏可见时才与 TabBar 拼接 */
+  _syncTabBar() {
+    if (typeof this.getTabBar !== 'function') return;
+    const tabBar = this.getTabBar();
+    if (!tabBar) return;
+    tabBar.setData({
+      selected: 2,
+      billingDock: !this.data.restricted
+    });
   },
 
   onUnload() {
@@ -186,6 +195,7 @@ Page({
         restrictedExpired: !data.billingEnabled && !!expireAt,
         billingExpireText: data.billingEnabled ? expireAt : ''
       });
+      this._syncTabBar();
     } catch (e) {}
   },
 
@@ -547,6 +557,7 @@ Page({
           restricted: true,
           restrictedExpired: !!this.data.billingExpireText || this.data.restrictedExpired
         });
+        this._syncTabBar();
         this.checkBilling();
       }
       this.loadGoods(true);

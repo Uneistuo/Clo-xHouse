@@ -3,6 +3,7 @@
 Component({
   data: {
     selected: 0,
+    billingDock: false, // 开单页结算栏可见时，TabBar 与结算栏拼接
     list: [
       { pagePath: '/pages/index/index', text: '首页', icon: 'icon-home' },
       { pagePath: '/pages/goods/goods', text: '商品', icon: 'icon-shirt' },
