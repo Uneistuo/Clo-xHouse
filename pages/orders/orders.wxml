@@ -20,12 +20,10 @@
           data-key="{{item.key}}" bindtap="switchStatus">{{item.text}}</view>
   </view>
 
-  <!-- 骨架屏（首次加载） -->
+  <!-- 骨架屏（首次加载，统一使用 skeleton-card 组件） -->
   <block wx:if="{{loading && !loaded}}">
     <view wx:for="{{[1,2,3]}}" wx:key="*this" class="card order-card">
-      <view class="skeleton" style="width: 50%; height: 28rpx;"></view>
-      <view class="skeleton" style="width: 80%; height: 24rpx; margin-top: 24rpx;"></view>
-      <view class="skeleton" style="width: 35%; height: 24rpx; margin-top: 24rpx;"></view>
+      <skeleton-card rows="{{3}}" heights="28,24,24" widths="50%,80%,35%" gap="{{24}}" />
     </view>
   </block>
 

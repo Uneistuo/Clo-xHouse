@@ -1,0 +1,41 @@
+/* 骨架屏占位：柔和白渐变 + 横向扫光（样式自带，不依赖全局 .skeleton） */
+.sk {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: flex-start;
+}
+.sk-avatar,
+.sk-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    rgba(255, 255, 255, 0.85) 37%,
+    rgba(255, 255, 255, 0.5) 63%
+  );
+  background-size: 400% 100%;
+  animation: sk-loading 1.4s ease infinite;
+}
+.sk-avatar {
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+.sk-lines {
+  flex: 1;
+  min-width: 0;
+}
+@keyframes sk-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+/* 无障碍：减少动态效果时不做扫光 */
+@media (prefers-reduced-motion: reduce) {
+  .sk-avatar,
+  .sk-line {
+    animation: none;
+  }
+}

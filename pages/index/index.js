@@ -160,8 +160,14 @@ Page({
     wx.switchTab({ url: '/pages/orders/orders' });
   },
 
-  /** 快捷操作：快速开单（空购物车时开单页会恢复上次未结算购物车） */
+  /** 快捷操作：快速开单（空购物车时按上次成交项预置常用商品，否则恢复未结算购物车） */
   goCreateOrder() {
+    try {
+      const cart = wx.getStorageSync('billing_cart');
+      if (!Array.isArray(cart) || !cart.length) {
+        wx.setStorageSync('billing_preset_frequent', 1);
+      }
+    } catch (e) {}
     wx.switchTab({ url: '/pages/billing/billing' });
   },
 

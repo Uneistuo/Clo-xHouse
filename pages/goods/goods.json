@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "裁间",
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "skeleton-card": "/components/skeleton-card/skeleton-card"
+  }
 }

@@ -23,16 +23,18 @@
           data-key="{{item.key}}" bindtap="switchTab">{{item.text}}</view>
   </view>
 
-  <!-- 骨架屏（首次加载） -->
+  <!-- 骨架屏（首次加载，统一使用 skeleton-card 组件） -->
   <block wx:if="{{loading && !loaded}}">
     <view wx:for="{{[1,2]}}" wx:key="*this" class="list-card goods-card">
       <view class="goods-main">
-        <view class="skeleton" style="width:160rpx;height:160rpx;border-radius:16rpx;flex-shrink:0;"></view>
-        <view class="goods-info">
-          <view class="skeleton" style="width:60%;height:30rpx;"></view>
-          <view class="skeleton" style="width:40%;height:24rpx;margin-top:20rpx;"></view>
-          <view class="skeleton" style="width:85%;height:24rpx;margin-top:20rpx;"></view>
-        </view>
+        <skeleton-card
+          avatar="{{true}}"
+          avatar-size="{{160}}"
+          rows="{{3}}"
+          heights="30,24,24"
+          widths="60%,40%,85%"
+          gap="{{20}}"
+        />
       </view>
     </view>
   </block>

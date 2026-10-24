@@ -9,6 +9,17 @@
   position: relative;
   margin-right: 16rpx;
   margin-bottom: 16rpx;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.16s ease;
+}
+/* 长按拖拽排序：被拖起的那张轻微下沉 + 阴影，明确“已被抓起” */
+.img-item.is-dragging {
+  transform: scale(0.94);
+  box-shadow: var(--shadow-float);
+  opacity: 0.9;
+  z-index: 2;
 }
 .img-thumb {
   width: 140rpx;

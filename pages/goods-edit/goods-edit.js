@@ -48,6 +48,8 @@ Page({
     categories: [], // 分类列表（来自数据库）
     categoryInput: '', // 分类输入框（搜索 / 新增）
     showAddCategory: false, // 输入的分类不存在时显示"新增"按钮
+    dragIndex: -1, // 正在长按拖拽的图片下标（-1 表示未拖拽）
+    dragOverIndex: -1, // 拖拽落点下标（用于高亮）
     submitting: false
   },
 
@@ -271,6 +273,7 @@ Page({
 
   /** 点击缩略图预览全部图片 */
   previewImage(e) {
+    if (this._justDragged) return; // 刚完成拖拽排序时不触发预览
     const urls = this.data.imageUrls;
     if (!urls.length) return;
     wx.previewImage({ current: urls[e.currentTarget.dataset.index], urls });
@@ -298,6 +301,67 @@ Page({
     imagePaths.splice(idx, 1);
     imageUrls.splice(idx, 1);
     this.setData({ imagePaths, imageUrls });
+  },
+
+  // ============ 图片长按拖拽排序 ============
+  /** 长按缩略图进入拖拽排序（松手即落位，第 1 张始终为封面） */
+  onImgLongPress(e) {
+    if (this.data.imagePaths.length < 2) return;
+    const index = Number(e.currentTarget.dataset.index) || 0;
+    this._measureImgItems().then((rects) => {
+      if (!rects.length) return;
+      this._dragRects = rects;
+      this.setData({ dragIndex: index, dragOverIndex: index });
+      if (typeof wx.vibrateShort === 'function') wx.vibrateShort({ type: 'light', fail: () => {} });
+    });
+  },
+
+  /** 测量各缩略图位置（拖拽时用触点命中的位置判断落点） */
+  _measureImgItems() {
+    return new Promise((resolve) => {
+      wx.createSelectorQuery()
+        .in(this)
+        .selectAll('.img-item')
+        .boundingClientRect((res) => resolve(res || []))
+        .exec();
+    });
+  },
+
+  /** 拖拽中：触点移到某个缩略图上时实时交换位置 */
+  onImgTouchMove(e) {
+    const dragIndex = this.data.dragIndex;
+    if (dragIndex < 0 || !this._dragRects) return;
+    const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    if (!touch) return;
+    const { clientX: x, clientY: y } = touch;
+    let target = dragIndex;
+    for (let i = 0; i < this._dragRects.length; i++) {
+      const r = this._dragRects[i];
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+        target = i;
+        break;
+      }
+    }
+    if (target === dragIndex) return;
+    const imagePaths = this.data.imagePaths.slice();
+    const imageUrls = this.data.imageUrls.slice();
+    const [p] = imagePaths.splice(dragIndex, 1);
+    const [u] = imageUrls.splice(dragIndex, 1);
+    imagePaths.splice(target, 0, p);
+    imageUrls.splice(target, 0, u);
+    this.setData({ imagePaths, imageUrls, dragIndex: target, dragOverIndex: target });
+  },
+
+  /** 结束拖拽：清空拖拽态，并短暂抑制随后的 tap（避免误触预览） */
+  onImgTouchEnd() {
+    if (this.data.dragIndex < 0) return;
+    this._dragRects = null;
+    this._justDragged = true;
+    clearTimeout(this._justDraggedTimer);
+    this._justDraggedTimer = setTimeout(() => {
+      this._justDragged = false;
+    }, 300);
+    this.setData({ dragIndex: -1, dragOverIndex: -1 });
   },
 
   // ============ 颜色 / 尺码选项 ============

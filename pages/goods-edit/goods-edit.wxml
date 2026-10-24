@@ -4,8 +4,16 @@
     <!-- 商品图片 -->
     <view class="form-item">
       <view class="form-label">商品图片</view>
-      <view class="img-list">
-        <view wx:for="{{imageUrls}}" wx:key="index" class="img-item">
+      <view class="img-list" bindtouchmove="onImgTouchMove">
+        <view
+          wx:for="{{imageUrls}}"
+          wx:key="*this"
+          class="img-item {{dragIndex === index ? 'is-dragging' : ''}}"
+          data-index="{{index}}"
+          bindlongpress="onImgLongPress"
+          bindtouchend="onImgTouchEnd"
+          bindtouchcancel="onImgTouchEnd"
+        >
           <image src="{{item}}" mode="aspectFill" class="img-thumb" data-index="{{index}}" bindtap="previewImage" />
           <view wx:if="{{index === 0}}" class="img-cover">封面</view>
           <view wx:else class="img-setcover" data-index="{{index}}" catchtap="setCover">设封面</view>
@@ -13,7 +21,7 @@
         </view>
         <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage"><view class="icon icon-plus"></view></view>
       </view>
-      <view class="img-hint">支持裁剪/旋转，第 1 张为封面；点击图片可预览</view>
+      <view class="img-hint">支持裁剪/旋转，第 1 张为封面；点击预览，长按拖动排序</view>
     </view>
 
     <view class="form-item">

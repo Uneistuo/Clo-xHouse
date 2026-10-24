@@ -1,0 +1,16 @@
+<!--通用骨架屏：左侧缩略块（可选）+ 若干占位行-->
+<view class="sk">
+  <view
+    wx:if="{{avatar}}"
+    class="sk-avatar"
+    style="width: {{avatarSize}}rpx; height: {{avatarSize}}rpx; border-radius: {{radius}}rpx;"
+  ></view>
+  <view class="sk-lines">
+    <view
+      wx:for="{{lines}}"
+      wx:key="index"
+      class="sk-line"
+      style="height: {{item.h}}rpx; width: {{item.w}}; margin-top: {{item.mt}}rpx; border-radius: {{radius}}rpx;"
+    ></view>
+  </view>
+</view>

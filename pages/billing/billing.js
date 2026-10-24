@@ -11,6 +11,10 @@ const { confirm, toast, loading: showLoading, hideLoading } = require('../../uti
 const LOW_STOCK = 5;
 /** 常用规格记忆存储键（按商品 id 存最近 3 个组合） */
 const RECENT_SPECS_KEY = 'billing_recent_specs';
+/** 常用商品记忆存储键（最近一次成交项，去重后最多 3 条） */
+const FREQUENT_GOODS_KEY = 'billing_frequent_goods';
+/** 首页「快速开单」写入的一次性标记：开单页消费后按常用商品预置购物车 */
+const PRESET_FLAG_KEY = 'billing_preset_frequent';
 
 Page({
   /** 空处理：配合 wxml 中的 catchtap，阻止弹窗内点击事件冒泡到遮罩 */
@@ -57,9 +61,21 @@ Page({
     if (!getApp().checkLogin()) return;
     this._syncTabBar();
     this.restoreCart();
+    this._consumePresetFlag();
     this.checkBilling();
     this.loadGoods(true);
     this._ensurePrinterConnected();
+  },
+
+  /** 消费首页「快速开单」标记：首屏商品加载完成后按常用商品预置购物车（一次性） */
+  _consumePresetFlag() {
+    this._presetPending = false;
+    try {
+      if (wx.getStorageSync(PRESET_FLAG_KEY)) {
+        wx.removeStorageSync(PRESET_FLAG_KEY);
+        this._presetPending = true;
+      }
+    } catch (e) {}
   },
 
   /** 同步 TabBar：开单页隐藏悬浮圆钮；仅结算栏可见时才与 TabBar 拼接 */
@@ -257,6 +273,8 @@ Page({
         hasMore: merged.length < (data.total || 0),
         loading: false
       });
+      // 首页「快速开单」进入后，首屏商品加载完成时按常用商品预置购物车
+      if (reset && this._presetPending) this._presetFrequentGoods();
     } catch (e) {
       if (seq === this._goodsSeq) this.setData({ loading: false });
     }
@@ -295,6 +313,81 @@ Page({
       all[key] = [combo, ...list.filter((r) => !(r.color === combo.color && r.size === combo.size))].slice(0, 3);
       wx.setStorageSync(RECENT_SPECS_KEY, all);
     } catch (e) {}
+  },
+
+  // ============ 常用商品预置（首页「快速开单」用） ============
+  /** 开单成功后记住本次成交项（按规格去重，最多 3 条），下次快速开单可一键预置 */
+  _rememberFrequentGoods(cart) {
+    try {
+      const seen = new Set();
+      const list = [];
+      for (const c of cart) {
+        const item = { goodsId: c.goodsId, color: c.color || '', size: c.size || '' };
+        const key = `${item.goodsId}|${item.color}|${item.size}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        list.push(item);
+        if (list.length >= 3) break;
+      }
+      wx.setStorageSync(FREQUENT_GOODS_KEY, list);
+    } catch (e) {}
+  },
+
+  /**
+   * 为商品挑选一个可下单的规格（优先沿用上次的；缺货则回退到第一个有库存的组合）
+   * @returns {{color: string, size: string} | null} 无货返回 null
+   */
+  _pickSpec(goods, color, size) {
+    const colors = (goods.colorArr && goods.colorArr.length ? goods.colorArr : ['']).slice();
+    const sizes = (goods.sizeArr && goods.sizeArr.length ? goods.sizeArr : ['']).slice();
+    const preferColor = colors.includes(color) ? color : colors[0];
+    const preferSize = sizes.includes(size) ? size : sizes[0];
+    if (this.getSkuStock(goods, preferColor, preferSize) > 0) {
+      return { color: preferColor, size: preferSize };
+    }
+    for (const c of colors) {
+      for (const s of sizes) {
+        if (this.getSkuStock(goods, c, s) > 0) return { color: c, size: s };
+      }
+    }
+    return null;
+  },
+
+  /** 按「常用商品」把上次成交项（默认规格、数量 1、校验库存）预置进购物车 */
+  _presetFrequentGoods() {
+    if (!this._presetPending) return;
+    this._presetPending = false;
+    if (this.data.cart.length) return; // 已有购物车内容时不打扰
+    let frequent = [];
+    try {
+      frequent = wx.getStorageSync(FREQUENT_GOODS_KEY) || [];
+    } catch (e) {}
+    if (!Array.isArray(frequent) || !frequent.length) return;
+    const cart = [];
+    for (const f of frequent) {
+      const goods = this.data.goodsList.find((g) => g.id === f.goodsId);
+      if (!goods) continue; // 商品已下架/不在首屏 -> 静默跳过
+      const spec = this._pickSpec(goods, f.color, f.size);
+      if (!spec) continue; // 无库存 -> 静默跳过
+      const stock = this.getSkuStock(goods, spec.color, spec.size);
+      cart.push({
+        goodsId: goods.id,
+        goodsNo: goods.goods_no || '',
+        name: goods.name,
+        cover: goods.cover,
+        color: spec.color,
+        size: spec.size,
+        price: goods.price,
+        quantity: 1,
+        stock,
+        subtotal: fmtMoney(goods.price)
+      });
+    }
+    if (!cart.length) return;
+    this.setData({ cart });
+    this.calcTotal();
+    this.persistCart();
+    toast(`已按上次开单预置 ${cart.length} 件商品，可直接结算`, 'none');
   },
 
   /** 某规格选项是否库存不足（< LOW_STOCK）：按另一维当前选中值过滤 */
@@ -647,6 +740,8 @@ Page({
           quantity: c.quantity
         }))
       };
+      // 记住本次成交项，供首页「快速开单」预置（清空购物车前记录）
+      this._rememberFrequentGoods(cart);
       this.setData({
         cart: [],
         customerPhone: '',

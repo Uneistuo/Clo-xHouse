@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "裁间",
-  "usingComponents": {}
+  "usingComponents": {
+    "skeleton-card": "/components/skeleton-card/skeleton-card"
+  }
 }
