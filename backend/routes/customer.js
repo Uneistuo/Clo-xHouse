@@ -128,6 +128,29 @@ function displayName(surname, gender) {
   return `${surname || ''}${genderText(gender)}`;
 }
 
+/** 会员标签：字符串 <-> 数组（逗号分隔，过滤空值并去重，最多 8 个） */
+function parseTags(tags) {
+  const list = Array.isArray(tags)
+    ? tags.map((t) => String(t || '').trim())
+    : String(tags || '')
+        .split(/[,，]/)
+        .map((t) => t.trim());
+  return [...new Set(list.filter(Boolean))].slice(0, 8);
+}
+function joinTags(tags) {
+  return parseTags(tags).join(',');
+}
+
+/** 生日校验：空串或 YYYY-MM-DD（仅 1900-2100 年） */
+function normalizeBirthday(birthday) {
+  const s = String(birthday || '').trim();
+  if (!s) return '';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+  return s;
+}
+
 /** 会员 CRM 统计子查询片段（排除已取消订单） */
 const CRM_SELECT = `
   (SELECT COUNT(*) FROM orders o WHERE o.store_id = c.store_id AND o.customer_id = c.id AND o.status != 'cancelled') AS order_count,
@@ -143,6 +166,9 @@ function mapCustomer(r) {
     surname: r.surname,
     gender: r.gender,
     displayName: displayName(r.surname, r.gender),
+    tags: parseTags(r.tags),
+    birthday: r.birthday || '',
+    remark: r.remark || '',
     orderCount: r.order_count || 0,
     totalAmount: Number(r.total_amount || 0).toFixed(2),
     lastOrderAt: r.last_order_at || '',
@@ -189,6 +215,7 @@ router.post('/', async (req, res) => {
     const phone = String(body.phone || '').trim();
     const surname = String(body.surname || '').trim();
     const gender = Number(body.gender || 0);
+    const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
 
     if (!/^\d{11}$/.test(phone)) {
       return res.json({ code: 1, message: '请输入 11 位手机号' });
@@ -202,6 +229,14 @@ router.post('/', async (req, res) => {
     if (gender !== 1 && gender !== 2) {
       return res.json({ code: 1, message: '请选择性别' });
     }
+    const tags = joinTags(body.tags || '').slice(0, 255);
+    const birthday = normalizeBirthday(body.birthday);
+    if (birthday === null) {
+      return res.json({ code: 1, message: '生日格式应为 YYYY-MM-DD' });
+    }
+    const remark = String(body.remark || '')
+      .trim()
+      .slice(0, 200);
 
     const phoneLast4 = phone.slice(-4);
     const now = nowStr();
@@ -211,20 +246,29 @@ router.post('/', async (req, res) => {
     ]);
 
     if (existing) {
-      // 已存在则更新姓氏/性别（用户主动"添加"语义即为更新）
-      await db.run('UPDATE customer SET surname = ?, gender = ?, phone_last4 = ?, updated_at = ? WHERE id = ?', [
-        surname,
-        gender,
-        phoneLast4,
-        now,
-        existing.id
-      ]);
+      // 已存在则更新姓氏/性别；标签/生日/备注仅在显式传入时覆盖（避免添加会员时清空已有 CRM 信息）
+      const sets = ['surname = ?', 'gender = ?', 'phone_last4 = ?', 'updated_at = ?'];
+      const params = [surname, gender, phoneLast4, now];
+      if (has('tags')) {
+        sets.push('tags = ?');
+        params.push(tags);
+      }
+      if (has('birthday')) {
+        sets.push('birthday = ?');
+        params.push(birthday);
+      }
+      if (has('remark')) {
+        sets.push('remark = ?');
+        params.push(remark);
+      }
+      params.push(existing.id);
+      await db.run(`UPDATE customer SET ${sets.join(', ')} WHERE id = ?`, params);
       return res.json({ code: 0, data: { id: existing.id }, message: '已更新该会员信息' });
     }
 
     const r = await db.run(
-      'INSERT INTO customer (store_id, phone, phone_last4, surname, gender, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [req.admin.storeId, phone, phoneLast4, surname, gender, now, now]
+      'INSERT INTO customer (store_id, phone, phone_last4, surname, gender, tags, birthday, remark, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.admin.storeId, phone, phoneLast4, surname, gender, tags, birthday, remark, now, now]
     );
     res.json({ code: 0, data: { id: r.insertId }, message: '会员已添加' });
   } catch (e) {
@@ -277,7 +321,7 @@ router.get('/list', async (req, res) => {
     const totalRow = await db.get(`SELECT COUNT(*) AS c FROM customer c${where}`, params);
     const rows = await db.all(
       `
-      SELECT c.id, c.phone, c.surname, c.gender, c.created_at, ${CRM_SELECT}
+      SELECT c.id, c.phone, c.surname, c.gender, c.tags, c.birthday, c.remark, c.created_at, ${CRM_SELECT}
       FROM customer c${where}
       ORDER BY c.id DESC
       LIMIT ? OFFSET ?
@@ -301,7 +345,7 @@ router.get('/:id', async (req, res) => {
     if (!id) return res.json({ code: 1, message: '参数错误' });
     const row = await db.get(
       `
-      SELECT c.id, c.phone, c.surname, c.gender, c.created_at, ${CRM_SELECT}
+      SELECT c.id, c.phone, c.surname, c.gender, c.tags, c.birthday, c.remark, c.created_at, ${CRM_SELECT}
       FROM customer c WHERE c.id = ? AND c.store_id = ?
     `,
       [id, req.admin.storeId]
@@ -348,7 +392,7 @@ router.get('/:id/orders', async (req, res) => {
   }
 });
 
-// ============ 编辑会员（姓氏 / 性别） ============
+// ============ 编辑会员（姓氏 / 性别 / 标签 / 生日 / 备注） ============
 router.put('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -356,20 +400,37 @@ router.put('/:id', async (req, res) => {
     const body = req.body || {};
     const surname = String(body.surname || '').trim();
     const gender = Number(body.gender || 0);
+    const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
 
     if (!surname) return res.json({ code: 1, message: '请输入姓氏' });
     if (surname.length > 10) return res.json({ code: 1, message: '姓氏过长（最多 10 个字）' });
     if (gender !== 1 && gender !== 2) return res.json({ code: 1, message: '请选择性别' });
+    const tags = joinTags(body.tags || '').slice(0, 255);
+    const birthday = normalizeBirthday(body.birthday);
+    if (birthday === null) return res.json({ code: 1, message: '生日格式应为 YYYY-MM-DD' });
+    const remark = String(body.remark || '')
+      .trim()
+      .slice(0, 200);
 
     const row = await db.get('SELECT id FROM customer WHERE id = ? AND store_id = ?', [id, req.admin.storeId]);
     if (!row) return res.json({ code: 1, message: '会员不存在' });
 
-    await db.run('UPDATE customer SET surname = ?, gender = ?, updated_at = ? WHERE id = ?', [
-      surname,
-      gender,
-      nowStr(),
-      id
-    ]);
+    const sets = ['surname = ?', 'gender = ?', 'updated_at = ?'];
+    const params = [surname, gender, nowStr()];
+    if (has('tags')) {
+      sets.push('tags = ?');
+      params.push(tags);
+    }
+    if (has('birthday')) {
+      sets.push('birthday = ?');
+      params.push(birthday);
+    }
+    if (has('remark')) {
+      sets.push('remark = ?');
+      params.push(remark);
+    }
+    params.push(id);
+    await db.run(`UPDATE customer SET ${sets.join(', ')} WHERE id = ?`, params);
     res.json({ code: 0, message: '已保存' });
   } catch (e) {
     res.status(500).json({ code: 1, message: e.message || '服务器内部错误' });

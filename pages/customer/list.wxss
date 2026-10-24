@@ -105,6 +105,87 @@
   color: var(--text-2);
   letter-spacing: 1rpx;
 }
+
+/* 会员等级徽章（P2 CRM：按累计金额派生） */
+.level-badge {
+  flex-shrink: 0;
+  padding: 2rpx 14rpx;
+  border-radius: var(--radius-pill);
+  font-size: 20rpx;
+  line-height: 1.7;
+  font-weight: 600;
+}
+.level-normal {
+  background: rgba(151, 160, 174, 0.14);
+  color: var(--text-2);
+}
+.level-silver {
+  background: linear-gradient(135deg, #f2f4f8 0%, #dde3ee 100%);
+  color: #6b7688;
+  border: 1rpx solid rgba(151, 160, 174, 0.3);
+}
+.level-gold {
+  background: linear-gradient(135deg, #fdf0d5 0%, #f6d695 100%);
+  color: #9a6b1f;
+  border: 1rpx solid rgba(246, 214, 149, 0.6);
+}
+.level-diamond {
+  background: linear-gradient(135deg, #e6e9ff 0%, #d3d8ff 100%);
+  color: #5566cc;
+  border: 1rpx solid rgba(123, 140, 247, 0.35);
+}
+
+/* 会员标签（CRM 标签） */
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: 8rpx;
+}
+.customer-tag {
+  padding: 2rpx 14rpx;
+  border-radius: var(--radius-pill);
+  font-size: 20rpx;
+  line-height: 1.7;
+  color: var(--primary-dark);
+  background: var(--primary-tint);
+}
+
+/* 生日提醒 / 备注摘要 */
+.remark-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx 16rpx;
+  margin-top: 10rpx;
+}
+.birthday-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 2rpx 14rpx;
+  border-radius: var(--radius-pill);
+  font-size: 20rpx;
+  color: #b26a4a;
+  background: rgba(242, 165, 124, 0.16);
+}
+.birthday-chip.today {
+  color: #fff;
+  background: linear-gradient(135deg, #f2a57c 0%, #ef8f66 100%);
+  box-shadow: 0 4rpx 12rpx rgba(242, 165, 124, 0.35);
+}
+.birthday-chip .icon {
+  font-size: 22rpx;
+}
+.remark-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  color: var(--text-3);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .customer-meta {
   display: flex;
   flex-wrap: wrap;

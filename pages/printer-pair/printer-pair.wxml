@@ -25,6 +25,48 @@
     <button wx:if="{{savedDevice && connected}}" class="btn btn-danger" bindtap="onUnpair">解除配对</button>
   </view>
 
+  <!-- 离线提示：未连接时开单不会自动打印 -->
+  <view wx:if="{{!connected}}" class="offline-hint">
+    <view class="icon icon-clock"></view>
+    <text>打印机离线中，开单后小票将无法自动打印；连接成功后可随时补打。</text>
+  </view>
+
+  <!-- 打印设置（模板 / 纸张宽度，保存在本机） -->
+  <view class="settings-card">
+    <view class="settings-title">打印设置</view>
+    <view class="settings-row">
+      <view class="settings-label">小票模板</view>
+      <view class="settings-options">
+        <view wx:for="{{templates}}" wx:key="key"
+              class="setting-chip {{template === item.key ? 'active' : ''}}"
+              data-key="{{item.key}}" bindtap="onTemplateTap">{{item.name}}</view>
+      </view>
+    </view>
+    <view class="settings-row">
+      <view class="settings-label">小票纸张</view>
+      <view class="settings-options">
+        <view wx:for="{{paperWidths}}" wx:key="value"
+              class="setting-chip {{paperWidth === item.value ? 'active' : ''}}"
+              data-value="{{item.value}}" bindtap="onPaperTap">{{item.name}}</view>
+      </view>
+    </view>
+    <view class="settings-tip">设置保存在本机，开单与补打时自动套用；可先「打印测试页」验证版式。</view>
+  </view>
+
+  <!-- 最近打印记录（最多 10 条） -->
+  <view class="logs-card" wx:if="{{printLogs.length > 0}}">
+    <view class="logs-head">
+      <view class="settings-title">最近打印记录</view>
+      <view class="logs-clear" bindtap="onClearLogs">清空</view>
+    </view>
+    <view wx:for="{{printLogs}}" wx:key="index" class="log-item">
+      <view class="log-icon icon {{item.ok ? 'icon-check-circle ok' : 'icon-x-circle fail'}}"></view>
+      <view class="log-main">{{item.orderNo || '未知单号'}}</view>
+      <view class="log-meta">{{item.time}} · {{item.paperWidth}}mm</view>
+    </view>
+  </view>
+  <view wx:else class="logs-empty">暂无打印记录，开单打印后会显示在这里</view>
+
   <!-- 设备列表 -->
   <view wx:if="{{devices.length > 0}}" class="device-list">
     <view class="device-list-title">发现的设备（{{devices.length}}）</view>

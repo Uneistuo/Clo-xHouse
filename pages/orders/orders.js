@@ -40,6 +40,13 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 3 });
     }
+    // 首页"待收款订单"待办跳转：自动切到待收款 tab（一次性标记）
+    try {
+      if (wx.getStorageSync('orders_pending_filter')) {
+        wx.removeStorageSync('orders_pending_filter');
+        if (this.data.statusKey !== 'pending') this.setData({ statusKey: 'pending' });
+      }
+    } catch (err) {}
     this.loadOrders(true);
   },
 

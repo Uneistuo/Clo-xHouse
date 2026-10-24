@@ -337,9 +337,15 @@
   box-shadow: var(--shadow-soft-1);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  transition: transform var(--duration-fast) var(--ease-spring);
+  transform-origin: center;
 }
 .drag-handle-bottom:active {
   background: rgba(255, 255, 255, 0.78);
+}
+/* 拖拽中把手轻微缩放，给出「已抓取」的触感反馈 */
+.store-card.is-dragging .drag-handle-bottom {
+  transform: scale(0.95);
 }
 .drag-handle-bar {
   width: 40rpx;
@@ -448,6 +454,7 @@
   .expand-area,
   .platform-card,
   .popup-panel,
+  .drag-handle-bottom,
   .drag-handle-hint {
     transition: none !important;
     animation: none !important;

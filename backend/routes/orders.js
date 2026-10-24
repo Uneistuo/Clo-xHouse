@@ -120,6 +120,7 @@ function genOrderNo() {
  */
 async function insertOrderWithUniqueNo(tx, fields) {
   const { total, payMethod, status, customerPhone, customerId, customerName, remark, storeId, now } = fields;
+  const paidAt = status === 'paid' ? now : '';
   for (let attempt = 0; attempt < 5; attempt++) {
     const orderNo = genOrderNo();
     try {
@@ -127,10 +128,10 @@ async function insertOrderWithUniqueNo(tx, fields) {
       if (exists) continue; // 已存在，换号重试
       const info = await tx.run(
         `
-        INSERT INTO orders (order_no, total_amount, pay_method, status, customer_phone, customer_id, customer_name, remark, store_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO orders (order_no, total_amount, pay_method, status, customer_phone, customer_id, customer_name, remark, store_id, created_at, updated_at, paid_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
-        [orderNo, total, payMethod, status, customerPhone, customerId, customerName, remark, storeId, now, now]
+        [orderNo, total, payMethod, status, customerPhone, customerId, customerName, remark, storeId, now, now, paidAt]
       );
       return { orderId: info.insertId, orderNo };
     } catch (e) {
@@ -359,7 +360,23 @@ router.put('/:id/status', async (req, res) => {
     if (FORWARD[order.status] !== target) {
       return res.json({ code: 1, message: `不允许将【${STATUS[order.status]}】订单改为【${STATUS[target]}】` });
     }
-    await db.run('UPDATE orders SET status = ?, updated_at = ? WHERE id = ?', [target, nowStr(), order.id]);
+    const now = nowStr();
+    // 记录状态时间戳，供订单详情"订单动态"时间线展示
+    if (target === 'paid') {
+      await db.run('UPDATE orders SET status = ?, paid_at = ?, updated_at = ? WHERE id = ?', [
+        target,
+        now,
+        now,
+        order.id
+      ]);
+    } else {
+      await db.run('UPDATE orders SET status = ?, done_at = ?, updated_at = ? WHERE id = ?', [
+        target,
+        now,
+        now,
+        order.id
+      ]);
+    }
     res.json({ code: 0, message: `订单已${STATUS[target]}` });
   } catch (e) {
     res.status(500).json({ code: 1, message: e.message || '服务器内部错误' });
@@ -381,7 +398,12 @@ router.post('/:id/cancel', async (req, res) => {
       await db.transaction(async (tx) => {
         const items = await tx.all('SELECT * FROM order_item WHERE order_id = ?', [order.id]);
         await restoreStock(tx, items);
-        await tx.run("UPDATE orders SET status = 'cancelled', updated_at = ? WHERE id = ?", [nowStr(), order.id]);
+        const now = nowStr();
+        await tx.run("UPDATE orders SET status = 'cancelled', cancelled_at = ?, updated_at = ? WHERE id = ?", [
+          now,
+          now,
+          order.id
+        ]);
       });
       res.json({ code: 0, message: '订单已取消，商品库存已归还' });
     } catch (e) {
@@ -407,7 +429,12 @@ router.post('/:id/refund', async (req, res) => {
       await db.transaction(async (tx) => {
         const items = await tx.all('SELECT * FROM order_item WHERE order_id = ?', [order.id]);
         await restoreStock(tx, items);
-        await tx.run("UPDATE orders SET status = 'refunded', updated_at = ? WHERE id = ?", [nowStr(), order.id]);
+        const now = nowStr();
+        await tx.run("UPDATE orders SET status = 'refunded', refunded_at = ?, updated_at = ? WHERE id = ?", [
+          now,
+          now,
+          order.id
+        ]);
       });
       res.json({ code: 0, message: '退款完成，商品库存已归还' });
     } catch (e) {

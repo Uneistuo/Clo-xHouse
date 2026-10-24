@@ -429,6 +429,38 @@
   background: var(--primary-tint);
   font-weight: bold;
 }
+/* 库存 < LOW_STOCK：虚线边框 + 橙色提示（P1 规格选择器增强） */
+.spec-low {
+  border-style: dashed;
+  border-color: var(--warning);
+  color: var(--warning);
+}
+.spec-low.spec-active {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+.spec-recent {
+  margin-left: 8rpx;
+  font-size: 20rpx;
+  color: var(--primary-dark);
+  opacity: 0.85;
+}
+.spec-low .spec-recent {
+  color: var(--warning);
+}
+.spec-label-low {
+  color: var(--warning);
+}
+.spec-low-tip {
+  margin-left: 12rpx;
+  font-size: 22rpx;
+  color: var(--warning);
+}
+.spec-tip {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
 
 .success-modal {
   text-align: center;

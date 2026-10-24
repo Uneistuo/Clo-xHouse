@@ -12,13 +12,52 @@
       <view class="profile-top">
         <view class="profile-avatar">{{customer.displayName[0]}}</view>
         <view class="profile-info">
-          <view class="profile-name">{{customer.displayName}}</view>
+          <view class="profile-name-row">
+            <view class="profile-name">{{customer.displayName}}</view>
+            <view class="level-badge {{customer.level.cls}}">{{customer.level.name}}</view>
+          </view>
           <view class="profile-phone">{{customer.phone}}</view>
         </view>
       </view>
       <view class="profile-actions">
         <view class="action-btn" bindtap="openEdit">编辑</view>
         <view class="action-btn danger" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+
+    <!-- 会员档案（CRM：标签 / 生日 / 备注） -->
+    <view class="card crm-card">
+      <view class="crm-head">
+        <view class="crm-title">会员档案</view>
+        <view class="crm-edit" bindtap="openEdit">补充资料</view>
+      </view>
+      <view class="crm-row">
+        <view class="crm-label">标签</view>
+        <view class="crm-value">
+          <view class="tag-row" wx:if="{{customer.tags.length}}">
+            <text class="customer-tag" wx:for="{{customer.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+          <text wx:else class="crm-empty">未设置</text>
+        </view>
+      </view>
+      <view class="crm-row">
+        <view class="crm-label">生日</view>
+        <view class="crm-value">
+          <block wx:if="{{customer.birthday}}">
+            <text class="crm-text">{{customer.birthdayText}}</text>
+            <text class="birthday-chip {{customer.daysLeft === 0 ? 'today' : ''}}">
+              <text class="icon icon-cake"></text>
+              {{customer.daysLeft === 0 ? '今天生日' : customer.daysLeft + ' 天后生日'}}
+            </text>
+          </block>
+          <text wx:else class="crm-empty">未设置（用于生日提醒）</text>
+        </view>
+      </view>
+      <view class="crm-row">
+        <view class="crm-label">备注</view>
+        <view class="crm-value">
+          <text class="{{customer.remark ? 'crm-text' : 'crm-empty'}}">{{customer.remark || '暂无备注'}}</text>
+        </view>
       </view>
     </view>
 
@@ -81,6 +120,42 @@
         <view class="gender-option {{editGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onEditGenderTap">先生</view>
         <view class="gender-option {{editGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onEditGenderTap">女士</view>
       </view>
+    </view>
+
+    <!-- CRM：标签（快捷点选 + 手输，用顿号/逗号分隔） -->
+    <view class="form-item">
+      <view class="form-label">标签（选填，最多 8 个）</view>
+      <view class="chip-options">
+        <view wx:for="{{tagPresets}}" wx:key="*this"
+              class="chip-option {{editTags.indexOf(item) >= 0 ? 'active' : ''}}"
+              data-tag="{{item}}" bindtap="onEditTagPreset">+ {{item}}</view>
+      </view>
+      <input class="form-input" placeholder="如：常客、高价值" value="{{editTags}}"
+             bindinput="onEditTagsInput" placeholder-class="ph" maxlength="120" />
+    </view>
+
+    <!-- CRM：生日（用于生日提醒） -->
+    <view class="form-item">
+      <view class="form-label">生日（选填）</view>
+      <view class="birthday-row">
+        <picker class="birthday-picker" mode="date" value="{{editBirthday}}" start="1930-01-01" end="2020-12-31"
+                bindchange="onEditBirthdayChange">
+          <view class="picker-value {{editBirthday ? '' : 'ph'}}">{{editBirthday || '选择生日'}}</view>
+        </picker>
+        <view wx:if="{{editBirthday}}" class="birthday-clear" bindtap="clearEditBirthday">清除</view>
+      </view>
+    </view>
+
+    <!-- CRM：备注（快捷短语 + 手输） -->
+    <view class="form-item">
+      <view class="form-label">备注（选填，最多 200 字）</view>
+      <view class="chip-options">
+        <view wx:for="{{remarkPresets}}" wx:key="*this"
+              class="chip-option {{editRemark.indexOf(item) >= 0 ? 'active' : ''}}"
+              data-text="{{item}}" bindtap="onRemarkPreset">+ {{item}}</view>
+      </view>
+      <textarea class="form-textarea" placeholder="记录偏好、到店习惯等" value="{{editRemark}}"
+                bindinput="onEditRemarkInput" placeholder-class="ph" maxlength="200" auto-height />
     </view>
 
     <view class="modal-btns">

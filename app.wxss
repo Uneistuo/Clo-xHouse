@@ -4,6 +4,7 @@
    所有颜色/圆角/阴影统一走变量（styles/tokens.wxss）
    ============================================================ */
 @import 'styles/icons.wxss';
+@import 'styles/icons-extra.wxss';
 @import 'styles/tokens.wxss';
 
 /* ========== 页面底色 + 固定光晕（三层背景模型） ========== */
@@ -14,16 +15,17 @@ page {
   background-attachment: fixed;
   color: var(--text-1);
 }
-/* 光晕：radial-gradient 直接绘制，不用 filter: blur()（省 GPU） */
-page::before,
-page::after {
+/* 光晕：radial-gradient 直接绘制，不用 filter: blur()（省 GPU）
+   按需渲染：仅首页等需要氛围的页面在根节点加 .glow-page，其余页面不绘制光晕（P3 性能） */
+.glow-page::before,
+.glow-page::after {
   content: '';
   position: fixed;
   z-index: -1;
   pointer-events: none;
   border-radius: 50%;
 }
-page::before {
+.glow-page::before {
   width: 640rpx;
   height: 640rpx;
   top: -220rpx;
@@ -35,7 +37,7 @@ page::before {
     transparent 70%
   );
 }
-page::after {
+.glow-page::after {
   width: 560rpx;
   height: 560rpx;
   right: -200rpx;
@@ -95,6 +97,8 @@ page::after {
 
 /* ========== 通用页面容器 ========== */
 .page {
+  position: relative;
+  z-index: 0;
   min-height: 100vh;
   background: transparent;
   padding: 24rpx;

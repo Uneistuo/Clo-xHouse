@@ -2,9 +2,23 @@
 <view class="page" wx:if="{{order}}">
   <!-- 订单状态 -->
   <view class="card status-card">
-    <view class="tag status-{{order.status}} status-tag">{{statusText}}</view>
+    <view class="tag status-{{order.status}} status-tag {{statusPulse ? 'pulse' : ''}}">{{statusText}}</view>
     <view class="status-amount">订单金额 <text class="price">￥{{amountText}}</text></view>
     <view class="status-sub">收款方式：{{payText}}</view>
+  </view>
+
+  <!-- 订单动态时间线（参考 ORDERRY：创建 → 收款 → 完成 → 取消/售后） -->
+  <view class="card timeline-card">
+    <view class="section-title">订单动态</view>
+    <view class="timeline">
+      <view wx:for="{{timeline}}" wx:key="key" class="timeline-item {{item.done ? 'is-done' : 'is-pending'}}">
+        <view class="timeline-dot {{item.done ? 'done' : 'pending'}}"></view>
+        <view class="timeline-content">
+          <view class="timeline-label">{{item.label}}</view>
+          <view class="timeline-time">{{item.done ? item.time : '待更新'}}</view>
+        </view>
+      </view>
+    </view>
   </view>
 
   <!-- 商品明细 -->

@@ -2,7 +2,7 @@
 const { request } = require('../../utils/api');
 const { fmtMoney, STATUS_TEXT, PAY_METHOD_TEXT } = require('../../utils/util');
 const { printer } = require('../../utils/printer');
-const { buildReceipt } = require('../../utils/receipt');
+const { buildReceiptWithSettings, recordPrint } = require('../../utils/print-service');
 const { confirm, alert, toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
 
 Page({
@@ -13,6 +13,8 @@ Page({
     amountText: '0.00',
     statusText: '',
     payText: '',
+    timeline: [], // 订单动态时间线 [{ key, label, time, done }]
+    statusPulse: false, // 状态变化后短暂脉冲高亮
     loading: true,
     actionLoading: false // 订单状态操作进行中（禁用按钮 + 加载态）
   },
@@ -36,17 +38,55 @@ Page({
     this.setData({ loading: true });
     try {
       const o = await request({ url: `/api/orders/${this.data.id}` });
+      // 状态变化时给状态标签一个短暂脉冲（首次进入不触发）
+      const statusChanged = !!this._lastStatus && this._lastStatus !== o.status;
+      this._lastStatus = o.status;
       this.setData({
         order: o,
         items: (o.items || []).map((it) => ({ ...it, amountText: fmtMoney(it.price * it.quantity) })),
         amountText: fmtMoney(o.total_amount),
         statusText: STATUS_TEXT[o.status] || o.status,
         payText: PAY_METHOD_TEXT[o.pay_method] || o.pay_method,
+        timeline: this._buildTimeline(o),
+        statusPulse: statusChanged,
         loading: false
       });
+      if (statusChanged) {
+        clearTimeout(this._pulseTimer);
+        this._pulseTimer = setTimeout(() => this.setData({ statusPulse: false }), 700);
+      }
     } catch (e) {
       this.setData({ loading: false });
     }
+  },
+
+  /** 组装订单动态时间线：创建 → 收款 → 完成（取消/售后作为终止节点追加） */
+  _buildTimeline(o) {
+    const paidDone = !!o.paid_at || ['paid', 'done', 'refunded'].includes(o.status);
+    const doneDone = !!o.done_at || o.status === 'done';
+    const timeOrDash = (t) => t || '—';
+    const timeline = [
+      { key: 'created', label: '订单创建', time: timeOrDash(o.created_at), done: !!o.created_at },
+      { key: 'paid', label: '已收款', time: paidDone ? timeOrDash(o.paid_at || o.updated_at) : '—', done: paidDone },
+      { key: 'done', label: '交易完成', time: doneDone ? timeOrDash(o.done_at || o.updated_at) : '—', done: doneDone }
+    ];
+    if (o.status === 'cancelled') {
+      timeline.push({
+        key: 'cancelled',
+        label: '订单已取消',
+        time: timeOrDash(o.cancelled_at || o.updated_at),
+        done: true
+      });
+    }
+    if (o.status === 'refunded') {
+      timeline.push({
+        key: 'refunded',
+        label: '售后完成',
+        time: timeOrDash(o.refunded_at || o.updated_at),
+        done: true
+      });
+    }
+    return timeline;
   },
 
   /** 修改订单状态（正向流转：待收款→已收款→已完成） */
@@ -155,7 +195,7 @@ Page({
         if (!ok) throw new Error('连接打印机失败');
       }
 
-      const bytes = buildReceipt({
+      const bytes = buildReceiptWithSettings({
         store: { name: storeName },
         admin: { username: admin.username || '' },
         order: {
@@ -177,9 +217,11 @@ Page({
       });
 
       await printer.writeBytes(bytes);
+      recordPrint({ orderNo: order.order_no, ok: true });
       hideLoading();
       toast('小票已补打', 'success');
     } catch (e) {
+      recordPrint({ orderNo: order.order_no, ok: false });
       hideLoading();
       alert({ title: '补打失败', content: e.message || '请检查打印机连接' });
     }

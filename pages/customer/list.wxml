@@ -24,12 +24,25 @@
       <view class="customer-info">
         <view class="customer-name-row">
           <text class="customer-name">{{item.displayName}}</text>
+          <text class="level-badge {{item.level.cls}}">{{item.level.name}}</text>
           <text class="customer-phone">{{item.phone}}</text>
+        </view>
+        <!-- 标签（CRM） -->
+        <view class="tag-row" wx:if="{{item.tags.length}}">
+          <text class="customer-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
         </view>
         <view class="customer-meta">
           <text class="meta-item">消费 {{item.orderCount}} 次</text>
           <text class="meta-item">累计 ￥{{item.totalAmount}}</text>
           <text class="meta-item" wx:if="{{item.lastOrderAt}}">最近 {{item.lastOrderAt}}</text>
+        </view>
+        <!-- 生日提醒 / 备注摘要 -->
+        <view class="remark-line" wx:if="{{item.birthdaySoon || item.remark}}">
+          <text class="birthday-chip {{item.birthdayToday ? 'today' : ''}}" wx:if="{{item.birthdaySoon}}">
+            <text class="icon icon-cake"></text>
+            {{item.birthdayToday ? '今天生日' : item.daysLeft + ' 天后生日'}} · {{item.birthdayText}}
+          </text>
+          <text class="remark-text" wx:if="{{item.remark}}">{{item.remark}}</text>
         </view>
       </view>
     </view>

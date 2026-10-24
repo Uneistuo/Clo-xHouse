@@ -4,8 +4,13 @@
 const { request, BASE_URL } = require('../../utils/api');
 const { fmtMoney, resolveImg } = require('../../utils/util');
 const { printer } = require('../../utils/printer');
-const { buildReceipt } = require('../../utils/receipt');
+const { buildReceiptWithSettings, recordPrint } = require('../../utils/print-service');
 const { confirm, toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
+
+/** 低库存阈值（与统计接口 LOW_STOCK 一致） */
+const LOW_STOCK = 5;
+/** 常用规格记忆存储键（按商品 id 存最近 3 个组合） */
+const RECENT_SPECS_KEY = 'billing_recent_specs';
 
 Page({
   /** 空处理：配合 wxml 中的 catchtap，阻止弹窗内点击事件冒泡到遮罩 */
@@ -131,7 +136,7 @@ Page({
       }
     } catch (e) {}
 
-    const receiptBytes = buildReceipt({
+    const receiptBytes = buildReceiptWithSettings({
       store: { name: storeName },
       admin: { username: salesName },
       order: { orderNo, totalAmount, customerPhone, remark },
@@ -141,6 +146,7 @@ Page({
     if (!printer.connected) {
       const saved = printer.loadSavedDevice();
       if (!saved) {
+        recordPrint({ orderNo, ok: false });
         const go = await confirm({
           title: '未配对打印机',
           content: '订单已生成，但无法打印小票。是否前往配对？',
@@ -159,6 +165,7 @@ Page({
 
     try {
       await printer.writeBytes(receiptBytes);
+      recordPrint({ orderNo, ok: true });
       toast('小票已打印', 'success');
     } catch (e) {
       console.error('[print]', e);
@@ -173,15 +180,20 @@ Page({
       confirmText: '重试',
       cancelText: '跳过'
     });
-    if (!retry) return;
+    if (!retry) {
+      recordPrint({ orderNo, ok: false });
+      return;
+    }
     try {
       const saved = printer.loadSavedDevice();
       if (saved && !printer.connected) {
         await printer.quickConnect(saved.deviceId);
       }
       await printer.writeBytes(receiptBytes);
+      recordPrint({ orderNo, ok: true });
       toast('小票已打印', 'success');
     } catch (e2) {
+      recordPrint({ orderNo, ok: false });
       toast('打印失败，已跳过', 'none');
     }
   },
@@ -263,6 +275,68 @@ Page({
     return sku ? sku.stock : 0;
   },
 
+  /** 读取某商品的常用规格记忆（最近选择的组合，最多 3 个） */
+  _loadRecentSpecs(goodsId) {
+    try {
+      const all = wx.getStorageSync(RECENT_SPECS_KEY) || {};
+      return Array.isArray(all[goodsId]) ? all[goodsId] : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  /** 记录本次选择的规格组合，下次开单置顶显示 */
+  _saveRecentSpec(goodsId, color, size) {
+    try {
+      const all = wx.getStorageSync(RECENT_SPECS_KEY) || {};
+      const key = String(goodsId);
+      const list = Array.isArray(all[key]) ? all[key] : [];
+      const combo = { color: color || '', size: size || '' };
+      all[key] = [combo, ...list.filter((r) => !(r.color === combo.color && r.size === combo.size))].slice(0, 3);
+      wx.setStorageSync(RECENT_SPECS_KEY, all);
+    } catch (e) {}
+  },
+
+  /** 某规格选项是否库存不足（< LOW_STOCK）：按另一维当前选中值过滤 */
+  _isLowOption(goods, kind, value, otherValue) {
+    const skus = goods.skus || [];
+    if (!skus.length) return (goods.stock || 0) < LOW_STOCK;
+    let total = 0;
+    for (const s of skus) {
+      const color = s.color || '';
+      const size = s.size || '';
+      if (kind === 'color') {
+        if (color !== value) continue;
+        if (otherValue && size !== otherValue) continue;
+      } else {
+        if (size !== value) continue;
+        if (otherValue && color !== otherValue) continue;
+      }
+      total += s.stock || 0;
+    }
+    return total < LOW_STOCK;
+  },
+
+  /** 构建规格选项（常用规格置顶 + 低库存标记） */
+  _buildSelOptions(goods, selColor, selSize, recent) {
+    const recentColors = new Set(recent.map((r) => r.color).filter(Boolean));
+    const recentSizes = new Set(recent.map((r) => r.size).filter(Boolean));
+    const sortByRecent = (arr, recentSet) =>
+      arr.slice().sort((a, b) => (recentSet.has(b) ? 1 : 0) - (recentSet.has(a) ? 1 : 0));
+    return {
+      selColors: sortByRecent(goods.colorArr || [], recentColors).map((v) => ({
+        value: v,
+        low: this._isLowOption(goods, 'color', v, selSize),
+        recent: recentColors.has(v)
+      })),
+      selSizes: sortByRecent(goods.sizeArr || [], recentSizes).map((v) => ({
+        value: v,
+        low: this._isLowOption(goods, 'size', v, selColor),
+        recent: recentSizes.has(v)
+      }))
+    };
+  },
+
   openSelect(e) {
     const goods = this.data.goodsList.find((g) => g.id === e.currentTarget.dataset.id);
     if (!goods) return;
@@ -270,24 +344,44 @@ Page({
       toast('该商品库存不足', 'none');
       return;
     }
+    // 常用规格记忆：命中且仍有库存时预选
+    const recent = this._loadRecentSpecs(goods.id);
+    let selColor = '';
+    let selSize = '';
+    const last = recent[0];
+    if (last && this.getSkuStock(goods, last.color, last.size) > 0) {
+      if (!goods.colorArr.length || goods.colorArr.includes(last.color)) selColor = last.color;
+      if (!goods.sizeArr.length || goods.sizeArr.includes(last.size)) selSize = last.size;
+    }
+    const opts = this._buildSelOptions(goods, selColor, selSize, recent);
+    const partial = (opts.selColors.length && !selColor) || (opts.selSizes.length && !selSize);
     this.setData({
       selectVisible: true,
       selGoods: goods,
-      selColors: goods.colorArr.length ? goods.colorArr : [],
-      selSizes: goods.sizeArr.length ? goods.sizeArr : [],
-      selColor: '',
-      selSize: '',
+      selColor,
+      selSize,
       selQty: 1,
-      selSkuStock: goods.stock
+      selColors: opts.selColors,
+      selSizes: opts.selSizes,
+      selSkuStock: partial ? goods.stock : this.getSkuStock(goods, selColor, selSize)
     });
   },
 
   pickColor(e) {
     this.setData({ selColor: e.currentTarget.dataset.v });
-    this.syncSelSkuStock();
+    this._refreshSelOptions();
   },
   pickSize(e) {
     this.setData({ selSize: e.currentTarget.dataset.v });
+    this._refreshSelOptions();
+  },
+
+  /** 选择变化后刷新低库存标记 + 库存数 */
+  _refreshSelOptions() {
+    const { selGoods, selColor, selSize } = this.data;
+    if (!selGoods) return;
+    const recent = this._loadRecentSpecs(selGoods.id);
+    this.setData(this._buildSelOptions(selGoods, selColor, selSize, recent));
     this.syncSelSkuStock();
   },
 
@@ -314,6 +408,22 @@ Page({
       return;
     }
     this.setData({ selQty: selQty + 1 });
+  },
+
+  /** 长按 + 快速加 5（库存不足时按剩余库存截断） */
+  selQtyLongPress() {
+    const { selQty, selSkuStock } = this.data;
+    if (selSkuStock <= 0) {
+      toast('该规格库存不足', 'none');
+      return;
+    }
+    const next = Math.min(selQty + 5, selSkuStock);
+    if (next === selQty) {
+      toast('已达该规格库存上限', 'none');
+      return;
+    }
+    this.setData({ selQty: next });
+    toast(`已加至 ${next} 件`, 'none');
   },
 
   confirmAdd() {
@@ -357,6 +467,7 @@ Page({
         subtotal: fmtMoney(selGoods.price * selQty)
       });
     }
+    this._saveRecentSpec(selGoods.id, selColor, selSize);
     this.setData({ selectVisible: false, cart, addingItem: false });
     this.calcTotal();
     this.persistCart();

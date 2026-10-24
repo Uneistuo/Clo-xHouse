@@ -114,25 +114,35 @@
       <view wx:if="{{selColors.length}}">
         <view class="spec-label">颜色</view>
         <view class="spec-row">
-          <view wx:for="{{selColors}}" wx:key="*this"
-                class="spec-item {{selColor === item ? 'spec-active' : ''}}"
-                data-v="{{item}}" bindtap="pickColor">{{item}}</view>
+          <view wx:for="{{selColors}}" wx:key="value"
+                class="spec-item {{selColor === item.value ? 'spec-active' : ''}} {{item.low ? 'spec-low' : ''}}"
+                data-v="{{item.value}}" bindtap="pickColor">
+            <text>{{item.value}}</text>
+            <text wx:if="{{item.recent}}" class="spec-recent">常选</text>
+          </view>
         </view>
       </view>
       <view wx:if="{{selSizes.length}}">
         <view class="spec-label">尺码</view>
         <view class="spec-row">
-          <view wx:for="{{selSizes}}" wx:key="*this"
-                class="spec-item {{selSize === item ? 'spec-active' : ''}}"
-                data-v="{{item}}" bindtap="pickSize">{{item}}</view>
+          <view wx:for="{{selSizes}}" wx:key="value"
+                class="spec-item {{selSize === item.value ? 'spec-active' : ''}} {{item.low ? 'spec-low' : ''}}"
+                data-v="{{item.value}}" bindtap="pickSize">
+            <text>{{item.value}}</text>
+            <text wx:if="{{item.recent}}" class="spec-recent">常选</text>
+          </view>
         </view>
       </view>
-      <view class="spec-label">数量（该规格库存 {{selSkuStock}}）</view>
+      <view class="spec-label {{selSkuStock < 5 ? 'spec-label-low' : ''}}">
+        数量（该规格库存 {{selSkuStock}}）
+        <text wx:if="{{selSkuStock < 5}}" class="spec-low-tip">库存紧张</text>
+      </view>
       <view class="stepper big-stepper">
         <view class="step-btn" bindtap="selQtyMinus">−</view>
         <view class="step-num">{{selQty}}</view>
-        <view class="step-btn" bindtap="selQtyPlus">＋</view>
+        <view class="step-btn" bindtap="selQtyPlus" bindlongpress="selQtyLongPress">＋</view>
       </view>
+      <view class="spec-tip">长按 + 可一次加 5 件</view>
       <view class="modal-btns">
         <button class="btn-ghost modal-btn" bindtap="closeSelect">取消</button>
         <button class="btn-primary modal-btn primary {{addingItem ? 'btn-loading' : ''}}" bindtap="confirmAdd">加入订单</button>

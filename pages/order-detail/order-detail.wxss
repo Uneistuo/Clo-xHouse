@@ -126,3 +126,80 @@
   font-size: 26rpx;
   padding: 20rpx 0;
 }
+
+/* ===== 订单动态时间线 ===== */
+.timeline-card .section-title {
+  margin-bottom: 8rpx;
+}
+.timeline {
+  padding: 8rpx 0;
+}
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 16rpx 0;
+}
+.timeline-dot {
+  position: relative;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: var(--text-3);
+  margin-right: 20rpx;
+  margin-top: 6rpx;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.timeline-dot.done {
+  background: var(--success);
+}
+.timeline-item:not(:last-child) .timeline-dot::after {
+  content: '';
+  position: absolute;
+  left: 7rpx;
+  top: 18rpx;
+  width: 2rpx;
+  height: calc(100% + 16rpx);
+  background: var(--hairline);
+}
+.timeline-content {
+  flex: 1;
+}
+.timeline-label {
+  font-size: 26rpx;
+  color: var(--text-1);
+}
+.timeline-item.is-pending .timeline-label {
+  color: var(--text-3);
+}
+.timeline-time {
+  font-size: 22rpx;
+  color: var(--text-3);
+  margin-top: 4rpx;
+}
+.timeline-item.is-done .timeline-time {
+  color: var(--text-2);
+}
+
+/* 状态变化脉冲（克制：仅一次轻微缩放） */
+@keyframes status-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.status-tag.pulse {
+  animation: status-pulse 600ms var(--ease-spring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-tag.pulse {
+    animation: none;
+  }
+}

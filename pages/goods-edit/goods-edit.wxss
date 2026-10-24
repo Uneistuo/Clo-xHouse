@@ -44,6 +44,37 @@
   background: var(--bg-subtle);
 }
 
+/* 封面标记 / 设封面（参考 NideShop 图片上传体验） */
+.img-cover {
+  position: absolute;
+  left: 8rpx;
+  bottom: 8rpx;
+  padding: 2rpx 12rpx;
+  border-radius: var(--radius-pill);
+  background: rgba(29, 34, 43, 0.62);
+  color: #fff;
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+.img-setcover {
+  position: absolute;
+  left: 8rpx;
+  bottom: 8rpx;
+  padding: 2rpx 12rpx;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--primary-dark);
+  font-size: 20rpx;
+  line-height: 1.6;
+  box-shadow: var(--shadow-soft-1);
+}
+.img-hint {
+  width: 100%;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
 .cat-input-row {
   display: flex;
   align-items: center;

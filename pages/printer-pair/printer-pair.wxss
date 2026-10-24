@@ -134,6 +134,145 @@
   border: none;
 }
 
+/* 离线提示 */
+.offline-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 24rpx;
+  border-radius: var(--radius-card);
+  background: rgba(214, 154, 60, 0.1);
+  border: 1rpx dashed rgba(214, 154, 60, 0.45);
+  font-size: 24rpx;
+  color: var(--warning);
+  line-height: 1.6;
+}
+.offline-hint .icon {
+  font-size: 28rpx;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+/* 打印设置卡（模板 / 纸张宽度） */
+.settings-card {
+  background: var(--bg-card-strong);
+  border-radius: var(--radius-card);
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-soft-1);
+}
+.settings-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 16rpx;
+}
+.settings-row {
+  margin-bottom: 20rpx;
+}
+.settings-label {
+  font-size: 24rpx;
+  color: var(--text-2);
+  margin-bottom: 12rpx;
+}
+.settings-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.setting-chip {
+  padding: 12rpx 28rpx;
+  border-radius: var(--radius-pill);
+  font-size: 26rpx;
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1rpx solid var(--glass-border);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.setting-chip.active {
+  color: var(--primary-dark);
+  background: var(--primary-tint);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+.setting-chip:active {
+  transform: scale(var(--scale-press));
+}
+.settings-tip {
+  font-size: 22rpx;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+
+/* 最近打印记录 */
+.logs-card {
+  background: var(--bg-card-strong);
+  border-radius: var(--radius-card);
+  padding: 20rpx 28rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--shadow-soft-1);
+}
+.logs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+.logs-head .settings-title {
+  margin-bottom: 0;
+}
+.logs-clear {
+  font-size: 24rpx;
+  color: var(--text-3);
+  padding: 6rpx 12rpx;
+}
+.logs-clear:active {
+  color: var(--danger);
+}
+.log-item {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--hairline);
+}
+.log-item:last-child {
+  border-bottom: none;
+}
+.log-icon {
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+.log-icon.ok {
+  color: var(--success);
+}
+.log-icon.fail {
+  color: var(--danger);
+}
+.log-main {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  color: var(--text-1);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.log-meta {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+.logs-empty {
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--text-3);
+  padding: 8rpx 0 28rpx;
+}
+
 /* 设备列表（Dense 密集层） */
 .device-list {
   background: var(--bg-card-strong);
@@ -248,6 +387,9 @@
   .actions .btn-danger {
     background: #fdeeed;
   }
+  .setting-chip {
+    background: #f4f6fa;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .actions .btn {
@@ -257,6 +399,12 @@
     animation: none !important;
   }
   .actions .btn:active {
+    transform: none;
+  }
+  .setting-chip {
+    transition: none !important;
+  }
+  .setting-chip:active {
     transform: none;
   }
 }

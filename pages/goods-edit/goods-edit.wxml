@@ -6,11 +6,14 @@
       <view class="form-label">商品图片</view>
       <view class="img-list">
         <view wx:for="{{imageUrls}}" wx:key="index" class="img-item">
-          <image src="{{item}}" mode="aspectFill" class="img-thumb" />
-          <view class="img-del" data-index="{{index}}" bindtap="removeImage">×</view>
+          <image src="{{item}}" mode="aspectFill" class="img-thumb" data-index="{{index}}" bindtap="previewImage" />
+          <view wx:if="{{index === 0}}" class="img-cover">封面</view>
+          <view wx:else class="img-setcover" data-index="{{index}}" catchtap="setCover">设封面</view>
+          <view class="img-del" data-index="{{index}}" catchtap="removeImage">×</view>
         </view>
         <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage"><view class="icon icon-plus"></view></view>
       </view>
+      <view class="img-hint">支持裁剪/旋转，第 1 张为封面；点击图片可预览</view>
     </view>
 
     <view class="form-item">

@@ -1,6 +1,14 @@
-// 蓝牙打印机配对页
+// 蓝牙打印机配对页（含打印设置：模板 / 纸张宽度 / 最近打印记录）
 const { printer } = require('../../utils/printer');
-const { buildTestReceipt } = require('../../utils/receipt');
+const {
+  loadSettings,
+  saveSettings,
+  buildTestReceiptWithSettings,
+  loadPrintLogs,
+  clearPrintLogs,
+  TEMPLATES,
+  PAPER_WIDTHS
+} = require('../../utils/print-service');
 const { confirm, alert, toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
 
 Page({
@@ -12,7 +20,14 @@ Page({
     stateIconClass: 'icon-printer',
     stateTitle: '尚未连接打印机',
     stateSub: '点击下方按钮开始扫描',
-    stateClass: 'status-disconnected'
+    stateClass: 'status-disconnected',
+
+    // 打印设置（模板 / 纸张宽度）
+    templates: TEMPLATES,
+    paperWidths: PAPER_WIDTHS,
+    template: 'classic',
+    paperWidth: 58,
+    printLogs: [] // 最近 10 条打印记录
   },
 
   onLoad() {
@@ -21,6 +36,17 @@ Page({
       this.setData({ savedDevice: saved });
       this._setState('saved');
     }
+    const settings = loadSettings();
+    this.setData({
+      template: settings.template,
+      paperWidth: settings.paperWidth,
+      printLogs: loadPrintLogs()
+    });
+  },
+
+  onShow() {
+    // 从开单/订单详情返回时刷新打印记录
+    this.setData({ printLogs: loadPrintLogs() });
   },
 
   onUnload() {
@@ -155,7 +181,7 @@ Page({
     }
     showLoading('打印中...');
     try {
-      const bytes = buildTestReceipt();
+      const bytes = buildTestReceiptWithSettings();
       await printer.writeBytes(bytes);
       hideLoading();
       toast('打印成功', 'success');
@@ -163,6 +189,37 @@ Page({
       hideLoading();
       alert({ title: '打印失败', content: e.message || '请检查打印机连接' });
     }
+  },
+
+  // ============ 打印设置（模板 / 纸张宽度） ============
+  onTemplateTap(e) {
+    const key = e.currentTarget.dataset.key;
+    if (key === this.data.template) return;
+    const next = saveSettings({ template: key });
+    this.setData({ template: next.template });
+    toast('模板已切换', 'success');
+  },
+
+  onPaperTap(e) {
+    const value = Number(e.currentTarget.dataset.value);
+    if (value === this.data.paperWidth) return;
+    const next = saveSettings({ paperWidth: value });
+    this.setData({ paperWidth: next.paperWidth });
+    toast('纸张已切换', 'success');
+  },
+
+  /** 清空最近打印记录 */
+  async onClearLogs() {
+    if (!this.data.printLogs.length) return;
+    const ok = await confirm({
+      title: '清空打印记录',
+      content: '确定清空本机保存的最近打印记录吗？',
+      confirmText: '清空'
+    });
+    if (!ok) return;
+    clearPrintLogs();
+    this.setData({ printLogs: [] });
+    toast('已清空', 'success');
   },
 
   async onUnpair() {

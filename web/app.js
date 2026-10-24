@@ -12,8 +12,12 @@ const BASE_URL = 'https://express-3how-324239-10-1501349049.sh.run.tcloudbase.co
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const fixImg = (u) => (!u ? '' : (/^https?:\/\//.test(u) ? u : BASE_URL + u));
+const esc = (s) =>
+  String(s == null ? '' : s).replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+  );
+const fixImg = (u) => (!u ? '' : /^https?:\/\//.test(u) ? u : BASE_URL + u);
 const firstImg = (s) => (s || '').split(',')[0];
 
 // 订单状态字典（与后端一致）
@@ -23,15 +27,21 @@ const STATUS_CLASS = { pending: 'pending', paid: 'paid', done: 'done', cancelled
 /* ================= 登录态 ================= */
 let token = localStorage.getItem('token') || '';
 let admin = null;
-try { admin = JSON.parse(localStorage.getItem('admin') || 'null'); } catch (e) { admin = null; }
+try {
+  admin = JSON.parse(localStorage.getItem('admin') || 'null');
+} catch (e) {
+  admin = null;
+}
 
 function saveAuth(t, a) {
-  token = t; admin = a;
+  token = t;
+  admin = a;
   localStorage.setItem('token', t);
   localStorage.setItem('admin', JSON.stringify(a || null));
 }
 function clearAuth() {
-  token = ''; admin = null;
+  token = '';
+  admin = null;
   localStorage.removeItem('token');
   localStorage.removeItem('admin');
   localStorage.removeItem('platFlagToken');
@@ -48,7 +58,9 @@ async function ensurePlatformFlag() {
   try {
     const res = await fetch(BASE_URL + '/api/platform/stores', { headers: { Authorization: 'Bearer ' + token } });
     isPlat = res.status === 200; // 200=平台管理员；401/403=普通账号
-  } catch (e) { isPlat = false; }
+  } catch (e) {
+    isPlat = false;
+  }
   admin = Object.assign({}, admin, { isPlatform: isPlat });
   localStorage.setItem('admin', JSON.stringify(admin));
   localStorage.setItem('platFlagToken', token);
@@ -60,21 +72,39 @@ async function api(path, { method = 'GET', data, form } = {}) {
   const opts = { method, headers: {} };
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (form) opts.body = form;
-  else if (data !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(data); }
+  else if (data !== undefined) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(data);
+  }
 
   for (let attempt = 0; attempt < 3; attempt++) {
     let res;
     try {
       res = await fetch(BASE_URL + path, opts);
     } catch (e) {
-      if (attempt < 2) { await sleep(1500); continue; }
+      if (attempt < 2) {
+        await sleep(1500);
+        continue;
+      }
       toast('网络错误，请稍后重试', true);
       throw e;
     }
-    if ([502, 503, 504].includes(res.status) && attempt < 2) { await sleep(1500); continue; }
-    if (res.status === 401) { clearAuth(); render(); toast('登录已过期，请重新登录', true); throw new Error('登录已过期'); }
+    if ([502, 503, 504].includes(res.status) && attempt < 2) {
+      await sleep(1500);
+      continue;
+    }
+    if (res.status === 401) {
+      clearAuth();
+      render();
+      toast('登录已过期，请重新登录', true);
+      throw new Error('登录已过期');
+    }
     let body = null;
-    try { body = await res.json(); } catch (e) { /* 非 JSON 响应 */ }
+    try {
+      body = await res.json();
+    } catch (e) {
+      /* 非 JSON 响应 */
+    }
     if (body && body.code === 1001) {
       location.hash = '#/setup';
       render();
@@ -96,19 +126,31 @@ function toast(msg, isErr = false) {
   el.textContent = msg;
   el.className = 'toast show' + (isErr ? ' err' : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = 'toast'; }, 2400);
+  toastTimer = setTimeout(() => {
+    el.className = 'toast';
+  }, 2400);
 }
 function openModal(html) {
   $('#modal-root').innerHTML = `<div class="modal-mask"><div class="modal">${html}</div></div>`;
   const mask = $('.modal-mask', $('#modal-root'));
-  mask.addEventListener('click', (e) => { if (e.target === mask) closeModal(); });
+  mask.addEventListener('click', (e) => {
+    if (e.target === mask) closeModal();
+  });
   document.addEventListener('keydown', escClose);
-  function escClose(e) { if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escClose); } }
+  function escClose(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+      document.removeEventListener('keydown', escClose);
+    }
+  }
 }
 let activeDialogResolver = null; // 未决对话框的 resolve（ESC 取消时使用）
 
 function closeModal() {
-  if (activeDialogResolver) { activeDialogResolver(false); activeDialogResolver = null; }
+  if (activeDialogResolver) {
+    activeDialogResolver(false);
+    activeDialogResolver = null;
+  }
   $('#modal-root').innerHTML = '';
 }
 
@@ -116,21 +158,33 @@ function closeModal() {
 // 防抖
 function debounce(fn, wait) {
   let t;
-  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
 }
 
 // 按钮加载状态
 function setBtnLoading(btn, isLoading) {
   if (!btn) return;
-  if (isLoading) { btn.classList.add('loading'); btn.disabled = true; }
-  else { btn.classList.remove('loading'); btn.disabled = false; }
+  if (isLoading) {
+    btn.classList.add('loading');
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
 }
 
 // 字段错误提示
 function showFieldError(input, msg) {
   input.classList.add('error');
   let err = input.parentElement.querySelector('.form-error');
-  if (!err) { err = document.createElement('div'); err.className = 'form-error'; input.parentElement.appendChild(err); }
+  if (!err) {
+    err = document.createElement('div');
+    err.className = 'form-error';
+    input.parentElement.appendChild(err);
+  }
   err.textContent = msg;
 }
 function clearFieldError(input) {
@@ -152,7 +206,11 @@ function confirm(msg) {
         </div>
       </div>`);
     const dlg = $('#modal-root .confirm-dialog');
-    const finish = (ok) => { activeDialogResolver = null; resolve(ok); closeModal(); };
+    const finish = (ok) => {
+      activeDialogResolver = null;
+      resolve(ok);
+      closeModal();
+    };
     dlg.querySelector('[data-act="cancel"]').addEventListener('click', () => finish(false));
     dlg.querySelector('[data-act="ok"]').addEventListener('click', () => finish(true));
   });
@@ -174,34 +232,54 @@ function prompt(msg, defaultValue = '') {
     const dlg = $('#modal-root .prompt-dialog');
     const input = $('#prompt-input');
     input.focus();
-    const finish = (ok, val) => { activeDialogResolver = null; resolve(ok ? val : null); closeModal(); };
+    const finish = (ok, val) => {
+      activeDialogResolver = null;
+      resolve(ok ? val : null);
+      closeModal();
+    };
     dlg.querySelector('[data-act="cancel"]').addEventListener('click', () => finish(false));
     dlg.querySelector('[data-act="ok"]').addEventListener('click', () => finish(true, input.value));
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true, input.value); if (e.key === 'Escape') finish(false); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') finish(true, input.value);
+      if (e.key === 'Escape') finish(false);
+    });
   });
 }
 
 /* ================= 渲染入口 ================= */
 const NAV_ITEMS = [
-  { hash: '#/dashboard', icon: 'icon-home', label: '首页' },
-  { hash: '#/goods', icon: 'icon-shirt', label: '商品' },
-  { hash: '#/billing', icon: 'icon-receipt', label: '开单' },
-  { hash: '#/orders', icon: 'icon-package', label: '订单' },
-  { hash: '#/customers', icon: 'icon-clipboard', label: '会员' },
-  { hash: '#/store', icon: 'icon-store', label: '店铺' },
-  { hash: '#/platform', icon: 'icon-shield', label: '平台', platformOnly: true }
+  { hash: '#/dashboard', icon: 'icon-home', label: '首页', group: '工作台' },
+  { hash: '#/goods', icon: 'icon-shirt', label: '商品', group: '经营' },
+  { hash: '#/billing', icon: 'icon-receipt', label: '开单', group: '经营' },
+  { hash: '#/orders', icon: 'icon-package', label: '订单', group: '经营' },
+  { hash: '#/customers', icon: 'icon-clipboard', label: '会员', group: '客户' },
+  { hash: '#/store', icon: 'icon-store', label: '店铺', group: '系统' },
+  { hash: '#/platform', icon: 'icon-shield', label: '平台', platformOnly: true, group: '系统' }
 ];
 
 function render() {
   const root = $('#app');
   root.classList.add('page-fade');
-  if (!token || !admin) { renderAuth(root); root.classList.remove('page-fade'); return; }
-  if (!admin.storeId) { renderSetup(root); root.classList.remove('page-fade'); return; }
+  if (!token || !admin) {
+    renderAuth(root);
+    root.classList.remove('page-fade');
+    return;
+  }
+  if (!admin.storeId) {
+    renderSetup(root);
+    root.classList.remove('page-fade');
+    return;
+  }
   // 先探测平台管理员身份（缓存），再渲染主导航
-  ensurePlatformFlag().then(() => { renderMain(root); root.classList.remove('page-fade'); });
+  ensurePlatformFlag().then(() => {
+    renderMain(root);
+    root.classList.remove('page-fade');
+  });
 }
 
-window.addEventListener('hashchange', () => { if (token && admin && admin.storeId) render(); });
+window.addEventListener('hashchange', () => {
+  if (token && admin && admin.storeId) render();
+});
 
 /* ================= 登录 / 注册 ================= */
 function renderAuth(root) {
@@ -223,7 +301,10 @@ function renderAuth(root) {
           </div>
         </div>
       </div>`;
-    $('#mode-link').addEventListener('click', () => { mode = isLogin ? 'register' : 'login'; draw(); });
+    $('#mode-link').addEventListener('click', () => {
+      mode = isLogin ? 'register' : 'login';
+      draw();
+    });
     $('#auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -238,7 +319,9 @@ function renderAuth(root) {
         toast(isLogin ? '登录成功' : '注册成功');
         location.hash = data.admin.storeId ? '#/dashboard' : '#/setup';
         render();
-      } catch (e) { /* toast 已在 api 中统一弹出 */ }
+      } catch (e) {
+        /* toast 已在 api 中统一弹出 */
+      }
       setBtnLoading(btn, false);
     });
   };
@@ -265,7 +348,10 @@ function renderSetup(root) {
           <div class="auth-switch"><a id="logout-link">退出登录</a></div>
         </div>
       </div>`;
-    $('#logout-link').addEventListener('click', () => { clearAuth(); render(); });
+    $('#logout-link').addEventListener('click', () => {
+      clearAuth();
+      render();
+    });
     $('#create-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = new FormData(e.target).get('storeName').trim();
@@ -297,12 +383,29 @@ function renderMain(root) {
   const items = NAV_ITEMS.filter((n) => !n.platformOnly || admin.isPlatform);
   const cur = items.some((n) => n.hash === location.hash) ? location.hash : '#/dashboard';
   if (location.hash !== cur) location.hash = cur;
+  const groups = [];
+  items.forEach((n) => {
+    let g = groups.find((x) => x.name === n.group);
+    if (!g) {
+      g = { name: n.group, items: [] };
+      groups.push(g);
+    }
+    g.items.push(n);
+  });
   root.innerHTML = `
     <div class="layout">
       <aside class="sidebar">
         <div class="brand">服装店管理</div>
         <nav>
-          ${items.map((n) => `<a href="${n.hash}" class="${n.hash === cur ? 'active' : ''}"><span class="icon ${n.icon}"></span>${n.label}</a>`).join('')}
+          ${groups
+            .map(
+              (g) => `
+            <div class="nav-group">
+              <div class="nav-group-title">${esc(g.name)}</div>
+              ${g.items.map((n) => `<a href="${n.hash}" class="${n.hash === cur ? 'active' : ''}"><span class="icon ${n.icon}"></span>${n.label}</a>`).join('')}
+            </div>`
+            )
+            .join('')}
         </nav>
         <div class="side-user">
           <div class="store-name">${esc(admin.storeName || '我的店铺')}</div>
@@ -312,7 +415,11 @@ function renderMain(root) {
       </aside>
       <main class="main" id="view"></main>
     </div>`;
-  $('#btn-logout').addEventListener('click', () => { clearAuth(); location.hash = ''; render(); });
+  $('#btn-logout').addEventListener('click', () => {
+    clearAuth();
+    location.hash = '';
+    render();
+  });
   const view = $('#view');
   if (cur === '#/dashboard') renderDashboard(view);
   else if (cur === '#/goods') renderGoods(view);
@@ -327,7 +434,11 @@ function renderMain(root) {
 async function renderDashboard(view) {
   view.innerHTML = `<div class="page-title">首页</div><div class="empty">加载中…</div>`;
   let d = null;
-  try { d = await api('/api/stats/dashboard'); } catch (e) { return; }
+  try {
+    d = await api('/api/stats/dashboard');
+  } catch (e) {
+    return;
+  }
   view.innerHTML = `
     <div class="page-title">今日概览</div>
     <div class="stat-grid">
@@ -346,13 +457,20 @@ async function renderDashboard(view) {
   try {
     const od = await api('/api/orders?range=today&page=1&pageSize=5');
     const box = $('#dash-orders');
-    if (!od.list || od.list.length === 0) { box.innerHTML = '<div class="empty">今天还没有订单，去「开单」开始第一笔生意吧</div>'; return; }
+    if (!od.list || od.list.length === 0) {
+      box.innerHTML = '<div class="empty">今天还没有订单，去「开单」开始第一笔生意吧</div>';
+      return;
+    }
     box.innerHTML = `<table>
       <thead><tr><th>订单号</th><th>商品数</th><th>金额</th><th>状态</th><th>时间</th></tr></thead>
-      <tbody>${od.list.map((o) => `<tr style="cursor:pointer" onclick="showOrder(${o.id})">
+      <tbody>${od.list
+        .map(
+          (o) => `<tr style="cursor:pointer" onclick="showOrder(${o.id})">
         <td>${esc(o.order_no)}</td><td>${o.quantity_count || 0} 件</td><td>¥${o.total_amount}</td>
         <td><span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span></td>
-        <td class="muted">${esc(o.created_at)}</td></tr>`).join('')}</tbody></table>`;
+        <td class="muted">${esc(o.created_at)}</td></tr>`
+        )
+        .join('')}</tbody></table>`;
   } catch (e) {}
 }
 
@@ -362,14 +480,17 @@ async function renderGoods(view) {
   view.innerHTML = `<div class="page-title">商品管理</div><div class="empty">加载中…</div>`;
 
   const load = async () => {
-    const q = `/api/goods?page=${state.page}&pageSize=${state.pageSize}` +
+    const q =
+      `/api/goods?page=${state.page}&pageSize=${state.pageSize}` +
       (state.keyword ? `&keyword=${encodeURIComponent(state.keyword)}` : '') +
       (state.status ? `&status=${state.status}` : '') +
       (state.categoryId ? `&categoryId=${state.categoryId}` : '');
     let data, cats;
     try {
       [data, cats] = await Promise.all([api(q), api('/api/category')]);
-    } catch (e) { return; }
+    } catch (e) {
+      return;
+    }
 
     view.innerHTML = `
       <div class="page-title">商品管理</div>
@@ -387,11 +508,14 @@ async function renderGoods(view) {
         <button class="btn" id="btn-add">+ 新增商品</button>
       </div>
       <div class="card">
-        ${!data.list || data.list.length === 0
-          ? '<div class="empty">暂无商品，点击「新增商品」添加</div>'
-          : `<table>
+        ${
+          !data.list || data.list.length === 0
+            ? '<div class="empty">暂无商品，点击「新增商品」添加</div>'
+            : `<table>
               <thead><tr><th></th><th>商品</th><th>货号</th><th>分类</th><th>售价</th><th>总库存</th><th>状态</th><th class="t-right">操作</th></tr></thead>
-              <tbody>${data.list.map((g) => `
+              <tbody>${data.list
+                .map(
+                  (g) => `
                 <tr>
                   <td>${firstImg(g.image) ? `<img class="goods-img" src="${esc(fixImg(firstImg(g.image)))}">` : '<div class="goods-img-placeholder"><span class="icon icon-shirt"></span></div>'}</td>
                   <td><b>${esc(g.name)}</b>${g.skus && g.skus.length ? `<div class="muted" style="font-size:12px">${g.skus.map((s) => `${esc(s.color || '默认')}/${esc(s.size || '默认')}×${s.stock}`).join('，')}</div>` : ''}</td>
@@ -405,32 +529,72 @@ async function renderGoods(view) {
                     <button class="btn small light" data-toggle="${g.id}" data-on="${g.on_sale}">${g.on_sale ? '下架' : '上架'}</button>
                     <button class="btn small danger" data-del="${g.id}">删除</button>
                   </td>
-                </tr>`).join('')}</tbody></table>
+                </tr>`
+                )
+                .join('')}</tbody></table>
               <div class="pager">
                 <button class="btn small ghost" id="pg-prev" ${state.page <= 1 ? 'disabled' : ''}>上一页</button>
                 <span>第 ${data.page} 页 / 共 ${Math.max(1, Math.ceil(data.total / state.pageSize))} 页（${data.total} 件）</span>
                 <button class="btn small ghost" id="pg-next" ${state.page >= Math.ceil(data.total / state.pageSize) ? 'disabled' : ''}>下一页</button>
-              </div>`}
+              </div>`
+        }
       </div>`;
 
     // 事件绑定
-    const onGoodsKeyword = debounce(() => { state.keyword = $('#g-keyword').value.trim(); state.page = 1; load(); }, 300);
+    const onGoodsKeyword = debounce(() => {
+      state.keyword = $('#g-keyword').value.trim();
+      state.page = 1;
+      load();
+    }, 300);
     $('#g-keyword').addEventListener('input', onGoodsKeyword);
-    $('#g-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') onGoodsKeyword(); });
-    $('#g-status').addEventListener('change', (e) => { state.status = e.target.value; state.page = 1; load(); });
-    $('#g-cat').addEventListener('change', (e) => { state.categoryId = e.target.value; state.page = 1; load(); });
+    $('#g-keyword').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') onGoodsKeyword();
+    });
+    $('#g-status').addEventListener('change', (e) => {
+      state.status = e.target.value;
+      state.page = 1;
+      load();
+    });
+    $('#g-cat').addEventListener('change', (e) => {
+      state.categoryId = e.target.value;
+      state.page = 1;
+      load();
+    });
     $('#btn-add').addEventListener('click', () => openGoodsEditor(null, load));
     $('#btn-cat').addEventListener('click', () => openCategoryManager(load));
-    if ($('#pg-prev')) $('#pg-prev').addEventListener('click', () => { state.page--; load(); });
-    if ($('#pg-next')) $('#pg-next').addEventListener('click', () => { state.page++; load(); });
+    if ($('#pg-prev'))
+      $('#pg-prev').addEventListener('click', () => {
+        state.page--;
+        load();
+      });
+    if ($('#pg-next'))
+      $('#pg-next').addEventListener('click', () => {
+        state.page++;
+        load();
+      });
     $$('[data-edit]').forEach((b) => b.addEventListener('click', () => openGoodsEditor(Number(b.dataset.edit), load)));
-    $$('[data-toggle]').forEach((b) => b.addEventListener('click', async () => {
-      try { await api(`/api/goods/${b.dataset.toggle}/status`, { method: 'PUT', data: { onSale: b.dataset.on === '1' ? 0 : 1 } }); toast('操作成功'); load(); } catch (e) {}
-    }));
-    $$('[data-del]').forEach((b) => b.addEventListener('click', async () => {
-      if (!(await confirm('确定删除该商品吗？（删除后不可恢复）'))) return;
-      try { await api(`/api/goods/${b.dataset.del}`, { method: 'DELETE' }); toast('已删除'); load(); } catch (e) {}
-    }));
+    $$('[data-toggle]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        try {
+          await api(`/api/goods/${b.dataset.toggle}/status`, {
+            method: 'PUT',
+            data: { onSale: b.dataset.on === '1' ? 0 : 1 }
+          });
+          toast('操作成功');
+          load();
+        } catch (e) {}
+      })
+    );
+    $$('[data-del]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        if (!(await confirm('确定删除该商品吗？（删除后不可恢复）'))) return;
+        try {
+          await api(`/api/goods/${b.dataset.del}`, { method: 'DELETE' });
+          toast('已删除');
+          load();
+        } catch (e) {}
+      })
+    );
   };
   load();
 }
@@ -438,11 +602,25 @@ async function renderGoods(view) {
 /** 新增 / 编辑商品弹窗（编辑时传 id） */
 async function openGoodsEditor(id, onDone) {
   let cats = [];
-  let g = { name: '', goods_no: '', image: '', price: '', original_price: '', colors: '', sizes: '', stock: 0, category_id: '', description: '', on_sale: 1 };
+  let g = {
+    name: '',
+    goods_no: '',
+    image: '',
+    price: '',
+    original_price: '',
+    colors: '',
+    sizes: '',
+    stock: 0,
+    category_id: '',
+    description: '',
+    on_sale: 1
+  };
   try {
     cats = await api('/api/category');
     if (id) g = await api('/api/goods/' + id);
-  } catch (e) { return; }
+  } catch (e) {
+    return;
+  }
 
   const images = (g.image || '').split(',').filter(Boolean);
   openModal(`
@@ -483,16 +661,24 @@ async function openGoodsEditor(id, onDone) {
   $('input[name=file]').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    if (files.length + images.length > 3) { toast('最多 3 张图片', true); e.target.value = ''; return; }
+    if (files.length + images.length > 3) {
+      toast('最多 3 张图片', true);
+      e.target.value = '';
+      return;
+    }
     for (const f of files) {
       const fd = new FormData();
       fd.append('file', f);
       try {
         const data = await api('/api/upload', { method: 'POST', form: fd });
         images.push(data.url);
-      } catch (e2) { return; }
+      } catch (e2) {
+        return;
+      }
     }
-    $('#img-list').innerHTML = images.map((u) => `<img src="${esc(fixImg(u))}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">`).join('');
+    $('#img-list').innerHTML = images
+      .map((u) => `<img src="${esc(fixImg(u))}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">`)
+      .join('');
     e.target.value = '';
   });
 
@@ -502,7 +688,11 @@ async function openGoodsEditor(id, onDone) {
     const fd = new FormData(e.target);
     const btn = $('button[type=submit]', e.target);
     setBtnLoading(btn, true);
-    if (images.length > 3) { toast('最多 3 张图片', true); setBtnLoading(btn, false); return; }
+    if (images.length > 3) {
+      toast('最多 3 张图片', true);
+      setBtnLoading(btn, false);
+      return;
+    }
     const body = {
       name: fd.get('name').trim(),
       price: Number(fd.get('price')),
@@ -530,15 +720,25 @@ async function openGoodsEditor(id, onDone) {
 /** 分类管理弹窗 */
 async function openCategoryManager(onDone) {
   let cats = [];
-  try { cats = await api('/api/category'); } catch (e) { return; }
+  try {
+    cats = await api('/api/category');
+  } catch (e) {
+    return;
+  }
   const drawList = () => `
     <table><tbody>
-      ${cats.map((c) => `<tr>
+      ${
+        cats
+          .map(
+            (c) => `<tr>
         <td>${esc(c.name)}</td><td class="muted">${c.goods_count} 件商品</td>
         <td class="t-right">
           <button class="btn small ghost" data-cedit="${c.id}">改名</button>
           <button class="btn small danger" data-cdel="${c.id}">删除</button>
-        </td></tr>`).join('') || '<tr><td colspan="3" class="empty">暂无分类</td></tr>'}
+        </td></tr>`
+          )
+          .join('') || '<tr><td colspan="3" class="empty">暂无分类</td></tr>'
+      }
     </tbody></table>`;
   openModal(`
     <h3>分类管理</h3>
@@ -550,27 +750,50 @@ async function openCategoryManager(onDone) {
     <div class="modal-actions"><button class="btn ghost" id="modal-cancel">关闭</button></div>`);
 
   const refresh = async () => {
-    try { cats = await api('/api/category'); } catch (e) { return; }
+    try {
+      cats = await api('/api/category');
+    } catch (e) {
+      return;
+    }
     $('#cat-list').innerHTML = drawList();
     bindRow();
   };
   const bindRow = () => {
-    $$('[data-cedit]').forEach((b) => b.addEventListener('click', async () => {
-      const c = cats.find((x) => String(x.id) === b.dataset.cedit);
-      const name = await prompt('新的分类名称：', c.name);
-      if (!name || !name.trim()) return;
-      try { await api('/api/category/' + c.id, { method: 'PUT', data: { name: name.trim(), sort: c.sort } }); toast('已保存'); refresh(); } catch (e) {}
-    }));
-    $$('[data-cdel]').forEach((b) => b.addEventListener('click', async () => {
-      if (!(await confirm('确定删除该分类吗？'))) return;
-      try { await api('/api/category/' + b.dataset.cdel, { method: 'DELETE' }); toast('已删除'); refresh(); onDone && onDone(); } catch (e) {}
-    }));
+    $$('[data-cedit]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        const c = cats.find((x) => String(x.id) === b.dataset.cedit);
+        const name = await prompt('新的分类名称：', c.name);
+        if (!name || !name.trim()) return;
+        try {
+          await api('/api/category/' + c.id, { method: 'PUT', data: { name: name.trim(), sort: c.sort } });
+          toast('已保存');
+          refresh();
+        } catch (e) {}
+      })
+    );
+    $$('[data-cdel]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        if (!(await confirm('确定删除该分类吗？'))) return;
+        try {
+          await api('/api/category/' + b.dataset.cdel, { method: 'DELETE' });
+          toast('已删除');
+          refresh();
+          onDone && onDone();
+        } catch (e) {}
+      })
+    );
   };
   bindRow();
   $('#cat-add').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = new FormData(e.target).get('name').trim();
-    try { await api('/api/category', { method: 'POST', data: { name, sort: (cats.length + 1) * 100 } }); toast('已添加'); e.target.reset(); refresh(); onDone && onDone(); } catch (e2) {}
+    try {
+      await api('/api/category', { method: 'POST', data: { name, sort: (cats.length + 1) * 100 } });
+      toast('已添加');
+      e.target.reset();
+      refresh();
+      onDone && onDone();
+    } catch (e2) {}
   });
   $('#modal-cancel').addEventListener('click', closeModal);
 }
@@ -579,32 +802,47 @@ async function openCategoryManager(onDone) {
 async function renderBilling(view) {
   view.innerHTML = `<div class="page-title">开单</div><div class="empty">加载中…</div>`;
   let data;
-  try { data = await api('/api/goods?status=on&page=1&pageSize=200'); } catch (e) { return; }
+  try {
+    data = await api('/api/goods?status=on&page=1&pageSize=200');
+  } catch (e) {
+    return;
+  }
   const goodsList = data.list || [];
   const cart = []; // {goodsId, name, price, color, size, quantity, maxStock}
   let selectedCustomerId = 0; // 已选/已添加的会员 ID（下单时随订单落库；手动改手机号即清零）
-  let blPhone = '';           // 手机号输入值（draw 重绘间保持，修复加购后输入丢失）
-  let blRemark = '';          // 备注输入值（同上）
+  let blPhone = ''; // 手机号输入值（draw 重绘间保持，修复加购后输入丢失）
+  let blRemark = ''; // 备注输入值（同上）
 
   const draw = () => {
     view.innerHTML = `
       <div class="page-title">开单</div>
       <div class="billing-wrap">
         <div class="billing-goods">
-          ${goodsList.length === 0
-            ? '<div class="empty">暂无在售商品，请先到「商品」页添加</div>'
-            : `<div class="billing-goods-grid">${goodsList.map((g) => `
+          ${
+            goodsList.length === 0
+              ? '<div class="empty">暂无在售商品，请先到「商品」页添加</div>'
+              : `<div class="billing-goods-grid">${goodsList
+                  .map(
+                    (g) => `
                 <div class="g-item" data-add="${g.id}">
                   ${firstImg(g.image) ? `<img src="${esc(fixImg(firstImg(g.image)))}">` : '<div class="ph"><span class="icon icon-shirt"></span></div>'}
                   <div class="g-name">${esc(g.name)}</div>
                   <div class="g-price">¥${g.price}</div>
                   <div class="g-stock">库存 ${g.stock}</div>
-                </div>`).join('')}</div>`}
+                </div>`
+                  )
+                  .join('')}</div>`
+          }
         </div>
         <div class="cart-panel card">
           <b style="font-size:15px">当前订单</b>
           <div id="cart-lines">
-            ${cart.length === 0 ? '<div class="empty">点击左侧商品加入订单</div>' : cart.map((it, i) => `
+            ${
+              cart.length === 0
+                ? '<div class="empty">点击左侧商品加入订单</div>'
+                : cart
+                    .map(
+                      (it, i) => `
               <div class="cart-line">
                 <div class="cl-info">
                   <div class="cl-name">${esc(it.name)}</div>
@@ -613,7 +851,10 @@ async function renderBilling(view) {
                 <div class="qty">
                   <button data-dec="${i}">−</button><span>${it.quantity}</span><button data-inc="${i}">＋</button>
                 </div>
-              </div>`).join('')}
+              </div>`
+                    )
+                    .join('')
+            }
           </div>
           <div class="cart-total"><span>合计</span><span class="sum">¥${cart.reduce((s, it) => s + it.price * it.quantity, 0).toFixed(2)}</span></div>
           <div class="field" style="margin-top:10px">
@@ -633,24 +874,46 @@ async function renderBilling(view) {
       </div>`;
 
     // 点击商品加入订单（有规格时弹选择框）
-    $$('[data-add]').forEach((el) => el.addEventListener('click', () => {
-      const g = goodsList.find((x) => String(x.id) === el.dataset.add);
-      if (g.stock <= 0) { toast('该商品库存不足', true); return; }
-      if (g.skus && g.skus.length) openSkuPicker(g);
-      else addToCart({ goodsId: g.id, name: g.name, price: g.price, color: '', size: '', maxStock: g.stock, quantity: 1 });
-    }));
+    $$('[data-add]').forEach((el) =>
+      el.addEventListener('click', () => {
+        const g = goodsList.find((x) => String(x.id) === el.dataset.add);
+        if (g.stock <= 0) {
+          toast('该商品库存不足', true);
+          return;
+        }
+        if (g.skus && g.skus.length) openSkuPicker(g);
+        else
+          addToCart({
+            goodsId: g.id,
+            name: g.name,
+            price: g.price,
+            color: '',
+            size: '',
+            maxStock: g.stock,
+            quantity: 1
+          });
+      })
+    );
     const bindQty = () => {
-      $$('[data-inc]').forEach((b) => b.addEventListener('click', () => {
-        const it = cart[Number(b.dataset.inc)];
-        if (it.quantity >= it.maxStock) { toast('已达该规格库存上限', true); return; }
-        it.quantity++; draw();
-      }));
-      $$('[data-dec]').forEach((b) => b.addEventListener('click', () => {
-        const i = Number(b.dataset.dec);
-        cart[i].quantity--;
-        if (cart[i].quantity <= 0) cart.splice(i, 1);
-        draw();
-      }));
+      $$('[data-inc]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const it = cart[Number(b.dataset.inc)];
+          if (it.quantity >= it.maxStock) {
+            toast('已达该规格库存上限', true);
+            return;
+          }
+          it.quantity++;
+          draw();
+        })
+      );
+      $$('[data-dec]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const i = Number(b.dataset.dec);
+          cart[i].quantity--;
+          if (cart[i].quantity <= 0) cart.splice(i, 1);
+          draw();
+        })
+      );
     };
     bindQty();
 
@@ -661,7 +924,7 @@ async function renderBilling(view) {
     phoneEl.addEventListener('input', async () => {
       blPhone = phoneEl.value.replace(/\D/g, '').slice(0, 11);
       phoneEl.value = blPhone;
-      selectedCustomerId = 0;          // 手动改手机号即取消会员关联
+      selectedCustomerId = 0; // 手动改手机号即取消会员关联
       addBtn.style.display = 'none';
       matchesEl.innerHTML = '';
       try {
@@ -672,19 +935,25 @@ async function renderBilling(view) {
           const d = await api('/api/customer/match', { method: 'POST', data: { suffix: blPhone } });
           const list = (d && d.list) || [];
           if (list.length) {
-            matchesEl.innerHTML = list.map((c) => `
+            matchesEl.innerHTML = list
+              .map(
+                (c) => `
               <div class="bl-match" data-id="${c.id}" data-phone="${esc(c.phone)}" data-name="${esc(c.displayName)}"
                    style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg-subtle);border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:13px">
                 <b>${esc(c.displayName)}</b><span class="muted">${esc(c.phone)}</span>
-              </div>`).join('');
-            $$('.bl-match').forEach((el) => el.addEventListener('click', () => {
-              selectedCustomerId = Number(el.dataset.id);
-              blPhone = el.dataset.phone;
-              phoneEl.value = blPhone;
-              matchesEl.innerHTML = '';
-              addBtn.style.display = 'none';
-              toast(`已选择 ${el.dataset.name}`);
-            }));
+              </div>`
+              )
+              .join('');
+            $$('.bl-match').forEach((el) =>
+              el.addEventListener('click', () => {
+                selectedCustomerId = Number(el.dataset.id);
+                blPhone = el.dataset.phone;
+                phoneEl.value = blPhone;
+                matchesEl.innerHTML = '';
+                addBtn.style.display = 'none';
+                toast(`已选择 ${el.dataset.name}`);
+              })
+            );
           }
         }
       } catch (e) {}
@@ -722,12 +991,17 @@ async function renderBilling(view) {
     });
 
     // 备注输入：重绘间保持
-    $('#bl-remark').addEventListener('input', (e) => { blRemark = e.target.value; });
+    $('#bl-remark').addEventListener('input', (e) => {
+      blRemark = e.target.value;
+    });
 
     const addToCart = (item) => {
       const found = cart.find((x) => x.goodsId === item.goodsId && x.color === item.color && x.size === item.size);
       if (found) {
-        if (found.quantity >= found.maxStock) { toast('已达该规格库存上限', true); return; }
+        if (found.quantity >= found.maxStock) {
+          toast('已达该规格库存上限', true);
+          return;
+        }
         found.quantity++;
       } else cart.push(item);
       draw();
@@ -750,11 +1024,19 @@ async function renderBilling(view) {
         });
         toast(`开单成功：${res.orderNo}（¥${res.totalAmount}）`);
         cart.length = 0;
-        selectedCustomerId = 0; blPhone = ''; blRemark = '';  // 清空本次开单输入
+        selectedCustomerId = 0;
+        blPhone = '';
+        blRemark = ''; // 清空本次开单输入
         // 重新拉取商品以刷新库存
-        try { const d2 = await api('/api/goods?status=on&page=1&pageSize=200'); goodsList.length = 0; goodsList.push(...(d2.list || [])); } catch (e) {}
+        try {
+          const d2 = await api('/api/goods?status=on&page=1&pageSize=200');
+          goodsList.length = 0;
+          goodsList.push(...(d2.list || []));
+        } catch (e) {}
         draw();
-      } catch (e) { setBtnLoading(btn, false); }
+      } catch (e) {
+        setBtnLoading(btn, false);
+      }
     });
 
     function openSkuPicker(g) {
@@ -762,24 +1044,37 @@ async function renderBilling(view) {
         <h3>选择规格 · ${esc(g.name)}</h3>
         <table>
           <thead><tr><th>颜色</th><th>尺码</th><th>库存</th><th class="t-right">数量</th></tr></thead>
-          <tbody>${g.skus.map((s) => `
+          <tbody>${g.skus
+            .map(
+              (s) => `
             <tr>
               <td>${esc(s.color || '默认')}</td><td>${esc(s.size || '默认')}</td>
               <td>${s.stock}</td>
-              <td class="t-right">${s.stock > 0
-                ? `<button class="btn small" data-sku-pick data-gid="${g.id}" data-gname="${esc(g.name)}" data-price="${g.price}" data-color="${esc(s.color || '')}" data-size="${esc(s.size || '')}" data-stock="${s.stock}">加入</button>`
-                : '<span class="muted">无货</span>'}</td>
-            </tr>`).join('')}</tbody>
+              <td class="t-right">${
+                s.stock > 0
+                  ? `<button class="btn small" data-sku-pick data-gid="${g.id}" data-gname="${esc(g.name)}" data-price="${g.price}" data-color="${esc(s.color || '')}" data-size="${esc(s.size || '')}" data-stock="${s.stock}">加入</button>`
+                  : '<span class="muted">无货</span>'
+              }</td>
+            </tr>`
+            )
+            .join('')}</tbody>
         </table>
         <div class="modal-actions"><button class="btn ghost" id="modal-cancel">取消</button></div>`);
       $('#modal-cancel').addEventListener('click', closeModal);
-      $$('[data-sku-pick]').forEach((b) => b.addEventListener('click', () => {
-        closeModal();
-        addToCart({
-          goodsId: Number(b.dataset.gid), name: b.dataset.gname, price: Number(b.dataset.price),
-          color: b.dataset.color, size: b.dataset.size, maxStock: Number(b.dataset.stock), quantity: 1
-        });
-      }));
+      $$('[data-sku-pick]').forEach((b) =>
+        b.addEventListener('click', () => {
+          closeModal();
+          addToCart({
+            goodsId: Number(b.dataset.gid),
+            name: b.dataset.gname,
+            price: Number(b.dataset.price),
+            color: b.dataset.color,
+            size: b.dataset.size,
+            maxStock: Number(b.dataset.stock),
+            quantity: 1
+          });
+        })
+      );
     }
   };
   draw();
@@ -790,11 +1085,16 @@ async function renderOrders(view) {
   const state = { status: '', keyword: '', range: 'all', page: 1, pageSize: 15 };
   view.innerHTML = `<div class="page-title">订单管理</div><div class="empty">加载中…</div>`;
   const load = async () => {
-    const q = `/api/orders?page=${state.page}&pageSize=${state.pageSize}&range=${state.range}` +
+    const q =
+      `/api/orders?page=${state.page}&pageSize=${state.pageSize}&range=${state.range}` +
       (state.status ? `&status=${state.status}` : '') +
       (state.keyword ? `&keyword=${encodeURIComponent(state.keyword)}` : '');
     let data;
-    try { data = await api(q); } catch (e) { return; }
+    try {
+      data = await api(q);
+    } catch (e) {
+      return;
+    }
     const totalPages = Math.max(1, Math.ceil(data.total / state.pageSize));
     view.innerHTML = `
       <div class="page-title">订单管理</div>
@@ -802,7 +1102,9 @@ async function renderOrders(view) {
         <input class="grow" id="o-keyword" placeholder="搜索订单号" value="${esc(state.keyword)}">
         <select id="o-status">
           <option value="">全部状态</option>
-          ${Object.keys(STATUS).map((k) => `<option value="${k}" ${state.status === k ? 'selected' : ''}>${STATUS[k]}</option>`).join('')}
+          ${Object.keys(STATUS)
+            .map((k) => `<option value="${k}" ${state.status === k ? 'selected' : ''}>${STATUS[k]}</option>`)
+            .join('')}
         </select>
         <select id="o-range">
           <option value="all">全部时间</option>
@@ -812,33 +1114,61 @@ async function renderOrders(view) {
         </select>
       </div>
       <div class="card">
-        ${!data.list || data.list.length === 0
-          ? '<div class="empty">暂无符合条件的订单</div>'
-          : `<table>
+        ${
+          !data.list || data.list.length === 0
+            ? '<div class="empty">暂无符合条件的订单</div>'
+            : `<table>
               <thead><tr><th>订单号</th><th>件数</th><th>金额</th><th>状态</th><th>顾客</th><th>时间</th><th class="t-right">操作</th></tr></thead>
-              <tbody>${data.list.map((o) => `
+              <tbody>${data.list
+                .map(
+                  (o) => `
                 <tr>
                   <td><b>${esc(o.order_no)}</b></td>
                   <td>${o.quantity_count || 0} 件</td>
                   <td style="color:var(--primary-dark);font-weight:700">¥${o.total_amount}</td>
                   <td><span class="badge ${STATUS_CLASS[o.status]}">${STATUS[o.status] || o.status}</span></td>
-                  <td class="muted">${esc(o.customer_name ? `${o.customer_name} ${o.customer_phone || ''}` : (o.customer_phone || '-'))}</td>
+                  <td class="muted">${esc(o.customer_name ? `${o.customer_name} ${o.customer_phone || ''}` : o.customer_phone || '-')}</td>
                   <td class="muted">${esc(o.created_at)}</td>
                   <td class="t-right"><button class="btn small ghost" onclick="showOrder(${o.id})">详情</button></td>
-                </tr>`).join('')}</tbody></table>
+                </tr>`
+                )
+                .join('')}</tbody></table>
               <div class="pager">
                 <button class="btn small ghost" id="o-prev" ${state.page <= 1 ? 'disabled' : ''}>上一页</button>
                 <span>第 ${data.page} 页 / 共 ${totalPages} 页（${data.total} 单）</span>
                 <button class="btn small ghost" id="o-next" ${state.page >= totalPages ? 'disabled' : ''}>下一页</button>
-              </div>`}
+              </div>`
+        }
       </div>`;
-    const onOrderKeyword = debounce(() => { state.keyword = $('#o-keyword').value.trim(); state.page = 1; load(); }, 300);
+    const onOrderKeyword = debounce(() => {
+      state.keyword = $('#o-keyword').value.trim();
+      state.page = 1;
+      load();
+    }, 300);
     $('#o-keyword').addEventListener('input', onOrderKeyword);
-    $('#o-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') onOrderKeyword(); });
-    $('#o-status').addEventListener('change', (e) => { state.status = e.target.value; state.page = 1; load(); });
-    $('#o-range').addEventListener('change', (e) => { state.range = e.target.value; state.page = 1; load(); });
-    if ($('#o-prev')) $('#o-prev').addEventListener('click', () => { state.page--; load(); });
-    if ($('#o-next')) $('#o-next').addEventListener('click', () => { state.page++; load(); });
+    $('#o-keyword').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') onOrderKeyword();
+    });
+    $('#o-status').addEventListener('change', (e) => {
+      state.status = e.target.value;
+      state.page = 1;
+      load();
+    });
+    $('#o-range').addEventListener('change', (e) => {
+      state.range = e.target.value;
+      state.page = 1;
+      load();
+    });
+    if ($('#o-prev'))
+      $('#o-prev').addEventListener('click', () => {
+        state.page--;
+        load();
+      });
+    if ($('#o-next'))
+      $('#o-next').addEventListener('click', () => {
+        state.page++;
+        load();
+      });
   };
   load();
 }
@@ -849,10 +1179,15 @@ async function renderCustomers(view) {
   const state = { keyword: '', page: 1, pageSize: 15 };
   view.innerHTML = `<div class="page-title">会员管理</div><div class="empty">加载中…</div>`;
   const load = async () => {
-    const q = `/api/customer/list?page=${state.page}&pageSize=${state.pageSize}` +
+    const q =
+      `/api/customer/list?page=${state.page}&pageSize=${state.pageSize}` +
       (state.keyword ? `&keyword=${encodeURIComponent(state.keyword)}` : '');
     let data;
-    try { data = await api(q); } catch (e) { return; }
+    try {
+      data = await api(q);
+    } catch (e) {
+      return;
+    }
     const totalPages = Math.max(1, Math.ceil(data.total / state.pageSize));
     view.innerHTML = `
       <div class="page-title">会员管理</div>
@@ -861,11 +1196,14 @@ async function renderCustomers(view) {
         <button class="btn" id="c-add">+ 新增会员</button>
       </div>
       <div class="card">
-        ${!data.list || data.list.length === 0
-          ? '<div class="empty">暂无会员，可在开单页输入手机号添加，或点右上角「新增会员」</div>'
-          : `<table>
+        ${
+          !data.list || data.list.length === 0
+            ? '<div class="empty">暂无会员，可在开单页输入手机号添加，或点右上角「新增会员」</div>'
+            : `<table>
               <thead><tr><th>会员</th><th>手机号</th><th>消费次数</th><th>累计金额</th><th>最近到店</th><th class="t-right">操作</th></tr></thead>
-              <tbody>${data.list.map((c) => `
+              <tbody>${data.list
+                .map(
+                  (c) => `
                 <tr>
                   <td><b>${esc(c.displayName)}</b></td>
                   <td class="muted">${esc(c.phone)}</td>
@@ -876,24 +1214,49 @@ async function renderCustomers(view) {
                     <button class="btn small ghost" data-edit="${c.id}" data-surname="${esc(c.surname)}" data-gender="${c.gender}">编辑</button>
                     <button class="btn small danger" data-del="${c.id}" data-name="${esc(c.displayName)}" style="margin-left:6px">删除</button>
                   </td>
-                </tr>`).join('')}</tbody></table>
+                </tr>`
+                )
+                .join('')}</tbody></table>
               <div class="pager">
                 <button class="btn small ghost" id="c-prev" ${state.page <= 1 ? 'disabled' : ''}>上一页</button>
                 <span>第 ${data.page} 页 / 共 ${totalPages} 页（${data.total} 人）</span>
                 <button class="btn small ghost" id="c-next" ${state.page >= totalPages ? 'disabled' : ''}>下一页</button>
-              </div>`}
+              </div>`
+        }
       </div>`;
-    const onCustomerKeyword = debounce(() => { state.keyword = $('#c-keyword').value.trim(); state.page = 1; load(); }, 300);
+    const onCustomerKeyword = debounce(() => {
+      state.keyword = $('#c-keyword').value.trim();
+      state.page = 1;
+      load();
+    }, 300);
     $('#c-keyword').addEventListener('input', onCustomerKeyword);
-    $('#c-keyword').addEventListener('keydown', (e) => { if (e.key === 'Enter') onCustomerKeyword(); });
+    $('#c-keyword').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') onCustomerKeyword();
+    });
     $('#c-add').addEventListener('click', openAddModal);
-    if ($('#c-prev')) $('#c-prev').addEventListener('click', () => { state.page--; load(); });
-    if ($('#c-next')) $('#c-next').addEventListener('click', () => { state.page++; load(); });
-    $$('[data-edit]').forEach((b) => b.addEventListener('click', () => openEditModal(b.dataset.edit, b.dataset.surname, b.dataset.gender)));
-    $$('[data-del]').forEach((b) => b.addEventListener('click', async () => {
-      if (!(await confirm(`确定删除会员【${b.dataset.name}】？历史订单中的姓名快照将保留。`))) return;
-      try { await api(`/api/customer/${b.dataset.del}`, { method: 'DELETE' }); toast('会员已删除'); load(); } catch (e) {}
-    }));
+    if ($('#c-prev'))
+      $('#c-prev').addEventListener('click', () => {
+        state.page--;
+        load();
+      });
+    if ($('#c-next'))
+      $('#c-next').addEventListener('click', () => {
+        state.page++;
+        load();
+      });
+    $$('[data-edit]').forEach((b) =>
+      b.addEventListener('click', () => openEditModal(b.dataset.edit, b.dataset.surname, b.dataset.gender))
+    );
+    $$('[data-del]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        if (!(await confirm(`确定删除会员【${b.dataset.name}】？历史订单中的姓名快照将保留。`))) return;
+        try {
+          await api(`/api/customer/${b.dataset.del}`, { method: 'DELETE' });
+          toast('会员已删除');
+          load();
+        } catch (e) {}
+      })
+    );
   };
 
   // 新增会员弹窗
@@ -915,7 +1278,10 @@ async function renderCustomers(view) {
       e.preventDefault();
       const fd = new FormData(e.target);
       const phone = String(fd.get('phone') || '').replace(/\D/g, '');
-      if (!/^\d{11}$/.test(phone)) { toast('请输入 11 位手机号', true); return; }
+      if (!/^\d{11}$/.test(phone)) {
+        toast('请输入 11 位手机号', true);
+        return;
+      }
       try {
         const r = await api('/api/customer', {
           method: 'POST',
@@ -963,7 +1329,11 @@ async function renderCustomers(view) {
 /** 订单详情弹窗（含状态操作）；挂在 window 上供内联 onclick 调用 */
 window.showOrder = async function (id) {
   let o;
-  try { o = await api('/api/orders/' + id); } catch (e) { return; }
+  try {
+    o = await api('/api/orders/' + id);
+  } catch (e) {
+    return;
+  }
   const acts = [];
   if (o.status === 'pending') {
     acts.push(`<button class="btn" data-act="paid">确认收款</button>`);
@@ -987,40 +1357,66 @@ window.showOrder = async function (id) {
         顾客电话：${esc(o.customer_phone || '-')}　备注：${esc(o.remark || '-')}
       </div>
     </div>
-    ${o.items.map((it) => `
+    ${o.items
+      .map(
+        (it) => `
       <div class="order-item-row">
         <span>${esc(it.goods_name)}<span class="muted">（${esc(it.color || '默认')} / ${esc(it.size || '默认')}）</span></span>
         <span>×${it.quantity}　¥${(it.price * it.quantity).toFixed(2)}</span>
-      </div>`).join('')}
+      </div>`
+      )
+      .join('')}
     <div class="cart-total"><span>合计</span><span class="sum">¥${o.total_amount}</span></div>
     <div class="modal-actions">
       <button class="btn ghost" id="modal-cancel">关闭</button>
       ${acts.join('')}
     </div>`);
   $('#modal-cancel').addEventListener('click', closeModal);
-  $$('[data-act]').forEach((b) => b.addEventListener('click', async () => {
-    const act = b.dataset.act;
-    const confirmText = { paid: '确认已收到货款？', done: '确认该订单已完成？', cancel: '取消后库存将自动归还，确定取消？', refund: '退款后库存将自动归还，确定退款？' };
-    if (act === 'paid') { if (!(await confirm(confirmText.paid))) return; }
-    if (act === 'done') { if (!(await confirm(confirmText.done))) return; }
-    if (act === 'cancel') { if (!(await confirm(confirmText.cancel))) return; }
-    if (act === 'refund') { if (!(await confirm(confirmText.refund))) return; }
-    b.disabled = true;
-    try {
-      if (act === 'paid' || act === 'done') await api(`/api/orders/${o.id}/status`, { method: 'PUT', data: { status: act } });
-      else await api(`/api/orders/${o.id}/${act}`, { method: 'POST' });
-      toast('操作成功');
-      closeModal();
-      render();
-    } catch (e) { b.disabled = false; }
-  }));
+  $$('[data-act]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const act = b.dataset.act;
+      const confirmText = {
+        paid: '确认已收到货款？',
+        done: '确认该订单已完成？',
+        cancel: '取消后库存将自动归还，确定取消？',
+        refund: '退款后库存将自动归还，确定退款？'
+      };
+      if (act === 'paid') {
+        if (!(await confirm(confirmText.paid))) return;
+      }
+      if (act === 'done') {
+        if (!(await confirm(confirmText.done))) return;
+      }
+      if (act === 'cancel') {
+        if (!(await confirm(confirmText.cancel))) return;
+      }
+      if (act === 'refund') {
+        if (!(await confirm(confirmText.refund))) return;
+      }
+      b.disabled = true;
+      try {
+        if (act === 'paid' || act === 'done')
+          await api(`/api/orders/${o.id}/status`, { method: 'PUT', data: { status: act } });
+        else await api(`/api/orders/${o.id}/${act}`, { method: 'POST' });
+        toast('操作成功');
+        closeModal();
+        render();
+      } catch (e) {
+        b.disabled = false;
+      }
+    })
+  );
 };
 
 /* ================= 店铺管理 ================= */
 async function renderStore(view) {
   view.innerHTML = `<div class="page-title">店铺管理</div><div class="empty">加载中…</div>`;
   let d;
-  try { d = await api('/api/store/info'); } catch (e) { return; }
+  try {
+    d = await api('/api/store/info');
+  } catch (e) {
+    return;
+  }
   const s = d.store;
   const isOwner = d.role === 'owner';
 
@@ -1041,80 +1437,116 @@ async function renderStore(view) {
       ${isOwner ? '<button class="btn small light" id="btn-code">重置店铺码</button>' : ''}
     </div>
 
-    ${d.myStores && d.myStores.length > 0 ? `
+    ${
+      d.myStores && d.myStores.length > 0
+        ? `
       <div class="card">
         <b>我的店铺（${d.myStores.length}/${d.storeLimit}）</b>
         <table style="margin-top:8px"><tbody>
-          ${d.myStores.map((ms) => `<tr>
+          ${d.myStores
+            .map(
+              (ms) => `<tr>
             <td>${esc(ms.name)}${s && ms.id === s.id ? ' <span class="badge on">当前</span>' : ''}</td>
             <td class="muted">创建于 ${esc(ms.created_at)}</td>
             <td class="t-right">${s && ms.id !== s.id ? `<button class="btn small ghost" data-switch="${ms.id}">切换到此店</button>` : ''}</td>
-          </tr>`).join('')}
+          </tr>`
+            )
+            .join('')}
         </tbody></table>
-      </div>` : ''}
+      </div>`
+        : ''
+    }
 
     <div class="card">
       <b>店铺成员</b>
       <table style="margin-top:8px">
         <thead><tr><th>账号</th><th>角色</th><th>加入时间</th>${isOwner ? '<th class="t-right">操作</th>' : ''}</tr></thead>
         <tbody>
-          ${(d.members || []).map((m) => `<tr>
+          ${(d.members || [])
+            .map(
+              (m) => `<tr>
             <td>${esc(m.username)}</td>
             <td>${m.role === 'owner' ? '店主' : '员工'}</td>
             <td class="muted">${esc(m.created_at)}</td>
             ${isOwner ? `<td class="t-right">${m.role === 'owner' ? '' : `<button class="btn small danger" data-remove="${m.id}" data-name="${esc(m.username)}">移除</button>`}</td>` : ''}
-          </tr>`).join('')}
+          </tr>`
+            )
+            .join('')}
         </tbody>
       </table>
     </div>
 
     ${!isOwner ? '<button class="btn danger" id="btn-unbind">退出当前店铺</button>' : ''}`;
 
-  if ($('#btn-code')) $('#btn-code').addEventListener('click', async () => {
-    if (!(await confirm('重置后旧店铺码立即失效，确定重置？'))) return;
-    try { const r = await api('/api/store/code', { method: 'POST' }); toast('新店铺码：' + r.bindCode); renderStore(view); } catch (e) {}
-  });
-  $$('[data-switch]').forEach((b) => b.addEventListener('click', async () => {
-    if (!(await confirm('切换店铺后，商品与订单数据将切换为新店铺的数据，确定？'))) return;
-    try {
-      const r = await api('/api/store/switch', { method: 'POST', data: { storeId: Number(b.dataset.switch) } });
-      saveAuth(r.token, r.admin);
-      toast('已切换店铺');
-      render();
-    } catch (e) {}
-  }));
-  $$('[data-remove]').forEach((b) => b.addEventListener('click', async () => {
-    if (!(await confirm(`确定将成员【${b.dataset.name}】移出店铺？`))) return;
-    try { await api('/api/store/member/remove', { method: 'POST', data: { memberId: Number(b.dataset.remove) } }); toast('已移除'); renderStore(view); } catch (e) {}
-  }));
-  if ($('#btn-unbind')) $('#btn-unbind').addEventListener('click', async () => {
-    if (!(await confirm('退出后将无法访问该店铺的商品与订单，确定退出？'))) return;
-    try {
-      const r = await api('/api/store/unbind', { method: 'POST' });
-      saveAuth(r.token, r.admin);
-      toast('已退出店铺');
-      location.hash = '#/setup';
-      render();
-    } catch (e) {}
-  });
+  if ($('#btn-code'))
+    $('#btn-code').addEventListener('click', async () => {
+      if (!(await confirm('重置后旧店铺码立即失效，确定重置？'))) return;
+      try {
+        const r = await api('/api/store/code', { method: 'POST' });
+        toast('新店铺码：' + r.bindCode);
+        renderStore(view);
+      } catch (e) {}
+    });
+  $$('[data-switch]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      if (!(await confirm('切换店铺后，商品与订单数据将切换为新店铺的数据，确定？'))) return;
+      try {
+        const r = await api('/api/store/switch', { method: 'POST', data: { storeId: Number(b.dataset.switch) } });
+        saveAuth(r.token, r.admin);
+        toast('已切换店铺');
+        render();
+      } catch (e) {}
+    })
+  );
+  $$('[data-remove]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      if (!(await confirm(`确定将成员【${b.dataset.name}】移出店铺？`))) return;
+      try {
+        await api('/api/store/member/remove', { method: 'POST', data: { memberId: Number(b.dataset.remove) } });
+        toast('已移除');
+        renderStore(view);
+      } catch (e) {}
+    })
+  );
+  if ($('#btn-unbind'))
+    $('#btn-unbind').addEventListener('click', async () => {
+      if (!(await confirm('退出后将无法访问该店铺的商品与订单，确定退出？'))) return;
+      try {
+        const r = await api('/api/store/unbind', { method: 'POST' });
+        saveAuth(r.token, r.admin);
+        toast('已退出店铺');
+        location.hash = '#/setup';
+        render();
+      } catch (e) {}
+    });
 }
 
 /* ================= 平台管理（仅平台管理员可见） ================= */
 async function renderPlatform(view) {
-  if (!admin.isPlatform) { view.innerHTML = '<div class="empty">无权限：仅平台管理员可访问</div>'; return; }
+  if (!admin.isPlatform) {
+    view.innerHTML = '<div class="empty">无权限：仅平台管理员可访问</div>';
+    return;
+  }
   view.innerHTML = `<div class="page-title">平台管理</div><div class="empty">加载中…</div>`;
   let data;
-  try { data = await api('/api/platform/stores'); } catch (e) { return; }
+  try {
+    data = await api('/api/platform/stores');
+  } catch (e) {
+    return;
+  }
   const list = data.list || [];
 
   view.innerHTML = `
     <div class="page-title">平台管理 <span style="font-size:13px;color:var(--text-3);font-weight:400">共 ${list.length} 家店铺</span></div>
     <div class="card">
-      ${list.length === 0
-        ? '<div class="empty">暂无店铺</div>'
-        : `<table>
+      ${
+        list.length === 0
+          ? '<div class="empty">暂无店铺</div>'
+          : `<table>
             <thead><tr><th>店铺</th><th>店铺码</th><th>店主</th><th>成员</th><th>订单数</th><th>创建时间</th><th>开单授权</th><th class="t-right">操作</th></tr></thead>
-            <tbody>${list.map((s) => `
+            <tbody>${list
+              .map(
+                (s) => `
               <tr>
                 <td><b>${esc(s.name)}</b></td>
                 <td class="muted">${esc(s.bind_code)}</td>
@@ -1122,22 +1554,28 @@ async function renderPlatform(view) {
                 <td class="t-center">${s.member_count}</td>
                 <td class="t-center">${s.order_count}</td>
                 <td class="muted">${esc(s.created_at)}</td>
-                <td>${s.enabled
-                  ? `<span class="badge on">剩余 ${s.daysLeft} 天</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
-                  : (s.expireAt
-                    ? `<span class="badge off">已到期</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
-                    : '<span class="badge cancelled">未授权</span>')}</td>
+                <td>${
+                  s.enabled
+                    ? `<span class="badge on">剩余 ${s.daysLeft} 天</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
+                    : s.expireAt
+                      ? `<span class="badge off">已到期</span><div class="muted" style="font-size:12px;margin-top:2px">${esc(s.expireAt)}</div>`
+                      : '<span class="badge cancelled">未授权</span>'
+                }</td>
                 <td class="t-right">
                   <button class="btn small ghost" data-bill="${s.id}" data-name="${esc(s.name)}">设置授权</button>
                   <button class="btn small ghost" data-rename="${s.id}" data-rname="${esc(s.name)}" style="margin-left:6px">改名</button>
                 </td>
-              </tr>`).join('')}</tbody></table>`}
+              </tr>`
+              )
+              .join('')}</tbody></table>`
+      }
     </div>`;
 
-  $$('[data-bill]').forEach((b) => b.addEventListener('click', () => {
-    const id = b.dataset.bill;
-    const name = b.dataset.name;
-    openModal(`
+  $$('[data-bill]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const id = b.dataset.bill;
+      const name = b.dataset.name;
+      openModal(`
       <h3>开单授权 · ${esc(name)}</h3>
       <label class="field"><span class="lbl">按天数授权（从现在起算）</span>
         <div style="display:flex;gap:8px">
@@ -1157,44 +1595,56 @@ async function renderPlatform(view) {
       <button class="btn danger" id="pl-close" style="width:100%">关闭该店铺开单权限</button>
       <div class="modal-actions"><button class="btn ghost" id="modal-cancel">取消</button></div>`);
 
-    const doSet = async (body) => {
-      try {
-        const r = await api(`/api/platform/stores/${id}/billing`, { method: 'POST', data: body });
-        toast(r.message || '设置成功');
-        closeModal();
-        renderPlatform(view);
-      } catch (e) {}
-    };
-    $('#pl-days-go').addEventListener('click', () => {
-      const days = parseInt($('#pl-days').value, 10);
-      if (!(days > 0)) { toast('请输入大于 0 的天数', true); return; }
-      doSet({ days });
-    });
-    $$('.pl-quick').forEach((q) => q.addEventListener('click', () => doSet({ days: Number(q.dataset.days) })));
-    $('#pl-expire-go').addEventListener('click', () => {
-      const v = $('#pl-expire').value; // YYYY-MM-DDTHH:mm
-      if (!v) { toast('请选择到期时间', true); return; }
-      doSet({ expireAt: v.replace('T', ' ') + ':00' });
-    });
-    $('#pl-close').addEventListener('click', async () => {
-      if (!(await confirm(`确定关闭店铺【${name}】的开单权限？关闭后立即生效，该店将无法开单`))) return;
-      doSet({ days: 0 });
-    });
-    $('#modal-cancel').addEventListener('click', closeModal);
-  }));
+      const doSet = async (body) => {
+        try {
+          const r = await api(`/api/platform/stores/${id}/billing`, { method: 'POST', data: body });
+          toast(r.message || '设置成功');
+          closeModal();
+          renderPlatform(view);
+        } catch (e) {}
+      };
+      $('#pl-days-go').addEventListener('click', () => {
+        const days = parseInt($('#pl-days').value, 10);
+        if (!(days > 0)) {
+          toast('请输入大于 0 的天数', true);
+          return;
+        }
+        doSet({ days });
+      });
+      $$('.pl-quick').forEach((q) => q.addEventListener('click', () => doSet({ days: Number(q.dataset.days) })));
+      $('#pl-expire-go').addEventListener('click', () => {
+        const v = $('#pl-expire').value; // YYYY-MM-DDTHH:mm
+        if (!v) {
+          toast('请选择到期时间', true);
+          return;
+        }
+        doSet({ expireAt: v.replace('T', ' ') + ':00' });
+      });
+      $('#pl-close').addEventListener('click', async () => {
+        if (!(await confirm(`确定关闭店铺【${name}】的开单权限？关闭后立即生效，该店将无法开单`))) return;
+        doSet({ days: 0 });
+      });
+      $('#modal-cancel').addEventListener('click', closeModal);
+    })
+  );
 
   // 改名按钮（无冷却，平台管理员视角）
-  $$('[data-rename]').forEach((b) => b.addEventListener('click', async () => {
-    const id = b.dataset.rename;
-    const name = b.dataset.rname;
-    const newName = await prompt(`新的店铺名称（无冷却，可随时修改）：`, name);
-    if (!newName || !newName.trim() || newName.trim() === name) return;
-    try {
-      const r = await api(`/api/platform/stores/${id}/rename`, { method: 'POST', data: { storeName: newName.trim() } });
-      toast(r.message || '店铺名称已修改');
-      renderPlatform(view);
-    } catch (e) {}
-  }));
+  $$('[data-rename]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const id = b.dataset.rename;
+      const name = b.dataset.rname;
+      const newName = await prompt(`新的店铺名称（无冷却，可随时修改）：`, name);
+      if (!newName || !newName.trim() || newName.trim() === name) return;
+      try {
+        const r = await api(`/api/platform/stores/${id}/rename`, {
+          method: 'POST',
+          data: { storeName: newName.trim() }
+        });
+        toast(r.message || '店铺名称已修改');
+        renderPlatform(view);
+      } catch (e) {}
+    })
+  );
 }
 
 /* ================= 启动 ================= */

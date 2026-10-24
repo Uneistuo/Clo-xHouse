@@ -42,6 +42,31 @@ function rangeStart(range) {
   return nowStr().slice(0, 10); // today：今日零点（字符串前缀比较）
 }
 
+/** 上一周期时间范围 [start, end)，用于销售环比标签 */
+function previousRange(range) {
+  if (range === 'week') return { start: daysAgoStr(14), end: daysAgoStr(7) };
+  if (range === 'month') return { start: daysAgoStr(60), end: daysAgoStr(30) };
+  return { start: daysAgoStr(1), end: nowStr().slice(0, 10) }; // today：昨日零点 ~ 今日零点
+}
+
+/** 会员姓名显示（与 customer 路由规则一致：姓氏 + 先生/女士） */
+function customerDisplayName(surname, gender) {
+  const suffix = gender === 1 ? '先生' : gender === 2 ? '女士' : '';
+  return `${surname || ''}${suffix}`;
+}
+
+/** 距下次生日的天数（含今天；生日为空/非法返回 null） */
+function daysToBirthday(birthday) {
+  const m = Number(String(birthday).slice(5, 7));
+  const d = Number(String(birthday).slice(8, 10));
+  if (!m || !d) return null;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let target = new Date(now.getFullYear(), m - 1, d);
+  if (target < today) target = new Date(now.getFullYear() + 1, m - 1, d);
+  return Math.round((target - today) / 86400000);
+}
+
 router.get('/dashboard', async (req, res) => {
   try {
     const storeId = req.admin.storeId;
@@ -79,6 +104,34 @@ router.get('/dashboard', async (req, res) => {
     `,
       [storeId, start]
     );
+
+    // 上一周期（销售环比标签）
+    const prev = previousRange(range);
+    const previous = await db.get(
+      `
+      SELECT COUNT(*) AS order_count,
+             COALESCE(SUM(CASE WHEN status IN ('paid','done') THEN total_amount ELSE 0 END), 0) AS sales_amount
+      FROM orders WHERE store_id = ? AND created_at >= ? AND created_at < ?
+    `,
+      [storeId, prev.start, prev.end]
+    );
+
+    // 会员生日提醒（未来 3 天内，含今天）
+    const birthdayRows = await db.all(
+      "SELECT id, surname, gender, phone, birthday FROM customer WHERE store_id = ? AND birthday != ''",
+      [storeId]
+    );
+    const birthdays = birthdayRows
+      .map((r) => ({
+        id: r.id,
+        name: customerDisplayName(r.surname, r.gender),
+        phone: r.phone,
+        birthday: r.birthday,
+        daysLeft: daysToBirthday(r.birthday)
+      }))
+      .filter((r) => r.daysLeft !== null && r.daysLeft <= 3)
+      .sort((a, b) => a.daysLeft - b.daysLeft)
+      .slice(0, 5);
 
     // 待收款订单数（全部时间累计）
     const pendingRow = await db.get('SELECT COUNT(*) AS c FROM orders WHERE store_id = ? AND status = ?', [
@@ -129,6 +182,13 @@ router.get('/dashboard', async (req, res) => {
       [storeId, start]
     );
 
+    // 环比计算：上期无销售额时 percent 为 null（前端显示"新增"或不显示百分比）
+    const curSales = Math.round((period.sales_amount || 0) * 100) / 100;
+    const prevSales = Math.round((previous.sales_amount || 0) * 100) / 100;
+    const salesDiff = Math.round((curSales - prevSales) * 100) / 100;
+    const salesPercent = prevSales > 0 ? Math.round((salesDiff / prevSales) * 1000) / 10 : null;
+    const salesDirection = salesDiff > 0 ? 'up' : salesDiff < 0 ? 'down' : 'flat';
+
     res.json({
       code: 0,
       data: {
@@ -143,7 +203,18 @@ router.get('/dashboard', async (req, res) => {
         // 周期
         range,
         periodOrders: period.order_count || 0,
-        periodSales: Math.round((period.sales_amount || 0) * 100) / 100,
+        periodSales: curSales,
+        // 环比（较上一周期）
+        compare: {
+          prevSales,
+          prevOrders: previous.order_count || 0,
+          diff: salesDiff,
+          percent: salesPercent,
+          direction: salesDirection
+        },
+        // 会员生日提醒
+        birthdayCount: birthdays.length,
+        birthdays,
         // 趋势 / 低库存 / 热销
         trend,
         lowStock,

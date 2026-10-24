@@ -5,11 +5,11 @@ const { toast, loading: showLoading, hideLoading } = require('../../utils/dialog
 
 Page({
   data: {
-    id: null,               // 商品ID（编辑时有值，新增为 null）
+    id: null, // 商品ID（编辑时有值，新增为 null）
     isEdit: false,
     form: {
       name: '',
-      goodsNo: '',          // 货号（选填）
+      goodsNo: '', // 货号（选填）
       price: '',
       originalPrice: '',
       description: '',
@@ -17,13 +17,14 @@ Page({
       categoryId: null
     },
     skus: [{ color: '', size: '', stock: '' }], // 规格库存（无属性时仅一行空规格）
-    hasSpec: false,         // 是否设置了颜色/尺码属性
-    totalStock: 0,          // 各规格库存之和
-    imagePaths: [],         // 已上传图片的相对路径（存数据库，逗号分隔）
-    imageUrls: [],          // 用于展示的完整地址
-    colors: [],             // 已选颜色数组（预设选中 + 自定义）
-    customColors: [],       // 自定义颜色（输入框添加）
-    colorOptions: [         // 最常见颜色预设选项（点选开关，hex 为色点颜色）
+    hasSpec: false, // 是否设置了颜色/尺码属性
+    totalStock: 0, // 各规格库存之和
+    imagePaths: [], // 已上传图片的相对路径（存数据库，逗号分隔）
+    imageUrls: [], // 用于展示的完整地址
+    colors: [], // 已选颜色数组（预设选中 + 自定义）
+    customColors: [], // 自定义颜色（输入框添加）
+    colorOptions: [
+      // 最常见颜色预设选项（点选开关，hex 为色点颜色）
       { value: '黑色', hex: '#1f1b18', on: false },
       { value: '白色', hex: '#ffffff', on: false },
       { value: '灰色', hex: '#9ca3af', on: false },
@@ -31,9 +32,10 @@ Page({
       { value: '红色', hex: '#c7402e', on: false },
       { value: '蓝色', hex: '#3867c4', on: false }
     ],
-    colorInput: '',         // 自定义颜色输入框
-    sizes: [],              // 已选尺码数组
-    sizeOptions: [          // 尺码预设选项（点选开关）
+    colorInput: '', // 自定义颜色输入框
+    sizes: [], // 已选尺码数组
+    sizeOptions: [
+      // 尺码预设选项（点选开关）
       { value: 'XS', on: false },
       { value: 'S', on: false },
       { value: 'M', on: false },
@@ -43,8 +45,8 @@ Page({
       { value: 'XXXL', on: false },
       { value: '均码', on: false }
     ],
-    categories: [],         // 分类列表（来自数据库）
-    categoryInput: '',      // 分类输入框（搜索 / 新增）
+    categories: [], // 分类列表（来自数据库）
+    categoryInput: '', // 分类输入框（搜索 / 新增）
     showAddCategory: false, // 输入的分类不存在时显示"新增"按钮
     submitting: false
   },
@@ -56,7 +58,16 @@ Page({
       this.setData({ id: options.id, isEdit: true });
       this.loadGoods(options.id);
     }
+    if (options.focus === 'image') this._focusImage = true; // 首页"拍照上传"快捷入口：进页后直接唤起选图
     this.loadCategories();
+  },
+
+  onReady() {
+    if (this._focusImage) {
+      this._focusImage = false;
+      // 等页面渲染完成再拉起媒体选择，避免转场期间被系统忽略
+      setTimeout(() => this.chooseImage(), 300);
+    }
   },
 
   /** 加载商品详情（编辑模式） */
@@ -70,9 +81,7 @@ Page({
     const customColors = colors.filter((c) => !colorOptions.some((o) => o.value === c));
     // 尺码预设选项回显：历史数据中的自定义尺码追加到选项末尾
     const preset = this.data.sizeOptions.map((o) => ({ ...o, on: sizes.includes(o.value) }));
-    const extra = sizes
-      .filter((s) => !preset.some((o) => o.value === s))
-      .map((s) => ({ value: s, on: true }));
+    const extra = sizes.filter((s) => !preset.some((o) => o.value === s)).map((s) => ({ value: s, on: true }));
     const sizeOptions = preset.concat(extra);
     // 规格库存：优先用后端返回的 skus；为空时生成默认行
     let skus;
@@ -131,11 +140,21 @@ Page({
   },
 
   // ============ 表单输入 ============
-  onNameInput(e) { this.setData({ 'form.name': e.detail.value }); },
-  onGoodsNoInput(e) { this.setData({ 'form.goodsNo': e.detail.value }); },
-  onPriceInput(e) { this.setData({ 'form.price': e.detail.value }); },
-  onOriginPriceInput(e) { this.setData({ 'form.originalPrice': e.detail.value }); },
-  onDescInput(e) { this.setData({ 'form.description': e.detail.value }); },
+  onNameInput(e) {
+    this.setData({ 'form.name': e.detail.value });
+  },
+  onGoodsNoInput(e) {
+    this.setData({ 'form.goodsNo': e.detail.value });
+  },
+  onPriceInput(e) {
+    this.setData({ 'form.price': e.detail.value });
+  },
+  onOriginPriceInput(e) {
+    this.setData({ 'form.originalPrice': e.detail.value });
+  },
+  onDescInput(e) {
+    this.setData({ 'form.description': e.detail.value });
+  },
   onCategoryInput(e) {
     this.setData({ categoryInput: e.detail.value });
     this.syncCategoryByInput();
@@ -152,7 +171,8 @@ Page({
         data: { name, sort: 0 }
       });
       await this.loadCategories();
-      const cat = this.data.categories.find((c) => c.id === (created && created.id)) ||
+      const cat =
+        this.data.categories.find((c) => c.id === (created && created.id)) ||
         this.data.categories.find((c) => c.name === name);
       if (cat) {
         this.setData({ 'form.categoryId': cat.id, categoryInput: cat.name });
@@ -173,9 +193,7 @@ Page({
 
   /** 合计库存 */
   calcTotalStock() {
-    const total = this.data.skus.reduce(
-      (sum, s) => sum + (parseInt(s.stock, 10) || 0), 0
-    );
+    const total = this.data.skus.reduce((sum, s) => sum + (parseInt(s.stock, 10) || 0), 0);
     this.setData({ totalStock: total });
   },
 
@@ -187,7 +205,9 @@ Page({
     const { colors, sizes, skus } = this.data;
     const hasSpec = colors.length > 0 || sizes.length > 0;
     const oldMap = {};
-    skus.forEach((s) => { oldMap[`${s.color}|${s.size}`] = s.stock; });
+    skus.forEach((s) => {
+      oldMap[`${s.color}|${s.size}`] = s.stock;
+    });
     let newSkus;
     if (!hasSpec) {
       newSkus = [{ color: '', size: '', stock: oldMap['|'] !== undefined ? oldMap['|'] : '' }];
@@ -206,7 +226,22 @@ Page({
     this.calcTotalStock();
   },
 
-  // ============ 图片上传（最多 3 张） ============
+  // ============ 图片上传（最多 3 张：裁剪 / 预览 / 封面标记） ============
+  /**
+   * 单张图片编辑：调起微信原生图片编辑（裁剪 / 旋转）
+   * - 基础库不支持或用户取消时回退原图，保证上传流程不中断
+   */
+  _editImage(src) {
+    return new Promise((resolve) => {
+      if (typeof wx.editImage !== 'function') return resolve(src);
+      wx.editImage({
+        src,
+        success: (r) => resolve((r && r.tempFilePath) || src),
+        fail: () => resolve(src)
+      });
+    });
+  },
+
   async chooseImage() {
     if (this.data.imagePaths.length >= 3) {
       toast('最多上传 3 张图片', 'none');
@@ -216,10 +251,12 @@ Page({
       count: 3 - this.data.imagePaths.length,
       mediaType: ['image'],
       success: async (res) => {
+        if (!res.tempFiles || !res.tempFiles.length) return;
         showLoading('上传中...');
         try {
           for (const f of res.tempFiles) {
-            const url = await uploadFile(f.tempFilePath);
+            const edited = await this._editImage(f.tempFilePath); // 先裁剪/旋转再上传
+            const url = await uploadFile(edited);
             this.setData({
               imagePaths: this.data.imagePaths.concat(url),
               imageUrls: this.data.imageUrls.concat(resolveImg(url, BASE_URL))
@@ -230,6 +267,27 @@ Page({
         }
       }
     });
+  },
+
+  /** 点击缩略图预览全部图片 */
+  previewImage(e) {
+    const urls = this.data.imageUrls;
+    if (!urls.length) return;
+    wx.previewImage({ current: urls[e.currentTarget.dataset.index], urls });
+  },
+
+  /** 将某张图片设为封面（移到第一位） */
+  setCover(e) {
+    const idx = Number(e.currentTarget.dataset.index);
+    if (!idx) return;
+    const imagePaths = this.data.imagePaths.slice();
+    const imageUrls = this.data.imageUrls.slice();
+    const [p] = imagePaths.splice(idx, 1);
+    const [u] = imageUrls.splice(idx, 1);
+    imagePaths.unshift(p);
+    imageUrls.unshift(u);
+    this.setData({ imagePaths, imageUrls });
+    toast('已设为封面', 'success');
   },
 
   /** 删除某张图片 */
@@ -246,17 +304,19 @@ Page({
   /** 常见颜色预设选项点选开关 */
   toggleColor(e) {
     const value = e.currentTarget.dataset.value;
-    const colorOptions = this.data.colorOptions.map((o) => (
-      o.value === value ? { ...o, on: !o.on } : o
-    ));
-    const colors = colorOptions.filter((o) => o.on).map((o) => o.value)
+    const colorOptions = this.data.colorOptions.map((o) => (o.value === value ? { ...o, on: !o.on } : o));
+    const colors = colorOptions
+      .filter((o) => o.on)
+      .map((o) => o.value)
       .concat(this.data.customColors);
     this.setData({ colorOptions, colors });
     this.rebuildSkus();
   },
 
   /** 自定义颜色输入与添加 */
-  onColorInput(e) { this.setData({ colorInput: e.detail.value }); },
+  onColorInput(e) {
+    this.setData({ colorInput: e.detail.value });
+  },
   addColor() {
     const v = this.data.colorInput.trim();
     if (!v) return;
@@ -284,9 +344,7 @@ Page({
   /** 尺码预设选项点选开关 */
   toggleSize(e) {
     const value = e.currentTarget.dataset.value;
-    const sizeOptions = this.data.sizeOptions.map((o) => (
-      o.value === value ? { ...o, on: !o.on } : o
-    ));
+    const sizeOptions = this.data.sizeOptions.map((o) => (o.value === value ? { ...o, on: !o.on } : o));
     const sizes = sizeOptions.filter((o) => o.on).map((o) => o.value);
     this.setData({ sizeOptions, sizes });
     this.rebuildSkus();
@@ -297,12 +355,17 @@ Page({
     if (submitting) return;
 
     // 表单校验
-    if (!form.name.trim()) { toast('请输入商品名称', 'none'); return; }
+    if (!form.name.trim()) {
+      toast('请输入商品名称', 'none');
+      return;
+    }
     if (form.price === '' || isNaN(Number(form.price)) || Number(form.price) < 0) {
-      toast('请输入正确的售价', 'none'); return;
+      toast('请输入正确的售价', 'none');
+      return;
     }
     if (form.originalPrice !== '' && (isNaN(Number(form.originalPrice)) || Number(form.originalPrice) < 0)) {
-      toast('原价格式不正确', 'none'); return;
+      toast('原价格式不正确', 'none');
+      return;
     }
     // 规格库存校验
     const skuList = skus.map((s) => ({
@@ -312,8 +375,7 @@ Page({
     }));
     for (const s of skuList) {
       if (isNaN(s.stock) || s.stock < 0) {
-        const label = this.data.hasSpec
-          ? `规格【${s.color || '默认色'} / ${s.size || '默认码'}】` : '';
+        const label = this.data.hasSpec ? `规格【${s.color || '默认色'} / ${s.size || '默认码'}】` : '';
         toast(`请输入${label}正确的库存`, 'none');
         return;
       }

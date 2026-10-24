@@ -95,6 +95,10 @@ CREATE TABLE IF NOT EXISTS orders (
   store_id       INT UNSIGNED NOT NULL DEFAULT 0,       -- 所属店铺ID
   created_at     VARCHAR(19) NOT NULL DEFAULT '',       -- 创建时间
   updated_at     VARCHAR(19) NOT NULL DEFAULT '',       -- 更新时间
+  paid_at        VARCHAR(19) NOT NULL DEFAULT '',       -- 收款时间（订单时间线用）
+  done_at        VARCHAR(19) NOT NULL DEFAULT '',       -- 完成时间（订单时间线用）
+  cancelled_at   VARCHAR(19) NOT NULL DEFAULT '',       -- 取消时间（订单时间线用）
+  refunded_at    VARCHAR(19) NOT NULL DEFAULT '',       -- 售后完成时间（订单时间线用）
   KEY idx_orders_status (status),
   KEY idx_orders_time (created_at),
   KEY idx_orders_store (store_id),
@@ -120,6 +124,7 @@ CREATE TABLE IF NOT EXISTS order_item (
 -- 6. 客户/会员表（多租户：按 store_id 隔离；下单时通过手机号识别老客户）
 -- gender: 0未知 / 1先生 / 2女士；显示规则：{surname}{先生|女士}
 -- phone_last4 冗余字段，用于按手机号后 4 位等值匹配（加速开单时的"老客户"预选）
+-- tags：会员标签（逗号分隔）；birthday：生日（YYYY-MM-DD）；remark：快捷备注（最近一次修改内容）
 CREATE TABLE IF NOT EXISTS customer (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  -- 客户ID
   store_id    INT UNSIGNED NOT NULL DEFAULT 0,         -- 所属店铺ID（多租户隔离）
@@ -127,8 +132,12 @@ CREATE TABLE IF NOT EXISTS customer (
   phone_last4 VARCHAR(4)  NOT NULL DEFAULT '',         -- 手机号后 4 位（冗余，用于快速匹配）
   surname     VARCHAR(20) NOT NULL DEFAULT '',         -- 姓氏
   gender      TINYINT     NOT NULL DEFAULT 0,           -- 性别：0未知 1先生 2女士
+  tags        VARCHAR(255) NOT NULL DEFAULT '',         -- 会员标签（逗号分隔，如：改裤脚常客,高端面料）
+  birthday    VARCHAR(10) NOT NULL DEFAULT '',          -- 生日（YYYY-MM-DD，用于生日提醒）
+  remark      VARCHAR(200) NOT NULL DEFAULT '',         -- 快捷备注（如：左裤脚改窄 2cm）
   created_at  VARCHAR(19) NOT NULL DEFAULT '',         -- 创建时间
   updated_at  VARCHAR(19) NOT NULL DEFAULT '',         -- 更新时间
   UNIQUE KEY uniq_customer_store_phone (store_id, phone),
-  KEY idx_customer_store_last4 (store_id, phone_last4)
+  KEY idx_customer_store_last4 (store_id, phone_last4),
+  KEY idx_customer_store_birthday (store_id, birthday)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

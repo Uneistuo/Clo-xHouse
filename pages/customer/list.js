@@ -1,8 +1,22 @@
-// 会员列表页：搜索 + 分页 + CRM 统计（消费次数/累计金额/最近到店）+ 新增会员
+// 会员列表页：搜索 + 分页 + CRM 统计（消费次数/累计金额/最近到店）+ 等级/标签/生日提醒 + 新增会员
 const { request } = require('../../utils/api');
+const { getMemberLevel, daysToBirthday, fmtBirthday } = require('../../utils/util');
 const { toast } = require('../../utils/dialog');
 
 const PAGE_SIZE = 20;
+
+/** 列表项附加派生字段：等级徽章 / 生日提醒 / 标签 */
+function decorate(item) {
+  const days = daysToBirthday(item.birthday);
+  return {
+    ...item,
+    level: getMemberLevel(item.totalAmount),
+    birthdayText: fmtBirthday(item.birthday),
+    birthdaySoon: days >= 0 && days <= 7,
+    birthdayToday: days === 0,
+    daysLeft: days
+  };
+}
 
 Page({
   /** 空处理：配合 wxml 中的 catchtap="noop"，阻止弹窗内点击事件冒泡到遮罩（否则点输入框会关闭弹窗） */
@@ -46,7 +60,7 @@ Page({
       if (seq !== this._seq) return; // 已有更新的请求完成，丢弃本次
       const merged = reset ? data.list : this.data.list.concat(data.list);
       this.setData({
-        list: merged,
+        list: merged.map(decorate),
         total: data.total || 0,
         page,
         hasMore: data.list.length >= PAGE_SIZE,
@@ -92,7 +106,11 @@ Page({
     this.setData({ addVisible: false });
   },
   onFormPhoneInput(e) {
-    this.setData({ formPhone: String(e.detail.value || '').replace(/\D/g, '').slice(0, 11) });
+    this.setData({
+      formPhone: String(e.detail.value || '')
+        .replace(/\D/g, '')
+        .slice(0, 11)
+    });
   },
   onFormSurnameInput(e) {
     this.setData({ formSurname: e.detail.value });

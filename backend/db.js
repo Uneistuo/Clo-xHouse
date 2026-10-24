@@ -149,6 +149,37 @@ async function init() {
       'idx_goods_sku_goods_spec',
       'ALTER TABLE goods_sku ADD INDEX idx_goods_sku_goods_spec (goods_id, color, size)'
     );
+    // 2.6) orders 表增加状态时间戳（订单时间线展示用；存量订单用 updated_at 兜底回填）
+    const [orderTsCols] = await conn.query("SHOW COLUMNS FROM orders LIKE 'paid_at'");
+    if (orderTsCols.length === 0) {
+      await conn.query(
+        "ALTER TABLE orders ADD COLUMN paid_at VARCHAR(19) NOT NULL DEFAULT '' AFTER updated_at, " +
+          "ADD COLUMN done_at VARCHAR(19) NOT NULL DEFAULT '' AFTER paid_at, " +
+          "ADD COLUMN cancelled_at VARCHAR(19) NOT NULL DEFAULT '' AFTER done_at, " +
+          "ADD COLUMN refunded_at VARCHAR(19) NOT NULL DEFAULT '' AFTER cancelled_at"
+      );
+      await conn.query("UPDATE orders SET paid_at = updated_at WHERE paid_at = '' AND status IN ('paid', 'done')");
+      await conn.query("UPDATE orders SET done_at = updated_at WHERE done_at = '' AND status = 'done'");
+      await conn.query("UPDATE orders SET cancelled_at = updated_at WHERE cancelled_at = '' AND status = 'cancelled'");
+      await conn.query("UPDATE orders SET refunded_at = updated_at WHERE refunded_at = '' AND status = 'refunded'");
+      logger.info('[migrate] orders 表已增加状态时间戳列（paid_at / done_at / cancelled_at / refunded_at）');
+    }
+    // 2.7) customer 表增加会员 CRM 扩展列（标签 / 生日 / 快捷备注）
+    const [customerCrmCols] = await conn.query("SHOW COLUMNS FROM customer LIKE 'tags'");
+    if (customerCrmCols.length === 0) {
+      await conn.query(
+        "ALTER TABLE customer ADD COLUMN tags VARCHAR(255) NOT NULL DEFAULT '' AFTER gender, " +
+          "ADD COLUMN birthday VARCHAR(10) NOT NULL DEFAULT '' AFTER tags, " +
+          "ADD COLUMN remark VARCHAR(200) NOT NULL DEFAULT '' AFTER birthday"
+      );
+      logger.info('[migrate] customer 表已增加 tags / birthday / remark（会员 CRM）列');
+    }
+    await ensureIndex(
+      conn,
+      'customer',
+      'idx_customer_store_birthday',
+      'ALTER TABLE customer ADD INDEX idx_customer_store_birthday (store_id, birthday)'
+    );
     // 会员查找（store_id, phone）已有唯一索引 uniq_customer_store_phone 覆盖，无需重复添加
 
     // 1) 确保存在默认店铺（首个启动时创建，长期授权）

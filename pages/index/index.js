@@ -23,6 +23,9 @@ Page({
     pendingOrders: 0, // 待收款订单数
     periodOrders: 0, // 周期订单数
     periodSales: '0.00', // 周期销售额
+    compareText: '', // 环比文案：如 "+12.3% 较上周"
+    compareDirection: 'flat', // up / down / flat
+    todoList: [], // 今日待办 [{ key, icon, text, count, path }]
     trend: [], // 近 7 天趋势 [{ date, amount, amountText, orders, barH }]
     trendIndex: 0, // 趋势图当前选中项
     trendSelected: null, // 当前选中项数据
@@ -86,6 +89,45 @@ Page({
         barH: Math.max(4, Math.round(((t.amount || 0) / max) * 100))
       }));
       const last = trendView.length - 1;
+      // 环比标签：今日=较昨日 / 本周=较上周 / 本月=较上月
+      const compare = data.compare || {};
+      const baseLabel = { today: '较昨日', week: '较上周', month: '较上月' }[this.data.rangeKey] || '较上期';
+      let compareText = '';
+      if (compare.percent !== null && compare.percent !== undefined) {
+        const sign = compare.percent > 0 ? '+' : '';
+        compareText = `${sign}${compare.percent}% ${baseLabel}`;
+      } else if ((data.periodSales || 0) > 0 && !compare.prevSales) {
+        compareText = '本期新增';
+      }
+      // 今日待办：待收款订单 / 低库存商品 / 会员生日提醒
+      const todoList = [];
+      if ((data.pendingOrders || 0) > 0) {
+        todoList.push({
+          key: 'pending',
+          icon: 'icon-receipt',
+          text: '待收款订单',
+          count: data.pendingOrders,
+          path: 'orders'
+        });
+      }
+      if ((data.lowStock || []).length > 0) {
+        todoList.push({
+          key: 'lowStock',
+          icon: 'icon-package',
+          text: '低库存商品',
+          count: data.lowStock.length,
+          path: 'goods'
+        });
+      }
+      if ((data.birthdays || []).length > 0) {
+        todoList.push({
+          key: 'birthday',
+          icon: 'icon-cake',
+          text: '会员生日提醒',
+          count: data.birthdays.length,
+          path: 'customer'
+        });
+      }
       this.setData({
         goodsTotal: data.goodsTotal || 0,
         goodsOnSale: data.goodsOnSale || 0,
@@ -93,6 +135,9 @@ Page({
         pendingOrders: data.pendingOrders || 0,
         periodOrders: data.periodOrders || 0,
         periodSales: fmtMoney(data.periodSales || 0),
+        compareText,
+        compareDirection: compare.direction || 'flat',
+        todoList,
         trend: trendView,
         trendIndex: last,
         trendSelected: trendView[last] || null,
@@ -113,6 +158,35 @@ Page({
   },
   goOrders() {
     wx.switchTab({ url: '/pages/orders/orders' });
+  },
+
+  /** 快捷操作：快速开单（空购物车时开单页会恢复上次未结算购物车） */
+  goCreateOrder() {
+    wx.switchTab({ url: '/pages/billing/billing' });
+  },
+
+  /** 快捷操作：拍照上传（进入商品编辑并直接唤起选图/裁剪） */
+  goPhotoUpload() {
+    wx.navigateTo({ url: '/pages/goods-edit/goods-edit?focus=image' });
+  },
+
+  /** 今日待办点击：按类型跳转 */
+  onTodoTap(e) {
+    const key = e.currentTarget.dataset.key;
+    if (key === 'pending') {
+      try {
+        wx.setStorageSync('orders_pending_filter', 1);
+      } catch (err) {}
+      wx.switchTab({ url: '/pages/orders/orders' });
+      return;
+    }
+    if (key === 'lowStock') {
+      this.goGoods();
+      return;
+    }
+    if (key === 'birthday') {
+      wx.navigateTo({ url: '/pages/customer/list' });
+    }
   },
 
   /** 点击低库存商品 -> 去编辑补货 */

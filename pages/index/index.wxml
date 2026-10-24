@@ -1,13 +1,31 @@
 <!--首页：经营看板（优化版：CSS 变量 + 统一空状态 + 加载态）-->
-<view class="page home">
+<view class="page home glow-page">
   <!-- 顶部日期与标题 -->
   <view class="head">
     <view class="head-date">{{dateText}}</view>
     <view class="head-title">经营看板</view>
   </view>
 
+  <!-- 快捷操作（P1：高频路径前置，参考 fashion-mall 首页 grid） -->
+  <view class="quick-actions anim-in" style="--i: 0">
+    <view class="quick-item" bindtap="goCreateOrder">
+      <view class="quick-icon icon icon-cash-register"></view>
+      <view class="quick-text">
+        <view class="quick-title">快速开单</view>
+        <view class="quick-sub">进入开单页</view>
+      </view>
+    </view>
+    <view class="quick-item" bindtap="goPhotoUpload">
+      <view class="quick-icon icon icon-plus"></view>
+      <view class="quick-text">
+        <view class="quick-title">拍照上传</view>
+        <view class="quick-sub">新增商品图片</view>
+      </view>
+    </view>
+  </view>
+
   <!-- 销售额主卡（书签式周期切换） -->
-  <view class="sales-card">
+  <view class="sales-card anim-in" style="--i: 1">
     <view class="bookmark-tabs range-{{rangeKey}}">
       <view wx:for="{{ranges}}" wx:key="key"
             class="bookmark-tab {{rangeKey === item.key ? 'active' : ''}}"
@@ -19,11 +37,15 @@
         <view class="sales-num">￥{{periodSales}}</view>
         <view class="sales-note">共 {{periodOrders}} 单</view>
       </view>
+      <view wx:if="{{compareText}}" class="sales-compare {{compareDirection}}">
+        <text class="compare-arrow">{{compareDirection === 'up' ? '▲' : compareDirection === 'down' ? '▼' : '—'}}</text>
+        <text>{{compareText}}</text>
+      </view>
     </view>
   </view>
 
   <!-- 关键指标：待收款 / 本期订单 -->
-  <view class="duo-row">
+  <view class="duo-row anim-in" style="--i: 2">
     <view class="duo-card" bindtap="goOrders">
       <view class="duo-label">待收款</view>
       <view class="duo-num">{{pendingOrders}}</view>
@@ -34,8 +56,21 @@
     </view>
   </view>
 
+  <!-- 今日待办（P1：待收款 / 低库存 / 会员生日） -->
+  <view wx:if="{{todoList.length > 0}}" class="card todo-card anim-in" style="--i: 3">
+    <view class="section-head">
+      <view class="section-title">今日待办</view>
+    </view>
+    <view wx:for="{{todoList}}" wx:key="key" class="todo-item" data-key="{{item.key}}" bindtap="onTodoTap">
+      <view class="todo-icon icon {{item.icon}}"></view>
+      <view class="todo-text">{{item.text}}</view>
+      <view class="todo-count">{{item.count}}</view>
+      <view class="todo-arrow icon icon-chevron-right"></view>
+    </view>
+  </view>
+
   <!-- 商品概览 -->
-  <view class="tri-row" bindtap="goGoods">
+  <view class="tri-row anim-in" style="--i: 4" bindtap="goGoods">
     <view class="tri-item">
       <view class="tri-num">{{goodsTotal}}</view>
       <view class="tri-label">全部商品</view>
@@ -51,7 +86,7 @@
   </view>
 
   <!-- 近 7 天销售趋势（点选查看某日） -->
-  <view class="card trend-card">
+  <view class="card trend-card anim-in" style="--i: 5">
     <view class="section-head">
       <view class="section-title">近 7 天销售</view>
     </view>
@@ -72,7 +107,7 @@
   </view>
 
   <!-- 低库存提醒（点击可去补货） -->
-  <view wx:if="{{lowStock.length > 0}}" class="card">
+  <view wx:if="{{lowStock.length > 0}}" class="card anim-in" style="--i: 6">
     <view class="section-head">
       <view class="section-title">低库存提醒</view>
       <view class="section-link" bindtap="goGoods">全部商品<view class="icon icon-chevron-right"></view></view>
