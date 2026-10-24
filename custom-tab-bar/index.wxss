@@ -19,12 +19,29 @@
   display: flex;
   height: var(--space-tabbar-height, 108rpx);
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.4);
   border: 1rpx solid var(--glass-border, rgba(255, 255, 255, 0.72));
   border-radius: 36rpx;
   box-shadow: var(--shadow-float, 0 24rpx 60rpx rgba(35, 45, 75, 0.12));
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   backdrop-filter: blur(14px) saturate(140%);
+}
+/* 进入/退出拼接态时插值，避免圆角、描边、底色硬跳
+   （tabbar-anim 由组件 ready 后延迟打开，首帧同步不播动画） */
+.tabbar.tabbar-anim {
+  transition:
+    border-top-left-radius 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+    border-top-right-radius 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+    border-top-color 0.26s ease,
+    background-color 0.26s ease;
+}
+/* 首帧（页面 onShow 同步 dock 的那一次）不播任何形变 */
+.tabbar:not(.tabbar-anim) .tabbar-icon-wrap,
+.tabbar:not(.tabbar-anim) .tabbar-icon-wrap::before,
+.tabbar:not(.tabbar-anim) .tabbar-icon,
+.tabbar:not(.tabbar-anim) .tabbar-text,
+.tabbar:not(.tabbar-anim) .tabbar-item::before {
+  transition: none !important;
 }
 
 .tabbar-item {
@@ -34,7 +51,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 14rpx;
+  padding-bottom: 16rpx;
   box-sizing: border-box;
   color: var(--text-3, #97a0ae);
   font-size: 22rpx;
@@ -50,19 +67,21 @@
   position: absolute;
   left: 50%;
   top: 14rpx;
-  bottom: 6rpx;
+  bottom: 8rpx;
   width: 104rpx;
   transform: translateX(-50%);
   border-radius: 32rpx;
   background: transparent;
-  transition: background 0.15s ease;
+  transition:
+    background 0.15s ease,
+    opacity 0.2s ease;
   pointer-events: none;
 }
 .tabbar-item.active::before {
   background: var(--primary-tint, rgba(123, 140, 247, 0.12));
 }
 .tabbar-item-middle::before {
-  display: none;
+  opacity: 0;
 }
 
 .tabbar-icon-wrap {
@@ -99,68 +118,115 @@
   opacity: 0.7;
 }
 
-/* ===== 中间凸起"开单"：绝对定位，浮于栏上方 ===== */
+/* ===== 中间凸起"开单"：绝对定位，浮于栏上方 =====
+   位置只用 top/left/right + margin 居中（不依赖 transform），
+   这样 width/height/top 可以插值，且 transform 仍留给按下反馈
+   —— 拼接态切换时凸起圆钮能平滑收缩成普通 Tab。 */
 .tabbar-item-middle .tabbar-icon-wrap {
   position: absolute;
   top: -40rpx;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   width: 108rpx;
   height: 108rpx;
+  box-sizing: border-box;
+  transition:
+    top 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s ease;
+}
+/* 圆形底衬单独一层：渐变无法插值，用透明度淡出完成"凸起 → 普通 Tab"的形变 */
+.tabbar-item-middle .tabbar-icon-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   box-sizing: border-box;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary, #7b8cf7) 0%, var(--primary-dark, #6675e8) 100%);
   border: 6rpx solid rgba(255, 255, 255, 0.65);
   box-shadow: var(--shadow-primary, 0 16rpx 36rpx rgba(123, 140, 247, 0.26));
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 .tabbar-item-middle.active .tabbar-icon-wrap {
-  transform: translateX(-50%) translateY(-2rpx);
+  transform: translateY(-2rpx);
 }
 .tabbar-item-middle:active .tabbar-icon-wrap {
-  transform: translateX(-50%) scale(var(--scale-press-dock, 0.94));
+  transform: scale(var(--scale-press-dock, 0.94));
 }
 .tabbar-item-middle .tabbar-icon {
+  position: relative;
+  z-index: 1;
   color: #ffffff;
   font-size: 48rpx;
+  transition:
+    color 0.24s ease,
+    font-size 0.24s ease,
+    transform 0.12s ease,
+    opacity 0.12s ease;
 }
 .tabbar-item-middle .tabbar-text {
   color: var(--primary, #7b8cf7);
   font-weight: 600;
+  transition:
+    opacity 0.12s ease,
+    color 0.24s ease;
 }
 
-/* ===== 开单页：中间"开单"回归普通 Tab ===== */
-.tabbar-billing .tabbar-item-middle::before {
-  display: block;
+/* ===== 开单页 / 底部栏拼接态：中间"开单"回归普通 Tab（避免凸起被底部栏遮挡） ===== */
+.tabbar-billing .tabbar-item-middle::before,
+.tabbar-docked .tabbar-item-middle::before {
+  opacity: 1;
 }
-.tabbar-billing .tabbar-item-middle .tabbar-icon-wrap {
-  position: relative;
-  top: auto;
-  left: auto;
-  width: auto;
-  height: auto;
-  transform: none;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+/* 只改几何尺寸，位置由 top + margin auto 维持居中，因此可平滑插值 */
+.tabbar-billing .tabbar-item-middle .tabbar-icon-wrap,
+.tabbar-docked .tabbar-item-middle .tabbar-icon-wrap {
+  top: 20rpx;
+  width: 44rpx;
+  height: 44rpx;
 }
-.tabbar-billing .tabbar-item-middle .tabbar-icon {
+.tabbar-billing .tabbar-item-middle .tabbar-icon-wrap::before,
+.tabbar-docked .tabbar-item-middle .tabbar-icon-wrap::before {
+  opacity: 0;
+}
+.tabbar-billing .tabbar-item-middle .tabbar-icon,
+.tabbar-docked .tabbar-item-middle .tabbar-icon {
   color: var(--primary, #7b8cf7);
   font-size: 44rpx;
 }
-.tabbar-billing .tabbar-item-middle.active .tabbar-icon-wrap {
+.tabbar-billing .tabbar-item-middle.active .tabbar-icon-wrap,
+.tabbar-docked .tabbar-item-middle.active .tabbar-icon-wrap {
   transform: translateY(-2rpx);
 }
-.tabbar-billing .tabbar-item-middle:active .tabbar-icon-wrap {
+.tabbar-billing .tabbar-item-middle:active .tabbar-icon-wrap,
+.tabbar-docked .tabbar-item-middle:active .tabbar-icon-wrap {
   transform: scale(0.88);
 }
 
-/* 仅当开单页结算栏可见时，TabBar 才与结算栏拼接（无授权时保持完整胶囊） */
-.tabbar-billing-docked {
+/* 拼接态也可能出现在非开单页（如商品批量）：中间 Tab 回到未选中配色 */
+.tabbar-docked .tabbar-item-middle .tabbar-icon,
+.tabbar-docked .tabbar-item-middle .tabbar-text {
+  color: var(--text-3, #97a0ae);
+  font-weight: 400;
+}
+.tabbar-docked .tabbar-item-middle.active .tabbar-icon,
+.tabbar-docked .tabbar-item-middle.active .tabbar-text {
+  color: var(--primary, #7b8cf7);
+  font-weight: 600;
+}
+
+/* 仅当页面底部栏（开单结算栏 / 商品批量栏）可见时，TabBar 才与其拼接为同一块面板 */
+.tabbar-docked {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-top-color: transparent;
-  background: var(--bg-overlay, rgba(255, 255, 255, 0.82));
+  background-color: var(--bg-overlay, rgba(255, 255, 255, 0.82));
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   backdrop-filter: blur(20px) saturate(150%);
 }
@@ -168,7 +234,7 @@
 /* ===== 无障碍降级 ===== */
 @media (prefers-reduced-transparency: reduce) {
   .tabbar {
-    background: #ffffff;
+    background-color: #ffffff;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -181,14 +247,16 @@
   .tabbar-item::before {
     transition: none !important;
   }
-  .tabbar-item.active .tabbar-icon-wrap {
+  /* 只取消普通 Tab 的选中上浮；中间项的位置不依赖 transform，可一并归零 */
+  .tabbar-item:not(.tabbar-item-middle).active .tabbar-icon-wrap {
     transform: none;
   }
-  .tabbar-item-middle:active .tabbar-icon-wrap {
-    transform: translateX(-50%);
-  }
+  .tabbar-item-middle.active .tabbar-icon-wrap,
+  .tabbar-item-middle:active .tabbar-icon-wrap,
   .tabbar-billing .tabbar-item-middle.active .tabbar-icon-wrap,
-  .tabbar-billing .tabbar-item-middle:active .tabbar-icon-wrap {
+  .tabbar-billing .tabbar-item-middle:active .tabbar-icon-wrap,
+  .tabbar-docked .tabbar-item-middle.active .tabbar-icon-wrap,
+  .tabbar-docked .tabbar-item-middle:active .tabbar-icon-wrap {
     transform: none;
   }
 }

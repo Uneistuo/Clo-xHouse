@@ -1,5 +1,5 @@
 <!--商品管理页：搜索 + 筛选 + 列表 + 批量管理 + 低库存预警（优化版：dialog.confirm + 按钮加载态 + CSS 变量）-->
-<view class="page">
+<view class="page glow-page {{manageMode ? 'manage-open' : ''}}">
   <!-- 搜索栏 + 分类/管理入口（分类为图标按钮，置于行首） -->
   <view class="search-bar">
     <view class="category-entry" bindtap="goCategory">

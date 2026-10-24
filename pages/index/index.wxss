@@ -1,11 +1,11 @@
 /* 首页样式（清透质感：Hero 销售额卡 + Standard 玻璃指标卡 + Dense 低库存列表） */
 .home {
   background: transparent;
-  padding: 20rpx 30rpx 0;
+  padding: 24rpx 32rpx 0;
 }
 
 .head {
-  padding: 10rpx 6rpx 24rpx;
+  padding: 8rpx 4rpx 24rpx;
   position: relative;
 }
 .head-date {
@@ -24,7 +24,7 @@
 .sales-card {
   background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   border: 1rpx solid rgba(255, 255, 255, 0.35);
-  padding: 40rpx 36rpx 34rpx;
+  padding: 40rpx 32rpx 32rpx;
   border-radius: var(--radius-hero);
   color: #fff;
   box-shadow: var(--shadow-primary), var(--inner-light);
@@ -39,10 +39,10 @@
 .sales-figure-row {
   display: flex;
   align-items: baseline;
-  margin-top: 6rpx;
+  margin-top: 8rpx;
 }
 .sales-num {
-  font-size: 84rpx;
+  font-size: var(--font-h1);
   font-weight: bold;
   line-height: 1.25;
 }
@@ -52,54 +52,27 @@
   margin-left: 20rpx;
 }
 
-/* ===== 双卡（Standard 玻璃） ===== */
-.duo-row {
+/* ===== 数据卡：商品概览（上）+ 近 7 天销售（下） ===== */
+.stat-goods {
   display: flex;
-  margin-top: 24rpx;
+  align-items: stretch;
+  /* 抵消卡片左右内边距：三栏按整卡宽度等分，栏与栏之间才分得开 */
+  margin: 0 -32rpx;
+  /* 整行可点，进商品页 */
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
-.duo-card {
-  flex: 1;
-  background: var(--bg-card);
-  border-radius: var(--radius-card);
-  padding: 28rpx 30rpx;
-  box-shadow: var(--shadow-soft-2), var(--inner-light);
-  border: 1rpx solid var(--glass-border);
-  transition: transform var(--duration-fast) var(--ease-out);
+.stat-goods:active {
+  opacity: 0.6;
 }
-.duo-card:first-child {
-  margin-right: 24rpx;
-}
-.duo-card:active {
-  transform: scale(var(--scale-press));
-}
-.duo-label {
-  font-size: 24rpx;
-  color: var(--text-2);
-}
-.duo-num {
-  font-size: 52rpx;
-  font-weight: bold;
-  color: var(--text-1);
-  margin-top: 8rpx;
-}
-
-/* ===== 三栏（Standard 玻璃） ===== */
-.tri-row {
-  display: flex;
-  background: var(--bg-card);
-  border-radius: var(--radius-card);
-  margin-top: 24rpx;
-  padding: 26rpx 0;
-  box-shadow: var(--shadow-soft-2), var(--inner-light);
-  border: 1rpx solid var(--glass-border);
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-.tri-row:active {
-  transform: scale(var(--scale-press));
-}
+/* 每栏等宽，文字在本栏内居中 */
 .tri-item {
   flex: 1;
   text-align: center;
+}
+.stat-divider {
+  height: 1rpx;
+  background: var(--hairline);
+  margin: 24rpx 0;
 }
 .tri-num {
   font-size: 38rpx;
@@ -109,7 +82,7 @@
 .tri-label {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-top: 6rpx;
+  margin-top: 8rpx;
 }
 
 /* ===== 分区标题行 ===== */
@@ -117,7 +90,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 40rpx 6rpx 20rpx;
+  margin: 40rpx 8rpx 24rpx;
 }
 .section-head .section-title {
   font-size: 34rpx;
@@ -159,8 +132,8 @@
   position: relative;
   flex: 1;
   text-align: center;
-  font-size: 25rpx;
-  padding: 22rpx 0;
+  font-size: var(--font-xs);
+  padding: 24rpx 0;
   color: rgba(255, 255, 255, 0.85);
   /* 未选中：在卡片底色上叠一层浅色，比卡片更浅 */
   background: var(--bookmark-tab-bg);
@@ -206,7 +179,7 @@
   background: radial-gradient(circle 16rpx at 100% 0, transparent 14rpx, var(--bookmark-fillet-right) 16rpx);
 }
 .sales-body {
-  padding: 26rpx 36rpx 34rpx;
+  padding: 24rpx 32rpx 32rpx;
 }
 
 .card .section-head {
@@ -249,7 +222,7 @@
 .trend-date {
   font-size: 20rpx;
   color: var(--text-2);
-  margin-top: 10rpx;
+  margin-top: 8rpx;
 }
 .trend-date.active {
   color: var(--primary);
@@ -261,7 +234,7 @@
   align-items: baseline;
   gap: 12rpx;
   margin-top: 20rpx;
-  padding-top: 18rpx;
+  padding-top: 16rpx;
   border-top: 1rpx solid var(--hairline);
 }
 .trend-info-date {
@@ -283,7 +256,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18rpx 0;
+  padding: 20rpx 0;
   border-bottom: 1rpx solid var(--hairline);
 }
 .low-item:last-child {
@@ -293,7 +266,7 @@
   flex: 1;
   font-size: 28rpx;
   color: var(--text-1);
-  margin-right: 20rpx;
+  margin-right: 16rpx;
 }
 .low-stock {
   font-size: 26rpx;
@@ -301,7 +274,7 @@
 .low-arrow {
   font-size: 30rpx;
   color: var(--text-2);
-  margin-left: 12rpx;
+  margin-left: 16rpx;
 }
 
 /* ===== 无障碍降级 ===== */
@@ -315,24 +288,21 @@
   .trend-bar {
     transition: none;
   }
-  .duo-card:active,
-  .tri-row:active {
-    transform: none;
-  }
 }
 
-/* ===== 快捷操作（P1：高频入口前置） ===== */
+/* ===== 快捷操作（销售额主卡下方的高频入口） ===== */
 .quick-actions {
   display: flex;
   gap: 24rpx;
-  margin-bottom: 24rpx;
+  margin: 24rpx 0;
 }
 .quick-item {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 18rpx;
-  padding: 26rpx 24rpx;
+  justify-content: space-between;
+  gap: 40rpx;
+  padding: 24rpx 32rpx 24rpx 24rpx;
   background: var(--bg-card);
   border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-card);
@@ -352,17 +322,12 @@
   font-size: 34rpx;
   color: var(--primary-dark);
   background: var(--primary-tint);
-  border-radius: 20rpx;
+  border-radius: var(--radius-sm);
 }
 .quick-title {
   font-size: 28rpx;
-  font-weight: 700;
-  color: var(--text-1);
-}
-.quick-sub {
-  font-size: 22rpx;
-  color: var(--text-3);
-  margin-top: 4rpx;
+  font-weight: 500;
+  color: var(--text-2);
 }
 
 /* ===== 销售环比标签 ===== */
@@ -371,7 +336,7 @@
   align-items: center;
   gap: 8rpx;
   margin-top: 16rpx;
-  padding: 6rpx 16rpx;
+  padding: 8rpx 16rpx;
   border-radius: var(--radius-pill);
   font-size: 22rpx;
   background: rgba(255, 255, 255, 0.18);
@@ -381,10 +346,10 @@
   font-size: 18rpx;
 }
 .sales-compare.up {
-  color: #eafff2;
+  color: #d4f5e4;
 }
 .sales-compare.down {
-  color: #ffe9e4;
+  color: #ffd4cc;
 }
 
 /* ===== 今日待办 ===== */
@@ -394,7 +359,7 @@
 .todo-item {
   display: flex;
   align-items: center;
-  padding: 18rpx 0;
+  padding: 20rpx 0;
   border-bottom: 1rpx solid var(--hairline);
 }
 .todo-item:last-child {
@@ -403,7 +368,7 @@
 .todo-icon {
   font-size: 32rpx;
   color: var(--primary-dark);
-  margin-right: 18rpx;
+  margin-right: 16rpx;
 }
 .todo-text {
   flex: 1;
@@ -414,7 +379,7 @@
   font-size: 26rpx;
   font-weight: 700;
   color: var(--warning);
-  margin-right: 12rpx;
+  margin-right: 16rpx;
 }
 .todo-arrow {
   font-size: 28rpx;

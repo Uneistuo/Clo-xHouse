@@ -1,5 +1,5 @@
 <!-- 会员列表页：搜索 + 分页列表（每项含 CRM 统计：消费次数/累计金额/最近到店） -->
-<view class="page">
+<view class="page glow-page">
   <!-- 页头 -->
   <view class="list-head">
     <view class="list-title">会员</view>

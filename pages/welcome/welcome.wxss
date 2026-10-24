@@ -15,7 +15,7 @@
 .welcome-wrap {
   position: relative;
   z-index: 1;
-  padding: 110rpx 56rpx 80rpx;
+  padding: 112rpx 56rpx 80rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -56,14 +56,14 @@
     box-shadow: 0 0 0 0 rgba(123, 140, 247, 0.28);
   }
   70% {
-    box-shadow: 0 0 0 28rpx rgba(123, 140, 247, 0);
+    box-shadow: 0 0 0 32rpx rgba(123, 140, 247, 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(123, 140, 247, 0);
   }
 }
 .wc-brand-title {
-  margin-top: 28rpx;
+  margin-top: 32rpx;
   font-size: 44rpx;
   font-weight: 800;
   color: var(--text-1);
@@ -78,7 +78,7 @@
   color: var(--text-1);
 }
 .wc-sub {
-  margin-top: 14rpx;
+  margin-top: 16rpx;
   font-size: 28rpx;
   color: var(--primary-dark);
 }
@@ -91,17 +91,17 @@
 /* ===== 功能引导（Standard 玻璃） ===== */
 .wc-guide {
   width: 100%;
-  margin-top: 56rpx;
+  margin-top: 64rpx;
   background: var(--bg-card);
   border-radius: var(--radius-card);
-  padding: 12rpx 32rpx;
+  padding: 16rpx 32rpx;
   box-shadow: var(--shadow-soft-2), var(--inner-light);
   border: 1rpx solid var(--glass-border);
 }
 .guide-item {
   display: flex;
   align-items: center;
-  padding: 28rpx 0;
+  padding: 32rpx 0;
   border-bottom: 1rpx solid var(--hairline);
   text-align: left;
 }
@@ -112,7 +112,7 @@
   flex-shrink: 0;
   width: 72rpx;
   height: 72rpx;
-  border-radius: 20rpx;
+  border-radius: var(--radius-sm);
   background: var(--primary-tint);
   color: var(--primary-dark);
   font-size: 38rpx;
@@ -127,15 +127,15 @@
   color: var(--text-1);
 }
 .guide-sub {
-  font-size: 23rpx;
+  font-size: var(--font-xs);
   color: var(--text-2);
-  margin-top: 6rpx;
+  margin-top: 8rpx;
 }
 
 /* ===== 主按钮（渐变是状态） ===== */
 .wc-btn {
   width: 100%;
-  margin-top: 60rpx;
+  margin-top: 64rpx;
   font-size: 32rpx;
   font-weight: 700;
   letter-spacing: 6rpx;
@@ -171,7 +171,7 @@
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(28rpx);
+    transform: translateY(32rpx);
   }
   to {
     opacity: 1;

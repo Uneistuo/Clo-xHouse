@@ -34,10 +34,20 @@ Page({
 
   onShow() {
     if (!getApp().checkLogin()) return;
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 });
-    }
+    this._syncTabBar();
     this.loadGoods(true);
+  },
+
+  // 批量栏可见时让 TabBar 收起顶角，与批量栏拼接成同一块面板。
+  // 注意：不要在 onHide 里复位 —— 开单页同样是拼接态，切页时复位会让
+  // 中间"开单"键先变回凸起圆钮再消失，形成来回跳换。
+  _syncTabBar(dock = this.data.manageMode) {
+    if (typeof this.getTabBar !== 'function') return;
+    const tabBar = this.getTabBar();
+    if (!tabBar) return;
+    // 状态没变就不要 setData，避免每次进页面时固定定位的 TabBar 重绘一帧
+    if (tabBar.data.selected === 1 && tabBar.data.dock === dock) return;
+    tabBar.setData({ selected: 1, dock });
   },
 
   onUnload() {
@@ -128,6 +138,7 @@ Page({
     const next = !this.data.manageMode;
     const list = this.data.list.map((g) => ({ ...g, selected: false }));
     this.setData({ manageMode: next, list, selectedIds: [], allSelected: false });
+    this._syncTabBar(next);
   },
 
   onCardTap(e) {

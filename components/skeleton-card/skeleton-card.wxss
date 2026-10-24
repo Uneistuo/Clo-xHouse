@@ -18,7 +18,7 @@
 }
 .sk-avatar {
   flex-shrink: 0;
-  margin-right: 20rpx;
+  margin-right: 16rpx;
 }
 .sk-lines {
   flex: 1;

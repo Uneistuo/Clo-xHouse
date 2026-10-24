@@ -1,5 +1,5 @@
 <!--订单管理页：状态 tab + 时间范围 + 订单号搜索-->
-<view class="page order-page">
+<view class="page glow-page order-page">
   <!-- 搜索栏 + 时间范围 -->
   <view class="search-bar">
     <view class="search-input-wrap">

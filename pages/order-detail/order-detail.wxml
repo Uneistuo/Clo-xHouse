@@ -1,5 +1,5 @@
 <!--订单详情（裁间）-->
-<view class="page" wx:if="{{order}}">
+<view class="page glow-page" wx:if="{{order}}">
   <!-- 订单状态 -->
   <view class="card status-card">
     <view class="tag status-{{order.status}} status-tag {{statusPulse ? 'pulse' : ''}}">{{statusText}}</view>
@@ -75,5 +75,5 @@
 </view>
 
 <!-- 加载中 / 不存在 -->
-<view wx:elif="{{loading}}" class="empty">加载中...</view>
-<view wx:else class="empty">订单不存在</view>
+<view wx:elif="{{loading}}" class="empty glow-page">加载中...</view>
+<view wx:else class="empty glow-page">订单不存在</view>

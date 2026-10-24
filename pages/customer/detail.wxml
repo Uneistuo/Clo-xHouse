@@ -1,5 +1,5 @@
 <!-- 会员详情：CRM 统计 + 编辑/删除 + 消费记录 -->
-<view class="page">
+<view class="page glow-page">
   <!-- 骨架屏（统一使用 skeleton-card 组件） -->
   <block wx:if="{{!loaded}}">
     <skeleton-card rows="{{2}}" heights="240,160" widths="100%,100%" gap="{{24}}" radius="{{20}}" />

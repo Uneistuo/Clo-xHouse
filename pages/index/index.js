@@ -156,9 +156,6 @@ Page({
   goGoods() {
     wx.switchTab({ url: '/pages/goods/goods' });
   },
-  goOrders() {
-    wx.switchTab({ url: '/pages/orders/orders' });
-  },
 
   /** 快捷操作：快速开单（空购物车时按上次成交项预置常用商品，否则恢复未结算购物车） */
   goCreateOrder() {

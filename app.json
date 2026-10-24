@@ -17,10 +17,10 @@
     "pages/welcome/welcome"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#F3F5FA",
+    "navigationBarBackgroundColor": "#F5F7FC",
     "navigationBarTitleText": "裁间",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F3F5FA"
+    "backgroundColor": "#EFF3FA"
   },
   "tabBar": {
     "custom": true,

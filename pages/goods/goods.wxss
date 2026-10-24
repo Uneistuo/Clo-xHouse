@@ -2,7 +2,7 @@
 .search-bar {
   display: flex;
   align-items: center;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
 }
 .search-input-wrap {
   flex: 1;
@@ -15,7 +15,7 @@
 }
 .search-icon {
   font-size: 26rpx;
-  margin-right: 12rpx;
+  margin-right: 16rpx;
   color: var(--text-3);
 }
 .search-input {
@@ -28,9 +28,9 @@
 /* 分类入口：纯图标按钮（三条横杠），无底框，位于搜索栏行首 */
 .category-entry {
   flex-shrink: 0;
-  margin-right: 20rpx;
-  width: 56rpx;
-  height: 56rpx;
+  margin-right: 16rpx;
+  width: 64rpx;
+  height: 64rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,12 +46,12 @@
   display: flex;
   background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
-  padding: 6rpx;
+  padding: 8rpx;
   margin-bottom: 24rpx;
   border: 1rpx solid var(--glass-border);
 }
 .goods-no {
-  font-size: 23rpx;
+  font-size: var(--font-xs);
   color: var(--text-2);
   margin-top: 4rpx;
 }
@@ -74,7 +74,7 @@
 
 /* 商品行：Dense 密集层（不模糊，长列表性能优先） */
 .goods-card {
-  padding: 20rpx;
+  padding: 24rpx;
 }
 .goods-main {
   display: flex;
@@ -82,14 +82,14 @@
 .goods-img {
   width: 160rpx;
   height: 160rpx;
-  border-radius: 20rpx;
+  border-radius: var(--radius-sm);
   background: linear-gradient(135deg, #eef0f9 0%, #f7f4f0 100%);
   flex-shrink: 0;
   border: 1rpx solid var(--glass-border);
 }
 .goods-info {
   flex: 1;
-  margin-left: 20rpx;
+  margin-left: 16rpx;
   overflow: hidden;
 }
 /* P1-4：图片加载失败/无图占位 */
@@ -106,29 +106,29 @@
   opacity: 0.6;
 }
 .goods-name {
-  font-size: 30rpx;
+  font-size: var(--font-h3);
   font-weight: bold;
   color: var(--text-1);
 }
 .goods-price {
-  margin: 10rpx 0;
+  margin: 8rpx 0;
   font-size: 32rpx;
 }
 .origin-price {
   color: var(--text-2);
   font-size: 22rpx;
   text-decoration: line-through;
-  margin-left: 12rpx;
+  margin-left: 16rpx;
 }
 .goods-meta {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-bottom: 10rpx;
+  margin-bottom: 8rpx;
   display: flex;
   align-items: center;
 }
 .goods-meta text:first-child {
-  margin-right: 12rpx;
+  margin-right: 16rpx;
 }
 .goods-actions {
   display: flex;
@@ -151,7 +151,7 @@
   right: 40rpx;
   width: 100rpx;
   height: 100rpx;
-  line-height: 96rpx;
+  line-height: 100rpx;
   text-align: center;
   background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
   color: #fff;
@@ -166,7 +166,7 @@
 .fab-label {
   position: absolute;
   left: 50%;
-  bottom: -28rpx;
+  bottom: -32rpx;
   transform: translateX(-50%);
   font-size: 20rpx;
   font-weight: 600;
@@ -181,12 +181,12 @@
   align-items: center;
 }
 .manage-entry {
-  margin-left: 20rpx;
+  margin-left: 16rpx;
   font-size: 26rpx;
   color: var(--text-2);
   background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
-  padding: 12rpx 26rpx;
+  padding: 8rpx 24rpx;
   border: 1rpx solid var(--glass-border);
   transition: opacity var(--duration-fast) var(--ease-out);
 }
@@ -208,7 +208,7 @@
   border-radius: 50%;
   border: 2rpx solid var(--border-strong);
   box-sizing: border-box;
-  margin-right: 20rpx;
+  margin-right: 16rpx;
   flex-shrink: 0;
 }
 .select-dot.on {
@@ -219,10 +219,10 @@
 .select-dot.on::after {
   content: '';
   position: absolute;
-  left: 13rpx;
-  top: 7rpx;
+  left: 12rpx;
+  top: 8rpx;
   width: 10rpx;
-  height: 18rpx;
+  height: 16rpx;
   border: solid #fff;
   border-width: 0 3rpx 3rpx 0;
   transform: rotate(45deg);
@@ -232,23 +232,40 @@
   box-shadow: var(--shadow-soft-2), var(--inner-light);
 }
 
-/* 批量操作栏（浮层玻璃，固定于 TabBar 上方） */
+/* 批量操作栏：与悬浮 TabBar 无缝拼接为同一块 Overlay 面板 */
 .batch-bar {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 101;
+  left: 24rpx;
+  right: 24rpx;
+  /* 向上叠 1rpx 盖住 TabBar 顶边，避免拼接处出现发丝缝 */
+  bottom: calc(var(--space-tabbar-bottom, 124rpx) - 1rpx + env(safe-area-inset-bottom));
+  z-index: 101; /* 高于 TabBar(100) */
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
+  /* 与开单页结算栏等高，避免两页来回切换时面板高度跳变 */
+  min-height: var(--dock-bar-height, 136rpx);
   background: var(--bg-overlay);
-  padding: 20rpx 30rpx;
+  padding: 24rpx 32rpx;
   border: 1rpx solid var(--glass-border);
-  border-radius: var(--radius-hero) var(--radius-hero) 0 0;
-  box-shadow: var(--shadow-float);
+  border-bottom: none;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow:
+    0 -14rpx 40rpx rgba(35, 45, 75, 0.08),
+    var(--inner-light);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   backdrop-filter: blur(20px) saturate(150%);
+  /* 从 TabBar 后方滑出，替代原先的瞬间出现 */
+  animation: dock-bar-in 0.26s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes dock-bar-in {
+  from {
+    transform: translateY(16rpx);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 .batch-all {
   display: flex;
@@ -257,7 +274,7 @@
   color: var(--text-1);
 }
 .batch-all .select-dot {
-  margin-right: 12rpx;
+  margin-right: 16rpx;
 }
 .batch-actions {
   display: flex;
@@ -271,11 +288,14 @@
 .page {
   padding-bottom: calc(var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom) + 96rpx);
 }
+/* 批量态：底部让出与结算栏等高的批量栏，避免最后一张卡被遮挡 */
+.page.manage-open {
+  padding-bottom: calc(
+    var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom) + var(--dock-bar-height, 136rpx)
+  );
+}
 .fab-goods {
   bottom: calc(var(--space-fab-bottom, 160rpx) + env(safe-area-inset-bottom));
-}
-.batch-bar {
-  bottom: calc(var(--space-fixed-bar-bottom, 140rpx) + env(safe-area-inset-bottom));
 }
 
 /* ===== 无障碍降级 ===== */

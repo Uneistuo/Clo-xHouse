@@ -1,5 +1,5 @@
 <!--欢迎页（仅注册完成后展示）：品牌 + 成功动效 + 功能引导 + 开始使用-->
-<view class="welcome-page">
+<view class="welcome-page glow-page">
   <view class="glow glow-1"></view>
   <view class="glow glow-2"></view>
 

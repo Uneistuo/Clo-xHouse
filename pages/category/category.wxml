@@ -1,5 +1,5 @@
 <!--分类管理页：默认按添加时间展示；右上角"管理"按钮进入管理模式（可拖动排序/删除）-->
-<view class="page">
+<view class="page glow-page">
   <!-- 页面顶部：标题 + 右上角管理/退出管理 -->
   <view class="cat-page-header">
     <view class="cat-page-title">商品分类</view>

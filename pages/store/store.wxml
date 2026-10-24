@@ -1,6 +1,6 @@
 <page-meta page-style="{{pageStyle}}"></page-meta>
 <!--店铺页（tab）：店铺信息+成员合并板块；圆形图标弹窗切换店铺；底部注册店铺（店主，上限3家）-->
-<view class="store-page">
+<view class="store-page glow-page">
   <view class="store-head">
     <view class="store-title">我的店铺</view>
   </view>

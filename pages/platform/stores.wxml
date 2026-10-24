@@ -1,5 +1,5 @@
 <!--平台管理页：店铺开单白名单时效控制-->
-<view class="platform-page">
+<view class="platform-page glow-page">
   <view class="plat-head">
     <view class="plat-title">平台管理</view>
     <view class="plat-sub">控制各店铺"开单"功能的授权时效；到期或关闭后店铺立即无法现场开单，商品与订单数据不受限制</view>

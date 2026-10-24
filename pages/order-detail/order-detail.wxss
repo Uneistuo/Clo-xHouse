@@ -7,7 +7,7 @@
 }
 .status-tag {
   font-size: 28rpx;
-  padding: 8rpx 30rpx;
+  padding: 8rpx 32rpx;
 }
 .status-pending {
   background: var(--warning-tint);
@@ -43,7 +43,7 @@
 .status-sub {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-top: 12rpx;
+  margin-top: 16rpx;
 }
 
 .item-row {
@@ -66,13 +66,13 @@
 .item-spec {
   display: flex;
   align-items: center;
-  margin-top: 10rpx;
+  margin-top: 8rpx;
   flex-wrap: wrap;
 }
 .item-price {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-left: 12rpx;
+  margin-left: 16rpx;
 }
 .item-amount {
   font-size: 28rpx;
@@ -83,10 +83,10 @@
   text-align: right;
   font-size: 28rpx;
   color: var(--text-1);
-  padding-top: 22rpx;
+  padding-top: 24rpx;
 }
 .total-row .price {
-  font-size: 36rpx;
+  font-size: var(--font-h3);
   font-weight: 800;
 }
 
@@ -113,7 +113,7 @@
 }
 .action-btn {
   width: 100%;
-  margin: 12rpx 0;
+  margin: 16rpx 0;
   font-size: 28rpx;
 }
 .action-btn::after {
@@ -147,7 +147,7 @@
   border-radius: 50%;
   background: var(--text-3);
   margin-right: 20rpx;
-  margin-top: 6rpx;
+  margin-top: 8rpx;
   flex-shrink: 0;
   z-index: 1;
 }

@@ -26,6 +26,7 @@ App({
   logout() {
     wx.removeStorageSync('token');
     wx.removeStorageSync('adminInfo');
+    wx.removeStorageSync('billing_store_cache');
     wx.reLaunch({ url: '/pages/login/login' });
   }
 });

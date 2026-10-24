@@ -14,12 +14,12 @@
   background: rgba(255, 255, 255, 0.4);
   border-radius: 999rpx;
   padding: 16rpx 24rpx;
-  margin: 10rpx 0 24rpx;
+  margin: 8rpx 0 24rpx;
   border: 1rpx solid var(--glass-border);
 }
 .search-icon {
   font-size: 26rpx;
-  margin-right: 12rpx;
+  margin-right: 16rpx;
   color: var(--text-3);
 }
 .search-input {
@@ -33,8 +33,8 @@
 .goods-row {
   display: flex;
   align-items: center;
-  padding: 20rpx;
-  margin-bottom: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
   background: var(--bg-card-strong);
   border-radius: var(--radius-card);
   border: 1rpx solid var(--glass-border);
@@ -43,12 +43,14 @@
 .goods-img {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 20rpx;
+  border-radius: var(--radius-sm);
   background: linear-gradient(135deg, #eef0f9 0%, #f7f4f0 100%);
   flex-shrink: 0;
   border: 1rpx solid var(--glass-border);
 }
-/* P1-4：图片加载失败/无图占位 */
+/* P1-4：图片加载失败/无图占位
+   注意：始终与 .goods-img 组合使用（class="goods-img goods-img-empty"），
+   渐变底、描边与尺寸均由 .goods-img 提供，此处只负责居中与图标色。 */
 .goods-img-empty {
   display: flex;
   align-items: center;
@@ -65,7 +67,7 @@
   overflow: hidden;
 }
 .goods-name {
-  font-size: 28rpx;
+  font-size: var(--font-h3);
   font-weight: bold;
   color: var(--text-1);
 }
@@ -110,7 +112,7 @@
   border-radius: var(--radius-card);
   background: rgba(255, 255, 255, 0.5);
   text-align: center;
-  padding: 90rpx 0 80rpx;
+  padding: 88rpx 0 80rpx;
 }
 .empty-card .empty-icon {
   font-size: 72rpx;
@@ -125,7 +127,7 @@
 .empty-sub {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-top: 14rpx;
+  margin-top: 16rpx;
 }
 
 .expire-banner {
@@ -133,15 +135,15 @@
   color: var(--primary-dark);
   border-radius: var(--radius-input);
   font-size: 24rpx;
-  padding: 14rpx 24rpx;
-  margin-bottom: 20rpx;
+  padding: 16rpx 24rpx;
+  margin-bottom: 24rpx;
 }
 
 .restricted-card {
-  padding: 100rpx 40rpx 90rpx;
+  padding: 100rpx 40rpx 88rpx;
 }
 .restricted-card .empty-sub {
-  padding: 0 30rpx;
+  padding: 0 32rpx;
   line-height: 1.7;
 }
 
@@ -149,12 +151,12 @@
   font-size: 28rpx;
   font-weight: bold;
   color: var(--text-1);
-  margin: 32rpx 6rpx 16rpx;
+  margin: 32rpx 8rpx 16rpx;
 }
 .cart-item {
   display: flex;
-  padding: 20rpx;
-  margin-bottom: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
   background: #ffffff;
   border-radius: var(--radius-input);
   border: 1rpx solid var(--border);
@@ -163,7 +165,7 @@
 .cart-img {
   width: 110rpx;
   height: 110rpx;
-  border-radius: 20rpx;
+  border-radius: var(--radius-sm);
   background: linear-gradient(135deg, #eef0f9 0%, #f7f4f0 100%);
   flex-shrink: 0;
 }
@@ -178,7 +180,7 @@
   margin: 8rpx 0;
 }
 .cart-spec .tag {
-  margin-right: 12rpx;
+  margin-right: 16rpx;
 }
 .cart-spec .price {
   margin-left: auto;
@@ -201,12 +203,12 @@
   align-items: center;
 }
 .step-btn {
-  width: 52rpx;
-  height: 52rpx;
-  line-height: 50rpx;
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 48rpx;
   text-align: center;
   border: 1rpx solid var(--glass-border);
-  border-radius: 12rpx;
+  border-radius: var(--radius-sm);
   color: var(--text-1);
   font-size: 30rpx;
   background: rgba(255, 255, 255, 0.6);
@@ -216,29 +218,29 @@
   transform: scale(var(--scale-press));
 }
 .step-num {
-  min-width: 70rpx;
+  min-width: 64rpx;
   text-align: center;
   font-size: 32rpx;
   font-weight: 700;
   color: var(--text-1);
 }
 .big-stepper {
-  margin: 10rpx 0 0;
+  margin: 8rpx 0 0;
 }
 
 .field-block {
-  margin: 32rpx 6rpx 0;
+  margin: 32rpx 8rpx 0;
 }
 .field-label {
   font-size: 28rpx;
   font-weight: bold;
   color: var(--text-1);
-  margin-bottom: 14rpx;
+  margin-bottom: 16rpx;
 }
 .field-input {
   background: var(--bg-subtle);
   border-radius: var(--radius-input);
-  padding: 24rpx 28rpx;
+  padding: 24rpx 32rpx;
   font-size: 28rpx;
   color: var(--text-1);
   box-shadow: inset 0 1rpx 2rpx rgba(35, 45, 75, 0.04);
@@ -250,7 +252,7 @@
   min-height: 160rpx;
   background: var(--bg-subtle);
   border-radius: var(--radius-input);
-  padding: 24rpx 28rpx;
+  padding: 24rpx 32rpx;
   font-size: 28rpx;
   color: var(--text-1);
   box-shadow: inset 0 1rpx 2rpx rgba(35, 45, 75, 0.04);
@@ -269,7 +271,7 @@
 }
 .add-customer-btn {
   flex-shrink: 0;
-  padding: 14rpx 24rpx;
+  padding: 16rpx 24rpx;
   font-size: 24rpx;
   color: #ffffff;
   background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
@@ -282,7 +284,7 @@
   opacity: 0.7;
 }
 .phone-count {
-  margin-top: 6rpx;
+  margin-top: 8rpx;
   text-align: right;
   font-size: 22rpx;
   color: var(--text-3);
@@ -296,19 +298,19 @@
   margin-top: 16rpx;
   background: var(--bg-subtle);
   border-radius: var(--radius-input);
-  padding: 16rpx 20rpx;
+  padding: 16rpx;
   border: 1rpx solid var(--glass-border);
 }
 .customer-matches-title {
   font-size: 22rpx;
   color: var(--text-2);
-  margin-bottom: 10rpx;
+  margin-bottom: 8rpx;
 }
 .customer-match-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14rpx 0;
+  padding: 16rpx 0;
   font-size: 28rpx;
   color: var(--text-1);
   border-bottom: 1rpx solid var(--hairline);
@@ -332,7 +334,7 @@
   text-align: center;
   font-size: 26rpx;
   color: var(--text-2);
-  margin: -8rpx 0 24rpx;
+  margin: 0 0 24rpx;
   letter-spacing: 1rpx;
 }
 .modal-btns .btn-ghost.modal-btn {
@@ -356,7 +358,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 30rpx;
+  box-sizing: border-box;
+  /* 与商品批量栏共用同一高度令牌，切换页面时面板轮廓不跳变 */
+  min-height: var(--dock-bar-height, 136rpx);
+  padding: 24rpx 32rpx;
   margin: 0;
   background: var(--bg-overlay);
   border: 1rpx solid var(--glass-border);
@@ -387,7 +392,7 @@
   color: #fff;
   font-size: 30rpx;
   font-weight: bold;
-  padding: 24rpx 54rpx;
+  padding: 24rpx 56rpx;
   border-radius: 999rpx;
   box-shadow: var(--shadow-primary);
   transition:
@@ -416,7 +421,7 @@
 .spec-item {
   border: 1rpx solid var(--glass-border);
   border-radius: 999rpx;
-  padding: 10rpx 28rpx;
+  padding: 8rpx 24rpx;
   margin: 0 16rpx 16rpx 0;
   font-size: 26rpx;
   color: var(--text-1);
@@ -452,12 +457,12 @@
   color: var(--warning);
 }
 .spec-low-tip {
-  margin-left: 12rpx;
+  margin-left: 16rpx;
   font-size: 22rpx;
   color: var(--warning);
 }
 .spec-tip {
-  margin-top: 10rpx;
+  margin-top: 8rpx;
   font-size: 22rpx;
   color: var(--text-3);
 }
@@ -479,10 +484,10 @@
 .success-order {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-top: 12rpx;
+  margin-top: 16rpx;
 }
 .success-amount {
-  font-size: 60rpx;
+  font-size: var(--font-h1);
   font-weight: bold;
   color: var(--primary);
   margin: 16rpx 0 8rpx;
@@ -490,7 +495,7 @@
 .success-status {
   display: inline-block;
   font-size: 22rpx;
-  padding: 4rpx 20rpx;
+  padding: 4rpx 16rpx;
   border-radius: 999rpx;
 }
 .success-status.paid {

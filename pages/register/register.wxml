@@ -1,5 +1,5 @@
 <!--注册 + 绑定页（独立页面）：第1步注册账号 → 第2步绑定店铺 → 第3步完成-->
-<view class="reg-page">
+<view class="reg-page glow-page">
   <!-- 背景光晕 -->
   <view class="glow glow-1"></view>
   <view class="glow glow-2"></view>

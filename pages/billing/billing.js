@@ -15,6 +15,21 @@ const RECENT_SPECS_KEY = 'billing_recent_specs';
 const FREQUENT_GOODS_KEY = 'billing_frequent_goods';
 /** 首页「快速开单」写入的一次性标记：开单页消费后按常用商品预置购物车 */
 const PRESET_FLAG_KEY = 'billing_preset_frequent';
+/**
+ * 店铺授权信息缓存：开单授权横幅 / 受限态决定页面首屏高度，
+ * 首帧用缓存渲染可避免「先进页面、后补数据」造成的整页下移。
+ */
+const STORE_CACHE_KEY = 'billing_store_cache';
+
+function readStoreCache() {
+  try {
+    const c = wx.getStorageSync(STORE_CACHE_KEY);
+    if (c && typeof c === 'object' && 'billingEnabled' in c) return c;
+  } catch (e) {}
+  return null;
+}
+
+const storeCache = readStoreCache();
 
 Page({
   /** 空处理：配合 wxml 中的 catchtap，阻止弹窗内点击事件冒泡到遮罩 */
@@ -44,9 +59,10 @@ Page({
     customerPhone: '',
     remark: '',
     submitting: false,
-    restricted: false,
-    restrictedExpired: false,
-    billingExpireText: '',
+    // 首屏直接用上次的授权信息渲染：横幅/受限态若晚到，会把下方内容整体推下去
+    restricted: storeCache ? !storeCache.billingEnabled : false,
+    restrictedExpired: storeCache ? !storeCache.billingEnabled && !!storeCache.billingExpireAt : false,
+    billingExpireText: storeCache && storeCache.billingEnabled ? storeCache.billingExpireAt || '' : '',
     successInfo: null,
 
     showAddCustomerBtn: false,
@@ -83,10 +99,10 @@ Page({
     if (typeof this.getTabBar !== 'function') return;
     const tabBar = this.getTabBar();
     if (!tabBar) return;
-    tabBar.setData({
-      selected: 2,
-      billingDock: !this.data.restricted
-    });
+    const dock = !this.data.restricted;
+    // 状态没变就不要 setData：重复下发会让固定定位的 TabBar 在每次进页面时重绘一帧
+    if (tabBar.data.selected === 2 && tabBar.data.dock === dock) return;
+    tabBar.setData({ selected: 2, dock });
   },
 
   onUnload() {
@@ -106,10 +122,11 @@ Page({
   restoreCart() {
     try {
       const cart = wx.getStorageSync('billing_cart');
-      if (Array.isArray(cart) && cart.length) {
-        this.setData({ cart });
-        this.calcTotal();
-      }
+      if (!Array.isArray(cart) || !cart.length) return;
+      // 购物车没变化就不回填：每次 onShow 重建购物车节点会让列表下方内容重新排版
+      if (JSON.stringify(cart) === JSON.stringify(this.data.cart)) return;
+      this.setData({ cart });
+      this.calcTotal();
     } catch (e) {}
   },
 
@@ -218,12 +235,27 @@ Page({
     try {
       const data = await request({ url: '/api/store/info' });
       const expireAt = data.billingExpireAt || '';
-      this.setData({
+      const next = {
         restricted: !data.billingEnabled,
         restrictedExpired: !data.billingEnabled && !!expireAt,
         billingExpireText: data.billingEnabled ? expireAt : ''
+      };
+      // 写回缓存：下次进页面首帧就有正确高度（横幅/受限态不会晚到）
+      try {
+        wx.setStorageSync(STORE_CACHE_KEY, {
+          billingEnabled: !!data.billingEnabled,
+          billingExpireAt: expireAt
+        });
+      } catch (e) {}
+      // 只下发真正变化的字段：避免每次 onShow 都触发一次整页重排
+      const patch = {};
+      Object.keys(next).forEach((k) => {
+        if (this.data[k] !== next[k]) patch[k] = next[k];
       });
-      this._syncTabBar();
+      if (Object.keys(patch).length) {
+        this.setData(patch);
+        if ('restricted' in patch) this._syncTabBar();
+      }
     } catch (e) {}
   },
 
@@ -251,7 +283,10 @@ Page({
     if (!reset && (this.data.loading || !this.data.hasMore)) return;
     const page = reset ? 1 : this.data.page + 1;
     const seq = (this._goodsSeq = (this._goodsSeq || 0) + 1); // 丢弃过期响应（快速输入搜索词时）
-    this.setData({ loading: true });
+    // 已经成功加载过一次后，再次进入页面走静默刷新：
+    // 不翻 loading，骨架屏/加载提示节点就不会被重建，页面显示后不再重排
+    const silent = reset && this._goodsLoadedOnce;
+    if (!silent) this.setData({ loading: true });
     try {
       const data = await request({
         url: '/api/goods',
@@ -267,6 +302,7 @@ Page({
         cover: g.image ? resolveImg(g.image.split(',')[0], BASE_URL) : ''
       }));
       const merged = reset ? list : this.data.goodsList.concat(list);
+      this._goodsLoadedOnce = true;
       this.setData({
         goodsList: merged,
         page,
@@ -276,7 +312,7 @@ Page({
       // 首页「快速开单」进入后，首屏商品加载完成时按常用商品预置购物车
       if (reset && this._presetPending) this._presetFrequentGoods();
     } catch (e) {
-      if (seq === this._goodsSeq) this.setData({ loading: false });
+      if (seq === this._goodsSeq && this.data.loading) this.setData({ loading: false });
     }
   },
 

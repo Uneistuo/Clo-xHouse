@@ -16,10 +16,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 8rpx 12rpx;
+  padding: 24rpx 8rpx 16rpx;
 }
 .cat-page-title {
-  font-size: 38rpx;
+  font-size: var(--font-h2);
   font-weight: bold;
   color: var(--text-1);
   letter-spacing: 1rpx;
@@ -27,7 +27,7 @@
 .cat-manage-btn {
   color: #fff;
   background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
-  padding: 12rpx 32rpx;
+  padding: 8rpx 32rpx;
   border-radius: var(--radius-pill);
   font-size: 26rpx;
   letter-spacing: 2rpx;
@@ -67,7 +67,7 @@
   border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-hero) var(--radius-hero) 0 0;
   box-shadow: var(--shadow-float);
-  padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
   margin: 0;
   box-sizing: border-box;
   -webkit-backdrop-filter: blur(20px) saturate(150%);
@@ -78,7 +78,7 @@
   background: var(--bg-subtle);
   border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-input);
-  padding: 14rpx 20rpx;
+  padding: 16rpx;
   font-size: 28rpx;
   color: var(--text-1);
   margin-right: 16rpx;
@@ -111,7 +111,7 @@
 .cat-meta {
   font-size: 24rpx;
   color: var(--text-3);
-  margin-top: 6rpx;
+  margin-top: 8rpx;
 }
 .cat-actions {
   display: flex;

@@ -1,5 +1,5 @@
 <!--裁间 · 登录页-->
-<view class="login-page">
+<view class="login-page glow-page">
   <!-- 背景光晕 -->
   <view class="glow glow-1"></view>
   <view class="glow glow-2"></view>

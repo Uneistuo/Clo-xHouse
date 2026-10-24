@@ -10,8 +10,8 @@
 page,
 :host {
   /* ---------- 基底 ---------- */
-  --bg-app: #f3f5fa; /* 页面底色（冷灰蓝） */
-  --bg-gradient: linear-gradient(180deg, #f7f8fc 0%, #eef1f8 100%);
+  --bg-app: #eff3fa; /* 页面底色（冷灰蓝） */
+  --bg-gradient: linear-gradient(180deg, #f5f7fc 0%, #e6ecf7 100%);
   --bg-card: rgba(255, 255, 255, 0.68); /* Standard 标准玻璃卡 */
   --bg-card-strong: rgba(255, 255, 255, 0.86); /* Dense 密集列表 */
   --bg-subtle: rgba(255, 255, 255, 0.46); /* 分区/输入底/嵌套内层 */
@@ -62,6 +62,8 @@ page,
   --blur-lg: 26px; /* Hero / Overlay 高浮层 */
 
   /* ---------- 圆角 ---------- */
+  --radius-sm: 16rpx; /* 小元素：按钮、输入框内部件 */
+  --radius-md: 24rpx; /* 中等：输入框、标签 */
   --radius-card: 36rpx;
   --radius-hero: 44rpx;
   --radius-input: 24rpx;
@@ -75,13 +77,26 @@ page,
   --space-4: 32rpx;
   --space-5: 40rpx;
   --space-6: 48rpx;
+  --space-7: 56rpx;
+  --space-8: 64rpx;
+  --space-9: 80rpx;
+  --space-10: 96rpx;
+  --space-11: 112rpx;
+
+  /* ---------- 字号（收敛为 5 档） ---------- */
+  --font-xs: 22rpx; /* 辅助文字、标签、注释 */
+  --font-body: 28rpx; /* 正文、输入框 */
+  --font-h3: 32rpx; /* 卡片标题、小标题 */
+  --font-h2: 44rpx; /* 页面主标题 */
+  --font-h1: 72rpx; /* 数据突出显示（销售额等） */
 
   /* ---------- 底部悬浮/固定元素安全区间距 ---------- */
   --space-tabbar-height: 108rpx;
   --space-tabbar-gap: 16rpx;
   --space-tabbar-bottom: 124rpx; /* = 108rpx 栏高 + 16rpx 间距 */
   --space-fab-bottom: 160rpx;
-  --space-fixed-bar-bottom: 140rpx;
+  /* 底部拼接栏统一高度：开单结算栏(实测134rpx) 与 商品批量栏 共用，避免切页时面板高度跳变 */
+  --dock-bar-height: 136rpx;
   --space-fixed-bottom: 140rpx; /* 兼容旧命名 */
 
   /* ---------- Ambient 环境阴影（蓝灰调） ---------- */

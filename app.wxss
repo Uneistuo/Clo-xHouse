@@ -8,15 +8,16 @@
 @import 'styles/tokens.wxss';
 
 /* ========== 页面底色 + 固定光晕（三层背景模型） ========== */
+/* 注：不使用 background-attachment: fixed —— 微信 iOS 端支持不可靠，
+   会导致 page 底色渐变不绘制。渐变随 page 高度自然铺满即可。 */
 page {
   position: relative;
   z-index: 0;
   background: var(--bg-gradient);
-  background-attachment: fixed;
   color: var(--text-1);
 }
 /* 光晕：radial-gradient 直接绘制，不用 filter: blur()（省 GPU）
-   按需渲染：仅首页等需要氛围的页面在根节点加 .glow-page，其余页面不绘制光晕（P3 性能） */
+   所有页面根节点均加 .glow-page，保证各页背景氛围一致 */
 .glow-page::before,
 .glow-page::after {
   content: '';
@@ -123,8 +124,8 @@ page {
   background: var(--bg-card-strong);
   border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-card);
-  padding: 24rpx 30rpx;
-  margin-bottom: 20rpx;
+  padding: 24rpx 32rpx;
+  margin-bottom: 24rpx;
   box-shadow: var(--shadow-soft-1);
 }
 
@@ -161,7 +162,7 @@ page {
   border: 1rpx solid var(--glass-border);
   border-radius: var(--radius-pill);
   font-size: 28rpx;
-  padding: 14rpx 28rpx;
+  padding: 16rpx 28rpx;
   display: inline-block;
   text-align: center;
   transition:
@@ -182,7 +183,7 @@ page {
   border: none;
   border-radius: var(--radius-pill);
   font-size: 28rpx;
-  padding: 14rpx 28rpx;
+  padding: 16rpx 28rpx;
   display: inline-block;
   text-align: center;
   transition:
@@ -252,7 +253,7 @@ page {
   color: var(--text-3);
   font-size: 32rpx;
   line-height: 1;
-  padding: 0 12rpx;
+  padding: 0 16rpx;
   transition: color var(--duration-fast) var(--ease-out);
 }
 .search-clear:active {
@@ -323,7 +324,7 @@ page {
   font-size: 22rpx;
   padding: 4rpx 16rpx;
   border-radius: var(--radius-pill);
-  margin-right: 12rpx;
+  margin-right: 16rpx;
 }
 .tag-blue {
   background: var(--primary-tint);
@@ -444,7 +445,7 @@ page .stock-low {
   font-size: 32rpx;
   font-weight: bold;
   color: var(--text-1);
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
 .modal-sub {
   text-align: center;
@@ -454,7 +455,7 @@ page .stock-low {
 }
 .modal-btns {
   display: flex;
-  margin-top: 36rpx;
+  margin-top: 32rpx;
 }
 .modal-btn {
   flex: 1;
@@ -516,7 +517,7 @@ page .stock-low {
   font-size: 30rpx;
   color: var(--text-2);
   font-weight: 400;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
 .empty-state-sub {
   font-size: 26rpx;
