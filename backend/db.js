@@ -24,10 +24,14 @@ const pool = mysql.createPool({
   charset: 'utf8mb4'
 });
 
-/** 当前本地时间字符串：YYYY-MM-DD HH:mm:ss */
+/**
+ * 当前时间字符串（北京时间，YYYY-MM-DD HH:mm:ss）
+ * 显式按 UTC+8 计算：不依赖容器 TZ，也不依赖 tzdata 是否安装成功
+ */
 function nowStr(d = new Date()) {
+  const t = new Date(d.getTime() + 8 * 3600 * 1000); // 东八区视图
   const p = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  return `${t.getUTCFullYear()}-${p(t.getUTCMonth() + 1)}-${p(t.getUTCDate())} ${p(t.getUTCHours())}:${p(t.getUTCMinutes())}:${p(t.getUTCSeconds())}`;
 }
 
 /** N 天前的时间字符串（订单时间范围筛选用） */
