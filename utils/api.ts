@@ -15,15 +15,18 @@ const FORCE_CLOUD = true;
 // BASE_URL：所有请求与商品图片的地址前缀（devtools 用本地后端，其余用云托管域名）
 export const BASE_URL: string = IS_DEVTOOLS && !FORCE_CLOUD ? DEV_BASE : CLOUD_BASE_URL;
 
-// 云开发环境（与 app.js 中 wx.cloud.init 的 env 保持一致）
-const CLOUD_ENV = 'cloudbase-d8gi3gmlw2c70f695';
-// 云托管服务名（云托管控制台「服务列表」查看；从默认域名 express-xxx 推断为 express，如不符请改这里）
-const CLOUD_SERVICE = 'express';
+// 云托管服务所属环境（云托管控制台右上角「环境」→ 环境 ID，如 prod-d3glxidf70a368a07）
+// 注意：与 app.js 中 wx.cloud.init 的云开发环境可能不同，callContainer 需要用服务所在环境
+const CLOUD_ENV = 'prod-d3glxidf70a368a07';
+// 云托管服务名（云托管控制台「服务列表」页面标题所示，如 express-3how）
+const CLOUD_SERVICE = 'express-3how';
+// 云托管调用通道开关：服务名/环境未确认前可改为 false，回退到域名直连（需域名已在合法域名列表内）
+const USE_CONTAINER = true;
 
 /** 是否可走云托管调用通道（免服务器域名白名单/备案校验） */
 function canCallContainer(): boolean {
   const cloud = (wx as any).cloud;
-  return !!(cloud && typeof cloud.callContainer === 'function' && CLOUD_SERVICE);
+  return !!(USE_CONTAINER && cloud && typeof cloud.callContainer === 'function' && CLOUD_SERVICE);
 }
 
 /** 业务错误：携带后端返回的 code（如 1002 开单授权失效），供页面区分处理 */
@@ -83,6 +86,7 @@ function handleResponse(
  */
 /** 把 wx.request 的 errMsg 翻译成可定位的中文原因 */
 function describeFail(errMsg: string, inDev: boolean): string {
+  if (errMsg.indexOf('INVALID_HOST') >= 0) return '云托管服务名或环境不匹配';
   if (errMsg.indexOf('url not in domain list') >= 0) return '域名未加入 request 合法域名';
   if (errMsg.indexOf('timeout') >= 0) return '请求超时，请重试';
   if (errMsg.indexOf('ssl') >= 0 || errMsg.indexOf('certificate') >= 0) return 'HTTPS 证书校验失败';
