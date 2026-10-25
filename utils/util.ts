@@ -15,6 +15,8 @@ export function fmtMoney(n: number | string): string {
 export function resolveImg(path: string | null | undefined, baseUrl?: string): string {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
+  // 云开发存储 fileID：image 组件原生支持 cloud:// 协议，原样返回
+  if (/^cloud:\/\//.test(path)) return path;
   return (baseUrl || '') + path;
 }
 

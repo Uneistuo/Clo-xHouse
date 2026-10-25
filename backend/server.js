@@ -78,8 +78,9 @@ function createApp() {
     })
   );
 
-  app.use(express.json({ limit: '1mb' })); // 解析 JSON 请求体
-  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  // base64 图片上传（/api/upload/base64）需要更大的 JSON 体：8MB 约容纳 6MB 图片
+  app.use(express.json({ limit: '8mb' })); // 解析 JSON 请求体
+  app.use(express.urlencoded({ extended: true, limit: '8mb' }));
   app.use('/uploads', express.static(config.UPLOAD_DIR)); // 商品图片静态访问（本地存储模式）
 
   // 业务路由挂载

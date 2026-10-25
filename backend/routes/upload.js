@@ -87,6 +87,27 @@ function genFilename(mimetype) {
   return `${Date.now()}-${crypto.randomBytes(12).toString('hex')}${ext}`;
 }
 
+/**
+ * 保存图片并返回可访问地址
+ * - 配置 COS：上传对象存储，返回 https 完整地址（持久化，Web 后台可直接显示）
+ * - 未配置 COS：写容器本地磁盘，返回 /uploads/xxx（容器重启会丢失，仅临时可用）
+ */
+async function saveImage(buffer, mimetype) {
+  const filename = genFilename(mimetype);
+  if (useCos) {
+    const Key = `uploads/${filename}`;
+    await new Promise((resolve, reject) => {
+      cos.putObject({ Bucket: config.COS.BUCKET, Region: config.COS.REGION, Key, Body: buffer }, (err, data) =>
+        err ? reject(err) : resolve(data)
+      );
+    });
+    return `https://${config.COS.BUCKET}.cos.${config.COS.REGION}.myqcloud.com/${Key}`;
+  }
+  fs.mkdirSync(config.UPLOAD_DIR, { recursive: true });
+  fs.writeFileSync(path.join(config.UPLOAD_DIR, filename), buffer);
+  return `/uploads/${filename}`;
+}
+
 /** multer 中间件包装：把上传错误（大小超限/类型不符）转成统一的 JSON 返回 */
 function uploadSingle(req, res, next) {
   upload.single('file')(req, res, (err) => {
@@ -121,34 +142,56 @@ function uploadSingle(req, res, next) {
  */
 router.post('/', auth, requireStore, uploadSingle, async (req, res) => {
   if (!req.file) return res.json({ code: 1, message: '未收到图片文件' });
-  const filename = genFilename(req.file.mimetype);
   try {
-    if (useCos) {
-      // 上传到 COS（持久化）：Key 形如 uploads/1730000000-abc123.jpg
-      const Key = `uploads/${filename}`;
-      await new Promise((resolve, reject) => {
-        cos.putObject(
-          {
-            Bucket: config.COS.BUCKET,
-            Region: config.COS.REGION,
-            Key,
-            Body: req.file.buffer
-          },
-          (err, data) => (err ? reject(err) : resolve(data))
-        );
-      });
-      return res.json({
-        code: 0,
-        data: { url: `https://${config.COS.BUCKET}.cos.${config.COS.REGION}.myqcloud.com/${Key}` }
-      });
-    }
-    // 本地磁盘（仅开发用）
-    fs.mkdirSync(config.UPLOAD_DIR, { recursive: true });
-    fs.writeFileSync(path.join(config.UPLOAD_DIR, filename), req.file.buffer);
-    res.json({ code: 0, data: { url: `/uploads/${filename}` } });
+    const url = await saveImage(req.file.buffer, req.file.mimetype);
+    res.json({ code: 0, data: { url } });
   } catch (e) {
     // 完整错误（含 COS 返回信息）仅写日志，前端返回脱敏提示（P0-5）
     logger.error({ err: e }, 'upload failed');
+    res.status(500).json({ code: 1, message: '图片上传失败，请稍后重试' });
+  }
+});
+
+/**
+ * @openapi
+ * /api/upload/base64:
+ *   post:
+ *     tags: [上传]
+ *     summary: 以 base64 上传商品图片（供小程序走云托管调用通道，免 uploadFile 域名白名单）
+ *     requestBody:
+ *       required: true
+ *     responses:
+ *       200: { description: 'data = { url }' }
+ *       400: { description: '图片类型/大小不合法' }
+ */
+router.post('/base64', auth, requireStore, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const raw = String(body.data || '');
+    // 支持 data URL（data:image/png;base64,xxx）或纯 base64 + mime 字段
+    const matched = raw.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([\s\S]*)$/i);
+    let mime = String(body.mime || '').toLowerCase();
+    let b64 = raw;
+    if (matched) {
+      mime = matched[1].toLowerCase();
+      b64 = matched[2];
+    }
+    if (!mime) mime = 'image/jpeg';
+    if (mime === 'image/jpg') mime = 'image/jpeg';
+    if (!ALLOWED_IMAGE_TYPES[mime]) {
+      return res.status(400).json({ code: 1, message: '只能上传 JPG/PNG/WebP 格式的图片' });
+    }
+    const buffer = Buffer.from(b64, 'base64');
+    if (!buffer.length) return res.status(400).json({ code: 1, message: '未收到图片数据' });
+    if (buffer.length > config.UPLOAD_MAX_BYTES) {
+      return res
+        .status(400)
+        .json({ code: 1, message: `图片大小不能超过 ${Math.round(config.UPLOAD_MAX_BYTES / 1024 / 1024)}MB` });
+    }
+    const url = await saveImage(buffer, mime);
+    res.json({ code: 0, data: { url } });
+  } catch (e) {
+    logger.error({ err: e }, 'upload(base64) failed');
     res.status(500).json({ code: 1, message: '图片上传失败，请稍后重试' });
   }
 });
