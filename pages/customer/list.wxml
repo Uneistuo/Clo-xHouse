@@ -11,14 +11,18 @@
     <view class="search-input-wrap">
       <view class="icon icon-search search-icon"></view>
       <input class="search-input" placeholder="搜索手机号 / 姓氏" value="{{keyword}}"
-             bindinput="onKeywordInput" confirm-type="search" placeholder-class="ph" />
-      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
+             bindinput="onKeywordInput" confirm-type="search" placeholder-class="ph"
+             aria-label="搜索手机号或姓氏" />
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword"
+            aria-role="button" aria-label="清空搜索">×</view>
     </view>
   </view>
 
   <!-- 列表 -->
   <view class="customer-card" wx:for="{{list}}" wx:key="id"
-        data-id="{{item.id}}" bindtap="goDetail">
+        data-id="{{item.id}}" bindtap="goDetail"
+        aria-role="button"
+        aria-label="会员 {{item.displayName}}，{{item.level.name}}，手机号 {{item.phone}}，消费 {{item.orderCount}} 次，累计 {{item.totalAmount}} 元">
     <view class="customer-main">
       <view class="customer-avatar">{{item.displayName[0]}}</view>
       <view class="customer-info">
@@ -46,7 +50,7 @@
         </view>
       </view>
     </view>
-    <view class="customer-arrow icon icon-chevron-right"></view>
+    <view class="customer-arrow icon icon-chevron-right" aria-hidden="true"></view>
   </view>
 
   <!-- 空状态 -->
@@ -64,7 +68,7 @@
 </view>
 
 <!-- 新增会员 FAB -->
-<view class="fab" bindtap="openAdd"><view class="icon icon-plus"></view></view>
+<view class="fab" bindtap="openAdd" aria-role="button" aria-label="新增会员"><view class="icon icon-plus" aria-hidden="true"></view></view>
 
 <!-- 添加会员弹窗 -->
 <view wx:if="{{addVisible}}" class="mask" bindtap="closeAdd">
@@ -74,15 +78,17 @@
     <view class="form-item">
       <view class="form-label required">手机号</view>
       <input class="form-input" type="number" placeholder="11 位手机号" value="{{formPhone}}"
-             bindinput="onFormPhoneInput" placeholder-class="ph" maxlength="11" />
+             bindinput="onFormPhoneInput" placeholder-class="ph" maxlength="11" aria-label="会员手机号" />
     </view>
     <view class="form-item">
       <view class="form-label required">姓氏</view>
       <input class="form-input surname-input" placeholder="如：赵" value="{{formSurname}}"
-             bindinput="onFormSurnameInput" placeholder-class="ph" maxlength="10" />
+             bindinput="onFormSurnameInput" placeholder-class="ph" maxlength="10" aria-label="会员姓氏" />
       <view class="gender-options inline">
-        <view class="gender-option {{formGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onFormGenderTap">先生</view>
-        <view class="gender-option {{formGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onFormGenderTap">女士</view>
+        <view class="gender-option {{formGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onFormGenderTap"
+              aria-role="radio" aria-label="先生">先生</view>
+        <view class="gender-option {{formGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onFormGenderTap"
+              aria-role="radio" aria-label="女士">女士</view>
       </view>
     </view>
 

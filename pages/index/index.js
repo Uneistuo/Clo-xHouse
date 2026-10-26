@@ -2,6 +2,7 @@
 // 结构：周期销售额（书签切换）→ 关键指标 → 近 7 天趋势（可点选）→ 低库存（可直达补货）
 const { request } = require('../../utils/api');
 const { fmtMoney } = require('../../utils/util');
+const warmup = require('../../utils/warmup');
 
 Page({
   data: {
@@ -35,8 +36,10 @@ Page({
   onShow() {
     // 未登录拦截
     if (!getApp().checkLogin()) return;
+    // 登录成功后 reLaunch 到首页时 app.onLaunch 不会再跑，这里补一次预热（已启动过则跳过）
+    warmup.start();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 0 });
+      this.getTabBar().applyBarState({ selected: 0, dock: false });
     }
     // 未绑定店铺拦截（引导到店铺创建/绑定页）
     const adminInfo = wx.getStorageSync('adminInfo') || {};

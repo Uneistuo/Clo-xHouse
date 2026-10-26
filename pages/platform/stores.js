@@ -10,16 +10,16 @@ Page({
   noop() {},
 
   data: {
-    list: [],      // [{ id, name, owner_name, member_count, order_count, bind_code, created_at, expireAt, enabled, daysLeft }]
+    list: [], // [{ id, name, owner_name, member_count, order_count, bind_code, created_at, expireAt, enabled, daysLeft }]
     loading: true,
 
     // 授权弹层
     visible: false,
-    store: null,        // 当前操作的店铺
+    store: null, // 当前操作的店铺
     quickDays: QUICK_DAYS,
-    selDays: 30,        // 已选快捷天数（0=未选，采用自定义天数/日期）
-    customDays: '',     // 自定义天数
-    dateValue: '',      // 指定到期日期（YYYY-MM-DD，当日 23:59:59 到期）
+    selDays: 30, // 已选快捷天数（0=未选，采用自定义天数/日期）
+    customDays: '', // 自定义天数
+    dateValue: '', // 指定到期日期（YYYY-MM-DD，当日 23:59:59 到期）
     submitting: false
   },
 

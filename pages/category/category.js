@@ -4,15 +4,15 @@ const { confirm, toast } = require('../../utils/dialog');
 
 Page({
   data: {
-    list: [],          // 分类列表（每项含 shiftY 字段用于拖动时位移）
+    list: [], // 分类列表（每项含 shiftY 字段用于拖动时位移）
     loading: true,
     // 新增分类表单（默认模式）
     addName: '',
-    adding: false,     // 新增按钮加载态
+    adding: false, // 新增按钮加载态
     // 管理模式与长按拖拽
     manageMode: false,
-    itemHrpx: 120,     // 列表项高度（rpx）
-    itemH: 0,          // 列表项高度（px），用于计算位移
+    itemHrpx: 120, // 列表项高度（rpx）
+    itemH: 0, // 列表项高度（px），用于计算位移
     dragging: false,
     dragIndex: -1,
     dragStartY: 0,
@@ -38,7 +38,7 @@ Page({
       const arr = (list || []).map((c) => ({ ...c, shiftY: 0 }));
       // 列表项高度换算（rpx -> px）用于拖动位移计算
       const sys = wx.getSystemInfoSync();
-      const itemH = this.data.itemHrpx * sys.windowWidth / 750;
+      const itemH = (this.data.itemHrpx * sys.windowWidth) / 750;
       this.setData({ list: arr, loading: false, itemH });
     } catch (e) {
       this.setData({ loading: false });
@@ -46,7 +46,9 @@ Page({
   },
 
   // ============ 默认模式：新增分类 ============
-  onAddNameInput(e) { this.setData({ addName: e.detail.value }); },
+  onAddNameInput(e) {
+    this.setData({ addName: e.detail.value });
+  },
 
   async handleAdd() {
     if (this.data.adding) return;
@@ -123,9 +125,9 @@ Page({
     const delta = y - dragStartY;
     // 连续插值：被拖动项实时跟随手指；相邻项随其越过边界连续平滑滑出，
     // 避免"瞬时跳一格"的突兀感
-    const dCells = delta / itemH;          // 拖动跨越的格数（可小数/可负）
-    const intCells = Math.floor(dCells);   // 已完整跨越的格数（向下取整）
-    const frac = dCells - intCells;        // 当前格内已走比例 [0, 1)
+    const dCells = delta / itemH; // 拖动跨越的格数（可小数/可负）
+    const intCells = Math.floor(dCells); // 已完整跨越的格数（向下取整）
+    const frac = dCells - intCells; // 当前格内已走比例 [0, 1)
     const newList = list.map((it, i) => {
       let shiftY = 0;
       if (i === dragIndex) {
@@ -144,7 +146,7 @@ Page({
       } else {
         // 拖动项上方的邻居：当拖动项上移经过时连续向下让位
         const rel = dragIndex - i; // 1, 2, 3...
-        const absInt = -intCells;  // 向上完整跨越的格数
+        const absInt = -intCells; // 向上完整跨越的格数
         if (rel <= absInt) {
           shiftY = itemH;
         } else if (rel === absInt + 1) {

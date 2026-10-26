@@ -12,6 +12,7 @@
 **文件**：`styles/tokens.wxss`
 
 **步骤：**
+
 1. 清空原文件内容，写入第 3.2 节完整 Token 块（含 `--blur-*`、`--shadow-*`、`--inner-light`、`--radius-*`、`--space-*`、`--duration-*`、`--scale-press-*`）
 2. 确认保留旧变量名（如 `.card` 相关 class 引用的变量名不变），确保存量页面即时生效
 3. 用 grep 搜索旧变量引用，确认无遗漏
@@ -21,6 +22,7 @@
 **文件**：`app.wxss`
 
 **步骤：**
+
 1. 在文件顶部或合适位置新增五档 glass 类：
    ```css
    .glass-wash   /* 输入框底 / TabBar */
@@ -37,6 +39,7 @@
 **文件**：`app.wxss`
 
 **步骤：**
+
 1. 写入 `page` 规则：`background: var(--bg-gradient)` + `background-attachment: fixed`
 2. 写入 `page::before` / `page::after` 规则：`position: fixed; z-index: 0; pointer-events: none; border-radius: 50%`，按第 3.4 节配方写入两处径向渐变
 3. 在开发者工具预览任意页面，确认光晕可见且不遮挡内容
@@ -46,6 +49,7 @@
 **文件**：`app.json`
 
 **步骤：**
+
 1. 全局 `navigationBarBackgroundColor` → `#F3F5FA`
 2. 全局 `backgroundColor` → `#F3F5FA`
 3. TabBar 配置中的 `selectedIconPath` / `iconPath` 不变；`backgroundColor` 同步改为 `#F3F5FA`
@@ -55,6 +59,7 @@
 **文件**：`custom-tab-bar/index.wxss`
 
 **步骤：**
+
 1. 容器改为 Wash 层样式：高 108rpx、圆角 36rpx、`backdrop-filter: blur(14px) saturate(140%)`、`--glass-border` 描边、`--shadow-float` 阴影
 2. 容器定位：`position: fixed; bottom: 16rpx; left: 24rpx; right: 24rpx; z-index: 100`
 3. 选中项：图标与文字改主色（`--primary`）；背景加 `--primary-tint` 圆角胶囊
@@ -66,6 +71,7 @@
 **文件**：7 个页面的 `.wxss`
 
 **步骤：**
+
 1. 逐一将以下页面的根容器 `background` 改为 `transparent`：
    - `pages/index/index.wxss`（`.home`）
    - `pages/login/login.wxss`（`.login-page`）
@@ -81,6 +87,7 @@
 **文件**：`pages/login/`、`pages/index/`
 
 **步骤：**
+
 1. `pages/login/login.wxss`：登录面板换 `.glass-hero`；输入框换 `.glass-wash`；底部链接文字改主色
 2. `pages/index/index.wxss`：销售额卡换 `.glass-hero`；双卡/三栏换 `.glass-card`；趋势柱改用渐变色
 3. 微信开发者工具预览，截图保存
@@ -95,6 +102,7 @@
 **文件**：`pages/register/register.wxss`
 
 **步骤：**
+
 1. 步骤条节点：改为主色渐变圆点 + Wash 层轨道
 2. 表单区域：整卡换 `.glass-card`，内边距 32rpx
 3. 各输入框：换 `.glass-wash` 样式
@@ -106,6 +114,7 @@
 **文件**：`pages/welcome/welcome.wxss`
 
 **步骤：**
+
 1. 功能引导卡：整体换 `.glass-card`
 2. 引导按钮：主色渐变底 + 白字 + `--shadow-primary`
 3. 入场动效保留，确认不影响光晕显示
@@ -116,6 +125,7 @@
 **文件**：`pages/goods/goods.wxss`
 
 **步骤：**
+
 1. 搜索框：换 `.glass-wash`
 2. 分类筛选条：Wash 层轨道 + 胶囊滑块
 3. 商品列表行：换 `.glass-dense`（不加模糊）
@@ -128,6 +138,7 @@
 **文件**：`pages/billing/billing.wxss`（约 459 行，最大文件）
 
 **步骤：**
+
 1. **搜索框**：换 `.glass-wash`
 2. **商品列表行**：全部换 `.glass-dense`（强制不模糊，性能关键）
 3. **购物车面板**：换 `.glass-card`（Standard 层）
@@ -149,6 +160,7 @@
 **文件**：`pages/orders/`、`pages/order-detail/`
 
 **步骤：**
+
 1. `pages/orders/orders.wxss`：
    - 状态 Tab 换 Wash 层分段控件
    - 订单卡按状态分级：已完成/待付款 → `.glass-card`；进行中 → `.glass-dense`
@@ -163,6 +175,7 @@
 **文件**：`pages/customer/list.wxss`、`pages/customer/detail.wxss`
 
 **步骤：**
+
 1. `pages/customer/list/`：搜索框 `.glass-wash`；客户列表行 `.glass-dense`；空状态容器 `.glass-dense`
 2. `pages/customer/detail/`：资料卡、消费记录卡换 `.glass-card`
 3. 确认数据加载正常，无样式遮挡
@@ -172,6 +185,7 @@
 **文件**：`pages/store/`、`pages/platform/stores.wxss`、`pages/printer-pair/`
 
 **步骤：**
+
 1. `pages/store/store.wxss`：
    - 店铺头部 → `.glass-hero`
    - 功能卡 → `.glass-card`
@@ -190,6 +204,7 @@
 **文件**：`pages/goods-edit/`、`pages/category/`
 
 **步骤：**
+
 1. `pages/goods-edit/goods-edit.wxss`：
    - 表单卡片 → `.glass-card`
    - 图片上传区 → `background: var(--bg-subtle)`
@@ -200,6 +215,7 @@
 ### 任务 16：全站硬编码色清理 ⭐
 
 **步骤：**
+
 1. 用 grep 搜索以下关键词，共约 63 处：
    - `#f0b4ae`（禁用按钮色）→ 替换为 Token
    - `#f0cfcb`（图表底）→ 替换为 Token
@@ -217,6 +233,7 @@
 **文件**：`web/style.css`
 
 **步骤：**
+
 1. `:root` 块替换为第 3 节同源 Token（单位改为 px，rpx→px 直接除以 2）
 2. 新增 `body` 规则：底色渐变 + `::before/::after` 光晕（与小程序同参数）
 3. 新增 `@supports not (backdrop-filter: blur(1px))` 兜底块：所有 `.glass-*` 类退化为纯色底
@@ -226,6 +243,7 @@
 **文件**：`web/style.css`
 
 **步骤：**
+
 1. 侧边栏：深红实色 → Wash 层玻璃面板（白 40% + `blur(14px)` + 右侧 `--hairline` 描边）
 2. 导航项：选中态改为主色 12% 胶囊 + 主色文字
 3. 统计卡 / 功能卡：全部换 `.glass-card`；间距 20px
@@ -241,6 +259,7 @@
 **文件**：`web/index.html`、`web/style.css`
 
 **步骤：**
+
 1. 登录区容器：居中 `.glass-hero` 卡 + 光晕背景
 2. 补充 `<meta name="theme-color" content="#F3F5FA">`
 3. 本地打开 `index.html`，Chrome/Safari 走查
@@ -248,6 +267,7 @@
 ### 任务 20：Web 响应式验证
 
 **步骤：**
+
 1. Chrome DevTools 断点切换：1440px / 1024px / 768px / 375px
 2. 确认各断点下布局不变，仅视觉更新
 3. Firefox 打开，确认兜底可读
@@ -259,6 +279,7 @@
 ### 任务 21：真机双端走查
 
 **步骤：**
+
 1. **iOS 真机**：打开所有页面，确认 `backdrop-filter` 效果完整，光晕可见
 2. **Android 真机（含低端）**：确认不退化白块/黑块，文字可读，滚动流畅
 3. **开单页专项**：快速上下滑动，确认无掉帧；点击按钮确认有按压反馈
@@ -267,6 +288,7 @@
 ### 任务 22：无障碍验证
 
 **步骤：**
+
 1. iOS 设置 → 显示与亮度 → 降低透明度：开启后确认玻璃类退化为不透明底色
 2. Android 设置 → 辅助功能 → 去除动画：开启后确认所有动效静止
 3. 使用微信开发者工具无障碍检查面板，确认对比度达标
@@ -275,6 +297,7 @@
 
 **步骤：**
 按以下顺序全流程走查，确认功能正常：
+
 - [ ] 登录 / 注册 / 绑定三步 / 欢迎页
 - [ ] 开单（创建订单 → 结算 → 完成）
 - [ ] 订单列表 / 订单详情

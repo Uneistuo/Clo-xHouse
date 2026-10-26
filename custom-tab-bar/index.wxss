@@ -26,14 +26,24 @@
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   backdrop-filter: blur(14px) saturate(140%);
 }
-/* 进入/退出拼接态时插值，避免圆角、描边、底色硬跳
-   （tabbar-anim 由组件 ready 后延迟打开，首帧同步不播动画） */
-.tabbar.tabbar-anim {
-  transition:
-    border-top-left-radius 0.26s cubic-bezier(0.4, 0, 0.2, 1),
-    border-top-right-radius 0.26s cubic-bezier(0.4, 0, 0.2, 1),
-    border-top-color 0.26s ease,
-    background-color 0.26s ease;
+/* ===== 拼接态：与结算栏 / 批量栏拼成同一块面板 =====
+   两块面板在交界处必须都是直角，否则栏体自己的内圆角会在接缝上
+   各切出一个缺口，看起来就是「拼接处冒出两个圆角」。
+
+   所以拼接态直接改栏体自身的圆角 / 底色 / 模糊，并且不加 transition：
+     · 单帧完成，不像插值圆角那样每帧重新裁剪背景再重新模糊；
+     · 跨页切换时栏体本来就在首帧直接画出目标态（缓存页甚至不再重播动画），
+       这一跳看不见；页内切换（商品批量管理）时与面板同时落位；
+     · 底色与两块底部面板一致，接缝处没有色差；
+     · 拼成整块后不需要玻璃感，顺手关掉 backdrop-filter：
+       面板从后方拉出时就不会每帧重新采样一次模糊。 */
+.tabbar-docked {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top-color: transparent;
+  background-color: var(--dock-bg, rgba(255, 255, 255, 0.94));
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 /* 首帧（页面 onShow 同步 dock 的那一次）不播任何形变 */
 .tabbar:not(.tabbar-anim) .tabbar-icon-wrap,
@@ -46,6 +56,7 @@
 
 .tabbar-item {
   position: relative;
+  z-index: 1; /* 压在栏体底色之上 */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -119,55 +130,59 @@
 }
 
 /* ===== 中间凸起"开单"：绝对定位，浮于栏上方 =====
-   位置只用 top/left/right + margin 居中（不依赖 transform），
-   这样 width/height/top 可以插值，且 transform 仍留给按下反馈
-   —— 拼接态切换时凸起圆钮能平滑收缩成普通 Tab。 */
+   几何完全走 transform（抬升 28rpx + 圆钮缩放），
+   不再插值 top / width / height —— 那三项每帧都会触发一次布局。 */
 .tabbar-item-middle .tabbar-icon-wrap {
   position: absolute;
-  top: -40rpx;
+  /* 基准 = 平铺态：与普通 Tab 图标同尺寸、同位置 */
+  top: 20rpx;
   left: 0;
   right: 0;
   margin: 0 auto;
-  width: 108rpx;
-  height: 108rpx;
+  width: 44rpx;
+  height: 44rpx;
   box-sizing: border-box;
-  transition:
-    top 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.15s ease;
+  /* 凸起：上移 28rpx（圆心由 42rpx 抬到 14rpx） */
+  transform: translateY(-28rpx);
+  /* 只用于按下反馈：必须够快。拼接态形变由 keyframes 驱动（0.28s），
+     动画优先级高于过渡，因此这里改短不影响凸起/收平的速度。 */
+  transition: transform 0.16s var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
 }
-/* 圆形底衬单独一层：渐变无法插值，用透明度淡出完成"凸起 → 普通 Tab"的形变 */
+/* 圆形底衬独立一层：尺寸固定 108rpx，用 scale + opacity 完成
+   "凸起圆钮 → 普通 Tab" 的形变（渐变与圆角都不参与插值） */
 .tabbar-item-middle .tabbar-icon-wrap::before {
   content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  left: 50%;
+  top: 50%;
+  width: 108rpx;
+  height: 108rpx;
+  margin: -54rpx 0 0 -54rpx;
   box-sizing: border-box;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary, #7b8cf7) 0%, var(--primary-dark, #6675e8) 100%);
   border: 6rpx solid rgba(255, 255, 255, 0.65);
   box-shadow: var(--shadow-primary, 0 16rpx 36rpx rgba(123, 140, 247, 0.26));
   opacity: 1;
-  transition: opacity 0.2s ease;
+  transform: scale(1);
+  transition:
+    opacity 0.2s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)),
+    transform 0.28s var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
   pointer-events: none;
 }
 .tabbar-item-middle.active .tabbar-icon-wrap {
-  transform: translateY(-2rpx);
+  transform: translateY(-30rpx);
 }
 .tabbar-item-middle:active .tabbar-icon-wrap {
-  transform: scale(var(--scale-press-dock, 0.94));
+  transform: translateY(-28rpx) scale(var(--scale-press-dock, 0.94));
 }
 .tabbar-item-middle .tabbar-icon {
   position: relative;
   z-index: 1;
   color: #ffffff;
-  font-size: 48rpx;
+  font-size: 44rpx;
   transition:
     color 0.24s ease,
-    font-size 0.24s ease,
     transform 0.12s ease,
     opacity 0.12s ease;
 }
@@ -184,21 +199,18 @@
 .tabbar-docked .tabbar-item-middle::before {
   opacity: 1;
 }
-/* 只改几何尺寸，位置由 top + margin auto 维持居中，因此可平滑插值 */
 .tabbar-billing .tabbar-item-middle .tabbar-icon-wrap,
 .tabbar-docked .tabbar-item-middle .tabbar-icon-wrap {
-  top: 20rpx;
-  width: 44rpx;
-  height: 44rpx;
+  transform: none;
 }
 .tabbar-billing .tabbar-item-middle .tabbar-icon-wrap::before,
 .tabbar-docked .tabbar-item-middle .tabbar-icon-wrap::before {
   opacity: 0;
+  transform: scale(0.6);
 }
 .tabbar-billing .tabbar-item-middle .tabbar-icon,
 .tabbar-docked .tabbar-item-middle .tabbar-icon {
   color: var(--primary, #7b8cf7);
-  font-size: 44rpx;
 }
 .tabbar-billing .tabbar-item-middle.active .tabbar-icon-wrap,
 .tabbar-docked .tabbar-item-middle.active .tabbar-icon-wrap {
@@ -221,19 +233,113 @@
   font-weight: 600;
 }
 
-/* 仅当页面底部栏（开单结算栏 / 商品批量栏）可见时，TabBar 才与其拼接为同一块面板 */
-.tabbar-docked {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-top-color: transparent;
-  background-color: var(--bg-overlay, rgba(255, 255, 255, 0.82));
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
+/* ============================================================
+   跨页切换动画 a / b / c / d
+   由 switch.js 判定后以类名下发，四种场景：
+     a 拼接 → 拼接  面板与栏体都在位，不位移，只让高亮胶囊淡入
+     b 拼接 → 普通  栏体单帧收回圆角（见 .tabbar-docked），中间键抬起
+     c 普通 → 拼接  栏体单帧收方，中间键收平，页面面板从栏后拉出
+     d 普通 → 普通  没有面板可拼，5 个按键轻轻落位一次
+
+   栏体自身的形变（圆角 / 底色 / 模糊）一律不做插值，见 .tabbar-docked：
+   那三项每帧都要重新裁剪并重新模糊，正是之前卡顿的主因。
+   其余 keyframes 一律「只写 from」：to 自动取元素自身样式，
+   所以动画终点就是目标态，类名被清掉时不会跳一帧。
+   ============================================================ */
+
+/* a：栏体连续，只做高亮过渡 */
+.tabbar-switch-a .tabbar-item.active::before {
+  animation: tabbar-pill-in 0.2s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+
+/* b：拼接 → 普通；c：普通 → 拼接
+   栏体的圆角 / 底色在 .tabbar-docked 里单帧切换（见文件开头），不做插值，
+   因此这两个方向只剩下「中间开单键」的形变（见下方 tabbar-mid-*），
+   外加 c 时页面自己那块面板从栏后拉出。 */
+
+/* d：普通 → 普通 */
+.tabbar-switch-d .tabbar-item {
+  animation: tabbar-item-settle 0.22s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+
+/* 中间「开单」键：与拼接态解耦（开单页不拼接时也平铺），按方向单独播。
+   形变期间提前提升图层（类名清理时自动撤销），避免每帧重新栅格化圆钮投影。 */
+.tabbar-mid-raise .tabbar-item-middle .tabbar-icon-wrap,
+.tabbar-mid-flatten .tabbar-item-middle .tabbar-icon-wrap,
+.tabbar-mid-raise .tabbar-item-middle .tabbar-icon-wrap::before,
+.tabbar-mid-flatten .tabbar-item-middle .tabbar-icon-wrap::before {
+  will-change: transform, opacity;
+}
+.tabbar-mid-raise .tabbar-item-middle .tabbar-icon-wrap {
+  animation: tabbar-mid-raise 0.28s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+.tabbar-mid-raise .tabbar-item-middle .tabbar-icon-wrap::before {
+  animation: tabbar-mid-plate-raise 0.28s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+.tabbar-mid-raise .tabbar-item-middle .tabbar-icon {
+  animation: tabbar-mid-icon-raise 0.24s ease both;
+}
+
+.tabbar-mid-flatten .tabbar-item-middle .tabbar-icon-wrap {
+  animation: tabbar-mid-flatten 0.28s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+.tabbar-mid-flatten .tabbar-item-middle .tabbar-icon-wrap::before {
+  animation: tabbar-mid-plate-flatten 0.28s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+}
+.tabbar-mid-flatten .tabbar-item-middle .tabbar-icon {
+  animation: tabbar-mid-icon-flatten 0.24s ease both;
+}
+
+@keyframes tabbar-pill-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes tabbar-item-settle {
+  from {
+    opacity: 0.5;
+    transform: translateY(6rpx);
+  }
+}
+/* 中间键：只插值 transform（起手位置取另一态） */
+@keyframes tabbar-mid-raise {
+  from {
+    transform: none;
+  }
+}
+@keyframes tabbar-mid-flatten {
+  from {
+    transform: translateY(-28rpx);
+  }
+}
+/* 圆钮底衬：只插值 opacity + scale */
+@keyframes tabbar-mid-plate-raise {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes tabbar-mid-plate-flatten {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes tabbar-mid-icon-raise {
+  from {
+    color: var(--primary, #7b8cf7);
+  }
+}
+@keyframes tabbar-mid-icon-flatten {
+  from {
+    color: #ffffff;
+  }
 }
 
 /* ===== 无障碍降级 ===== */
 @media (prefers-reduced-transparency: reduce) {
-  .tabbar {
+  .tabbar,
+  .tabbar-docked {
     background-color: #ffffff;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -244,15 +350,29 @@
   .tabbar-icon-wrap,
   .tabbar-icon,
   .tabbar-text,
-  .tabbar-item::before {
+  .tabbar-item::before,
+  .tabbar-icon-wrap::before {
     transition: none !important;
   }
-  /* 只取消普通 Tab 的选中上浮；中间项的位置不依赖 transform，可一并归零 */
+  /* 跨页切换动画 a/b/c/d 一并关闭，直接落位 */
+  .tabbar-switch-a .tabbar-item.active::before,
+  .tabbar-switch-d .tabbar-item,
+  .tabbar-mid-raise .tabbar-item-middle .tabbar-icon-wrap,
+  .tabbar-mid-raise .tabbar-item-middle .tabbar-icon-wrap::before,
+  .tabbar-mid-raise .tabbar-item-middle .tabbar-icon,
+  .tabbar-mid-flatten .tabbar-item-middle .tabbar-icon-wrap,
+  .tabbar-mid-flatten .tabbar-item-middle .tabbar-icon-wrap::before,
+  .tabbar-mid-flatten .tabbar-item-middle .tabbar-icon {
+    animation: none !important;
+  }
+  /* 只取消普通 Tab 的选中上浮；中间项按原位置落位，不因按下跳一下 */
   .tabbar-item:not(.tabbar-item-middle).active .tabbar-icon-wrap {
     transform: none;
   }
+  .tabbar-item-middle:active .tabbar-icon-wrap {
+    transform: translateY(-28rpx);
+  }
   .tabbar-item-middle.active .tabbar-icon-wrap,
-  .tabbar-item-middle:active .tabbar-icon-wrap,
   .tabbar-billing .tabbar-item-middle.active .tabbar-icon-wrap,
   .tabbar-billing .tabbar-item-middle:active .tabbar-icon-wrap,
   .tabbar-docked .tabbar-item-middle.active .tabbar-icon-wrap,

@@ -16,6 +16,9 @@ page,
   --bg-card-strong: rgba(255, 255, 255, 0.86); /* Dense 密集列表 */
   --bg-subtle: rgba(255, 255, 255, 0.46); /* 分区/输入底/嵌套内层 */
   --bg-overlay: rgba(255, 255, 255, 0.82); /* Overlay 浮层面板 */
+  /* 与 TabBar 拼成同一块面板的底色：结算栏、商品批量栏、拼接态的栏体共用，
+     三处必须完全一致，接缝才不会出现色差 */
+  --dock-bg: rgba(255, 255, 255, 0.94);
 
   /* ---------- 描边 ---------- */
   --glass-border: rgba(255, 255, 255, 0.72); /* 玻璃外描边 */
@@ -83,9 +86,11 @@ page,
   --space-10: 96rpx;
   --space-11: 112rpx;
 
-  /* ---------- 字号（收敛为 5 档） ---------- */
+  /* ---------- 字号（5 档基础 + v2.0 补充档位） ---------- */
+  --font-xs-sm: 20rpx; /* 次级注释、时间戳 */
   --font-xs: 22rpx; /* 辅助文字、标签、注释 */
   --font-body: 28rpx; /* 正文、输入框 */
+  --font-h4: 30rpx; /* 列表项副标题 */
   --font-h3: 32rpx; /* 卡片标题、小标题 */
   --font-h2: 44rpx; /* 页面主标题 */
   --font-h1: 72rpx; /* 数据突出显示（销售额等） */
@@ -107,6 +112,9 @@ page,
   --shadow-2: 0 14rpx 40rpx rgba(35, 45, 75, 0.08);
   --shadow-3: 0 24rpx 60rpx rgba(35, 45, 75, 0.12);
   --shadow-primary: 0 16rpx 36rpx rgba(123, 140, 247, 0.26);
+  /* 成功/警告态微弱光晕（库存告急提醒等） */
+  --shadow-glow-success: 0 0 40rpx rgba(59, 174, 118, 0.2);
+  --shadow-glow-warning: 0 0 40rpx rgba(214, 154, 60, 0.2);
 
   /* ---------- 内高光（左上光源） ---------- */
   --inner-light: inset 0 1rpx 0 rgba(255, 255, 255, 0.85);
@@ -115,6 +123,7 @@ page,
   --duration-fast: 150ms;
   --duration-normal: 220ms;
   --duration-slow: 350ms;
+  --anim-duration-page: 400ms; /* 页面切换（微信官方建议 300-400ms） */
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --scale-press: 0.98;

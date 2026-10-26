@@ -8,3 +8,8 @@ backend/package-lock.json
 *.log
 .venv
 .husky/_
+
+# 生成产物（由 scripts/build-icons.js 维护，格式化会破坏 icons:check）
+styles/icons.wxss
+styles/icons-extra.wxss
+web/icons.css

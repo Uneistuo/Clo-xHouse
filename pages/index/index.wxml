@@ -11,7 +11,8 @@
     <view class="bookmark-tabs range-{{rangeKey}}">
       <view wx:for="{{ranges}}" wx:key="key"
             class="bookmark-tab {{rangeKey === item.key ? 'active' : ''}}"
-            data-key="{{item.key}}" bindtap="switchRange">{{item.text}}</view>
+            data-key="{{item.key}}" bindtap="switchRange"
+            aria-role="tab" aria-label="{{item.text}}">{{item.text}}</view>
     </view>
     <view class="sales-body">
       <view class="sales-label">{{rangeLabel}}销售额</view>
@@ -28,12 +29,12 @@
 
   <!-- 快捷操作（紧接销售额主卡：看完数据直接下手） -->
   <view class="quick-actions anim-in" style="--i: 1">
-    <view class="quick-item" bindtap="goCreateOrder">
-      <view class="quick-icon icon icon-cash-register"></view>
+    <view class="quick-item" bindtap="goCreateOrder" aria-role="button" aria-label="快速开单">
+      <view class="quick-icon icon icon-cash-register" aria-hidden="true"></view>
       <view class="quick-title">快速开单</view>
     </view>
-    <view class="quick-item" bindtap="goPhotoUpload">
-      <view class="quick-icon icon icon-plus"></view>
+    <view class="quick-item" bindtap="goPhotoUpload" aria-role="button" aria-label="商品上传">
+      <view class="quick-icon icon icon-plus" aria-hidden="true"></view>
       <view class="quick-title">商品上传</view>
     </view>
   </view>
@@ -43,17 +44,18 @@
     <view class="section-head">
       <view class="section-title">今日待办</view>
     </view>
-    <view wx:for="{{todoList}}" wx:key="key" class="todo-item" data-key="{{item.key}}" bindtap="onTodoTap">
-      <view class="todo-icon icon {{item.icon}}"></view>
+    <view wx:for="{{todoList}}" wx:key="key" class="todo-item" data-key="{{item.key}}" bindtap="onTodoTap"
+          aria-role="button" aria-label="{{item.text}}，{{item.count}} 条">
+      <view class="todo-icon icon {{item.icon}}" aria-hidden="true"></view>
       <view class="todo-text">{{item.text}}</view>
       <view class="todo-count">{{item.count}}</view>
-      <view class="todo-arrow icon icon-chevron-right"></view>
+      <view class="todo-arrow icon icon-chevron-right" aria-hidden="true"></view>
     </view>
   </view>
 
   <!-- 商品概览 + 近 7 天销售：库存结构在上、销售走势在下，合成同一张数据卡 -->
   <view class="card stat-card anim-in" style="--i: 3">
-    <view class="stat-goods" bindtap="goGoods">
+    <view class="stat-goods" bindtap="goGoods" aria-role="button" aria-label="商品概览：全部 {{goodsTotal}} 件，在售 {{goodsOnSale}} 件，下架 {{goodsOffSale}} 件">
       <view class="tri-item">
         <view class="tri-num">{{goodsTotal}}</view>
         <view class="tri-label">全部商品</view>
@@ -75,7 +77,8 @@
     </view>
     <view class="trend">
       <view wx:for="{{trend}}" wx:key="date" class="trend-col"
-            data-index="{{index}}" bindtap="pickTrend">
+            data-index="{{index}}" bindtap="pickTrend"
+            aria-role="button" aria-label="{{item.date}}，销售额 {{item.amountText}} 元，{{item.orders}} 单">
         <view class="trend-bar-wrap">
           <view class="trend-bar {{index === trendIndex ? 'active' : ''}}" style="height: {{item.barH}}%;"></view>
         </view>
@@ -96,10 +99,11 @@
       <view class="section-link" bindtap="goGoods">全部商品<view class="icon icon-chevron-right"></view></view>
     </view>
     <view wx:for="{{lowStock}}" wx:key="id" class="low-item"
-          data-id="{{item.id}}" bindtap="goRestock">
+          data-id="{{item.id}}" bindtap="goRestock"
+          aria-role="button" aria-label="{{item.name}}，剩余库存 {{item.stock}}">
       <view class="low-name ellipsis">{{item.name}}</view>
       <view class="low-stock {{item.stock === 0 ? 'stock-zero' : 'stock-low'}}">剩余 {{item.stock}}</view>
-      <view class="low-arrow icon icon-chevron-right"></view>
+      <view class="low-arrow icon icon-chevron-right" aria-hidden="true"></view>
     </view>
   </view>
 

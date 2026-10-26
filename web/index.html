@@ -1,20 +1,53 @@
 <!--
-  Web 管理系统入口 HTML：挂载根节点并引入样式和脚本
+  Web 管理后台入口 HTML：挂载根节点并引入样式和脚本
 -->
-
 <!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#F3F5FA" />
-    <title>服装店管理系统</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="裁间 · 管理后台：服装店商品、开单、订单与会员管理" />
+    <meta name="theme-color" content="#F3F5FA" id="meta-theme-color" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="裁间" />
+    <title>裁间 · 管理后台</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+    <link rel="stylesheet" href="styles/pages.css" />
+    <link rel="stylesheet" href="styles/responsive.css" />
+    <link rel="stylesheet" href="styles/print.css" />
+    <link rel="stylesheet" href="icons.css" />
+    <script>
+      // 首屏前应用主题，避免暗色模式闪白
+      (function () {
+        var theme;
+        try {
+          var saved = localStorage.getItem('cj-theme');
+          if (saved === 'dark' || saved === 'light') theme = saved;
+        } catch (e) {}
+        if (!theme) {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+        var meta = document.getElementById('meta-theme-color');
+        if (meta) meta.setAttribute('content', theme === 'dark' ? '#121722' : '#F3F5FA');
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>
     <div id="toast" class="toast"></div>
     <div id="modal-root"></div>
-    <script src="app.js"></script>
+    <button class="icon-btn theme-fab" id="theme-fab" data-theme-toggle type="button" aria-label="切换主题">
+      <span class="icon icon-moon"></span>
+    </button>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

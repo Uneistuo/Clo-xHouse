@@ -43,14 +43,15 @@
   <view wx:for="{{goodsList}}" wx:key="id" class="card goods-row">
     <!-- P1-4：图片懒加载，加载失败/无图时展示占位图 -->
     <image wx:if="{{item.cover}}" class="goods-img" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}"
-           binderror="onGoodsImgError" data-index="{{index}}" />
-    <view wx:else class="goods-img goods-img-empty"><view class="icon icon-shopping-bag"></view></view>
+           binderror="onGoodsImgError" data-index="{{index}}" aria-label="{{item.name}}" />
+    <view wx:else class="goods-img goods-img-empty"><view class="icon icon-shopping-bag" aria-hidden="true"></view></view>
     <view class="goods-info">
       <view class="goods-name ellipsis">{{item.name}}</view>
       <view class="goods-price price">￥{{item.priceText}}</view>
       <view class="goods-stock {{item.stock <= 0 ? 'stock-zero' : ''}}">库存 {{item.stock}}</view>
     </view>
-    <view class="add-btn" data-id="{{item.id}}" bindtap="openSelect"><view class="icon icon-plus"></view></view>
+    <view class="add-btn" data-id="{{item.id}}" bindtap="openSelect"
+          aria-role="button" aria-label="添加{{item.name}}"><view class="icon icon-plus" aria-hidden="true"></view></view>
   </view>
 
   <!-- 分页加载提示 -->
@@ -61,7 +62,7 @@
   <!-- 已选订单商品 -->
   <view wx:if="{{cart.length > 0}}" class="cart-title">已选商品（{{totalQuantity}} 件）</view>
   <view wx:for="{{cart}}" wx:key="index" class="card cart-item">
-    <image class="cart-img" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}" />
+    <image class="cart-img" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}" aria-label="{{item.name}}" />
     <view class="cart-info">
       <view class="goods-name ellipsis">{{item.name}}</view>
       <view class="cart-spec">
@@ -71,11 +72,14 @@
       </view>
       <view class="cart-ctrl">
         <view class="stepper">
-          <view class="step-btn" data-index="{{index}}" bindtap="cartMinus">−</view>
-          <view class="step-num">{{item.quantity}}</view>
-          <view class="step-btn" data-index="{{index}}" bindtap="cartPlus">＋</view>
+          <view class="step-btn" data-index="{{index}}" bindtap="cartMinus"
+                aria-role="button" aria-label="减少{{item.name}}数量">−</view>
+          <view class="step-num" aria-label="数量 {{item.quantity}}">{{item.quantity}}</view>
+          <view class="step-btn" data-index="{{index}}" bindtap="cartPlus"
+                aria-role="button" aria-label="增加{{item.name}}数量">＋</view>
         </view>
-        <view class="cart-remove" data-index="{{index}}" bindtap="cartRemove">移除</view>
+        <view class="cart-remove" data-index="{{index}}" bindtap="cartRemove"
+              aria-role="button" aria-label="移除{{item.name}}">移除</view>
       </view>
     </view>
   </view>
@@ -85,7 +89,7 @@
     <view class="field-label">顾客手机（选填）</view>
     <view class="phone-input-wrap">
       <input class="field-input phone-input" type="number" placeholder="11 位手机号" value="{{customerPhone}}"
-             bindinput="onPhoneInput" placeholder-class="ph" maxlength="11" />
+             bindinput="onPhoneInput" placeholder-class="ph" maxlength="11" aria-label="顾客手机号" />
       <view class="add-customer-btn" wx:if="{{showAddCustomerBtn}}" bindtap="onAddCustomerTap">+ 添加会员</view>
     </view>
     <view class="phone-count {{customerPhone.length === 11 ? 'done' : ''}}">{{customerPhone.length}} / 11</view>
@@ -105,16 +109,18 @@
   <view class="field-block">
     <view class="field-label">订单备注</view>
     <textarea class="field-textarea" placeholder="改裤长、改期取件..." value="{{remark}}"
-              bindinput="onRemarkInput" placeholder-class="ph" auto-height maxlength="200" />
+              bindinput="onRemarkInput" placeholder-class="ph" auto-height maxlength="200"
+              aria-label="订单备注" />
   </view>
 
   <!-- 底部结算栏：固定并与 TabBar 拼接 -->
-  <view class="footer-bar">
+  <view class="footer-bar {{dockPulling ? 'dock-pulling' : ''}} {{dockHidden ? 'dock-hidden' : ''}}" bindanimationend="onDockPullEnd">
     <view class="footer-left">
       <view class="footer-spec">{{cart.length}} 种规格</view>
       <view class="footer-price">¥{{totalAmount}}</view>
     </view>
-    <view class="footer-btn {{cart.length === 0 || submitting ? 'disabled' : ''}} {{submitting ? 'btn-loading' : ''}}" bindtap="submitOrder">
+    <view class="footer-btn {{cart.length === 0 || submitting ? 'disabled' : ''}} {{submitting ? 'btn-loading' : ''}}" bindtap="submitOrder"
+          aria-role="button" aria-label="收款并出单，共 {{totalQuantity}} 件，合计 {{totalAmount}} 元">
       {{submitting ? '提交中…' : '收款并出单'}}
     </view>
   </view>

@@ -5,11 +5,13 @@
     <view class="search-input-wrap">
       <view class="icon icon-search search-icon"></view>
       <input class="search-input" placeholder="搜索订单号" value="{{keyword}}"
-             bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
-      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
+             bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search"
+             aria-label="搜索订单号" />
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword"
+            aria-role="button" aria-label="清空搜索">×</view>
     </view>
     <picker range="{{rangeTexts}}" value="{{rangeIndex}}" bindchange="onRangeChange">
-      <view class="filter-entry">{{ranges[rangeIndex].text}} ▾</view>
+      <view class="filter-entry" aria-role="button" aria-label="时间范围：{{ranges[rangeIndex].text}}">{{ranges[rangeIndex].text}} ▾</view>
     </picker>
   </view>
 
@@ -17,7 +19,8 @@
   <view class="status-tabs">
     <view wx:for="{{tabs}}" wx:key="key"
           class="status-tab {{statusKey === item.key ? 'active' : ''}}"
-          data-key="{{item.key}}" bindtap="switchStatus">{{item.text}}</view>
+          data-key="{{item.key}}" bindtap="switchStatus"
+          aria-role="tab" aria-label="{{item.text}}">{{item.text}}</view>
   </view>
 
   <!-- 骨架屏（首次加载，统一使用 skeleton-card 组件） -->
@@ -31,12 +34,13 @@
   <view wx:elif="{{list.length === 0}}" class="empty">
     <view class="empty-icon icon icon-receipt"></view>
     <view>暂无订单</view>
-    <view class="empty-btn btn-ghost" bindtap="goBilling">去开单</view>
+    <view class="empty-btn btn-ghost" bindtap="goBilling" aria-role="button" aria-label="去开单">去开单</view>
   </view>
 
   <!-- 订单列表（状态显示在订单右侧） -->
   <block wx:else>
-    <view wx:for="{{list}}" wx:key="id" class="card order-card" data-id="{{item.id}}" bindtap="goDetail">
+    <view wx:for="{{list}}" wx:key="id" class="card order-card" data-id="{{item.id}}" bindtap="goDetail"
+          aria-role="button" aria-label="订单 {{item.order_no}}，{{item.statusText}}，{{item.quantity_count}} 件，金额 {{item.amountText}} 元">
       <view class="row-between">
         <view class="order-no">{{item.order_no}}</view>
         <view class="tag {{item.statusClass}}">{{item.statusText}}</view>

@@ -2,17 +2,19 @@
 <view class="page glow-page {{manageMode ? 'manage-open' : ''}}">
   <!-- 搜索栏 + 分类/管理入口（分类为图标按钮，置于行首） -->
   <view class="search-bar">
-    <view class="category-entry" bindtap="goCategory">
+    <view class="category-entry" bindtap="goCategory" aria-role="button" aria-label="分类管理">
       <view class="icon icon-folder"></view>
     </view>
     <view class="search-input-wrap">
-      <view class="icon icon-search search-icon"></view>
+      <view class="icon icon-search search-icon" aria-hidden="true"></view>
       <input class="search-input" placeholder="搜索商品名称" value="{{keyword}}"
-             bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
-      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">×</view>
+             bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search"
+             aria-label="搜索商品名称" />
+      <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword" aria-role="button" aria-label="清空搜索">×</view>
     </view>
     <view class="bar-actions">
-      <view class="manage-entry {{manageMode ? 'active' : ''}}" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
+      <view class="manage-entry {{manageMode ? 'active' : ''}}" bindtap="toggleManage"
+            aria-role="button" aria-label="{{manageMode ? '退出批量管理' : '进入批量管理'}}">{{manageMode ? '完成' : '管理'}}</view>
     </view>
   </view>
 
@@ -20,7 +22,8 @@
   <view class="tabs">
     <view wx:for="{{tabs}}" wx:key="key"
           class="tab {{statusTab === item.key ? 'tab-active' : ''}}"
-          data-key="{{item.key}}" bindtap="switchTab">{{item.text}}</view>
+          data-key="{{item.key}}" bindtap="switchTab"
+          aria-role="tab" aria-label="{{item.text}}">{{item.text}}</view>
   </view>
 
   <!-- 骨架屏（首次加载，统一使用 skeleton-card 组件） -->
@@ -49,38 +52,33 @@
   <block wx:else>
     <view wx:for="{{list}}" wx:key="id"
           class="list-card goods-card {{item.selected ? 'goods-selected' : ''}}"
-          data-id="{{item.id}}" bindtap="onCardTap">
+          data-id="{{item.id}}" bindtap="onCardTap"
+          aria-role="button"
+          aria-label="{{item.name}}，库存 {{item.stock}}，{{item.on_sale === 1 ? '上架中' : '已下架'}}，点击可编辑">
       <view class="goods-main">
-        <view wx:if="{{manageMode}}" class="select-dot {{item.selected ? 'on' : ''}}"></view>
+        <view wx:if="{{manageMode}}" class="select-dot {{item.selected ? 'on' : ''}}" aria-hidden="true"></view>
         <!-- P1-4：图片懒加载，加载失败/无图时展示占位图 -->
         <image wx:if="{{item.cover}}" class="goods-img" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}"
-               binderror="onCoverError" data-index="{{index}}" />
-        <view wx:else class="goods-img img-placeholder"><view class="icon icon-package"></view></view>
+               binderror="onCoverError" data-index="{{index}}" aria-label="{{item.name}}" />
+        <view wx:else class="goods-img img-placeholder"><view class="icon icon-package" aria-hidden="true"></view></view>
         <view class="goods-info">
-          <view class="goods-name ellipsis">{{item.name}}</view>
-          <view wx:if="{{item.goods_no}}" class="goods-no ellipsis">货号：{{item.goods_no}}</view>
-          <view class="goods-price">
-            <text class="price">￥{{item.priceText}}</text>
-            <text wx:if="{{item.original_price > 0}}" class="origin-price">￥{{item.originalPriceText}}</text>
+          <view class="goods-head">
+            <view class="goods-title">
+              <view class="goods-name ellipsis">{{item.name}}</view>
+              <view wx:if="{{item.goods_no}}" class="goods-no ellipsis">货号：{{item.goods_no}}</view>
+            </view>
+            <view class="goods-price">
+              <text class="price">￥{{item.priceText}}</text>
+              <text wx:if="{{item.original_price > 0}}" class="origin-price">￥{{item.originalPriceText}}</text>
+            </view>
           </view>
           <view class="goods-meta">
             <text class="{{item.stock === 0 ? 'stock-zero' : (item.stockWarn ? 'stock-low' : '')}}">库存 {{item.stock}}</text>
-            <text wx:if="{{item.stockWarn}}" class="tag tag-red">低库存</text>
             <text wx:if="{{item.category_name}}" class="tag tag-blue">{{item.category_name}}</text>
-          </view>
-          <view class="tag {{item.on_sale === 1 ? 'tag-green' : 'tag-gray'}}">
-            {{item.on_sale === 1 ? '上架中' : '已下架'}}
+            <view class="status-dot {{item.on_sale === 1 ? 'status-dot-on' : 'status-dot-off'}}"
+                  aria-role="img" aria-label="{{item.on_sale === 1 ? '上架中' : '已下架'}}"></view>
           </view>
         </view>
-      </view>
-      <view class="goods-actions" wx:if="{{!manageMode}}">
-        <view class="btn-ghost btn-mini" data-id="{{item.id}}" bindtap="goEdit">编辑</view>
-        <view class="btn-ghost btn-mini {{loadingDelete === item.id ? 'btn-loading' : ''}}"
-              data-id="{{item.id}}" data-onsale="{{item.on_sale}}" bindtap="toggleStatus">
-          {{item.on_sale === 1 ? '下架' : '上架'}}
-        </view>
-        <view class="btn-danger btn-mini {{loadingDelete === item.id ? 'btn-loading' : ''}}"
-              data-id="{{item.id}}" data-name="{{item.name}}" bindtap="handleDelete">删除</view>
       </view>
     </view>
 
@@ -89,13 +87,14 @@
   </block>
 
   <!-- 新增商品悬浮按钮 -->
-  <view wx:if="{{!manageMode}}" class="fab fab-goods" bindtap="goAdd">
-    <view class="icon icon-plus"></view>
-    <view class="fab-label">新商品</view>
+  <view wx:if="{{!manageMode}}" class="fab fab-goods" bindtap="goAdd"
+        aria-role="button" aria-label="新增商品">
+    <view class="icon icon-plus" aria-hidden="true"></view>
+    <view class="fab-label" aria-hidden="true">新商品</view>
   </view>
 
   <!-- 批量操作栏 -->
-  <view wx:if="{{manageMode}}" class="batch-bar">
+  <view wx:if="{{manageMode}}" class="batch-bar {{batchPulling ? 'batch-pulling' : ''}} {{batchHidden ? 'batch-hidden' : ''}}" bindanimationend="onBatchPullEnd">
     <view class="batch-all" bindtap="toggleSelectAll">
       <view class="select-dot {{allSelected ? 'on' : ''}}"></view>
       <text>全选</text>

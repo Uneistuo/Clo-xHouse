@@ -1,0 +1,164 @@
+/* ============================================================
+   web/styles/theme.css —— 暗色模式（data-theme="dark"）
+   参考 TDesign：只覆盖语义变量 + 少量硬编码表面色
+   主题由 index.html 内联脚本在首屏前写入，避免闪烁
+   ============================================================ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* 基底 */
+  --bg-app: #121722;
+  --bg-gradient: linear-gradient(180deg, #161b28 0%, #0f131c 100%);
+  --bg-card: rgba(30, 36, 52, 0.72);
+  --bg-card-strong: rgba(30, 36, 52, 0.9);
+  --bg-subtle: rgba(255, 255, 255, 0.06);
+  --bg-overlay: rgba(26, 31, 45, 0.92);
+
+  /* 表面层级 */
+  --surface-wash: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-hover-strong: rgba(255, 255, 255, 0.1);
+  --surface-input: rgba(255, 255, 255, 0.06);
+  --surface-input-focus: rgba(255, 255, 255, 0.1);
+  --sidebar-bg: rgba(18, 22, 32, 0.78);
+  --sidebar-brand-bg: rgba(255, 255, 255, 0.03);
+  --sidebar-user-bg: rgba(255, 255, 255, 0.03);
+  --auth-card-bg: rgba(28, 34, 48, 0.78);
+  --placeholder-grad: linear-gradient(135deg, #232a3b 0%, #2b3040 100%);
+  --skeleton-lo: rgba(255, 255, 255, 0.06);
+  --skeleton-hi: rgba(255, 255, 255, 0.14);
+  --mask-bg: rgba(0, 0, 0, 0.58);
+  --toast-bg: rgba(8, 10, 16, 0.92);
+  --glow-primary: rgba(108, 124, 255, 0.2);
+  --glow-primary-soft: rgba(108, 124, 255, 0.08);
+  --glow-warm: rgba(255, 150, 110, 0.14);
+  --glow-warm-soft: rgba(255, 150, 110, 0.06);
+
+  /* 描边 */
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --divider: rgba(255, 255, 255, 0.08);
+  --border-focus: var(--primary);
+
+  /* 文字 */
+  --text-1: #e8ecf5;
+  --text-2: #aab3c5;
+  --text-3: #7c879b;
+  --text-placeholder: #5f6a7e;
+
+  /* 品牌主色 */
+  --primary: #8e9bff;
+  --primary-dark: #aab4ff;
+  --primary-hover: #aab4ff;
+  --primary-tint: rgba(142, 155, 255, 0.16);
+
+  /* 点缀 */
+  --warm: #f2a57c;
+  --warm-tint: rgba(242, 165, 124, 0.14);
+
+  /* 语义色 */
+  --success: #4cc78a;
+  --success-tint: rgba(76, 199, 138, 0.14);
+  --warning: #e2ac54;
+  --warning-ink: #f0c674;
+  --warning-tint: rgba(226, 172, 84, 0.14);
+  --danger: #ef7670;
+  --danger-hover: #f08a85;
+  --danger-tint: rgba(239, 118, 112, 0.14);
+  --info: #6aa6f5;
+  --info-tint: rgba(106, 166, 245, 0.14);
+
+  /* 阴影 */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --shadow-soft-1: 0 3px 10px rgba(0, 0, 0, 0.25);
+  --shadow-soft-2: 0 7px 20px rgba(0, 0, 0, 0.32);
+  --shadow-float: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --shadow-primary: 0 8px 18px rgba(90, 105, 240, 0.3);
+  --inner-light: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* 暗色下仍需覆盖的硬编码表面色 */
+:root[data-theme='dark'] .brand-logo {
+  box-shadow: 0 4px 14px rgba(90, 105, 240, 0.35);
+}
+:root[data-theme='dark'] .sidebar nav a.active {
+  box-shadow: inset 0 0 0 1px rgba(142, 155, 255, 0.24);
+}
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] select,
+:root[data-theme='dark'] textarea {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+/* 无障碍降级会把玻璃改成纯白，暗色模式需要还原为深色表面 */
+:root[data-theme='dark'] .sidebar,
+:root[data-theme='dark'] .auth-card,
+:root[data-theme='dark'] .modal,
+:root[data-theme='dark'] .glass-card,
+:root[data-theme='dark'] .glass-dense,
+:root[data-theme='dark'] .glass-overlay {
+  background: var(--bg-card);
+}
+:root[data-theme='dark'] .sidebar {
+  background: var(--sidebar-bg);
+}
+:root[data-theme='dark'] .auth-card {
+  background: var(--auth-card-bg);
+}
+:root[data-theme='dark'] .modal {
+  background: var(--bg-overlay);
+}
+:root[data-theme='dark'] .card,
+:root[data-theme='dark'] .stat-card,
+:root[data-theme='dark'] .g-item {
+  background: var(--bg-card);
+}
+:root[data-theme='dark'] .btn.ghost {
+  background: var(--bg-card-strong);
+}
+:root[data-theme='dark'] .btn.light {
+  background: rgba(255, 255, 255, 0.07);
+}
+:root[data-theme='dark'] .toast {
+  background: var(--toast-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 禁用透明 / 模糊时，暗色表面改为不透明，保证可读性 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root[data-theme='dark'] .sidebar {
+    background: #151b28;
+  }
+  :root[data-theme='dark'] .auth-card,
+  :root[data-theme='dark'] .card,
+  :root[data-theme='dark'] .stat-card,
+  :root[data-theme='dark'] .g-item,
+  :root[data-theme='dark'] .modal {
+    background: #1b2130;
+  }
+  :root[data-theme='dark'] .toast {
+    background: #080a10;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme='dark'] .sidebar {
+    background: #151b28;
+  }
+  :root[data-theme='dark'] .auth-card,
+  :root[data-theme='dark'] .card,
+  :root[data-theme='dark'] .stat-card,
+  :root[data-theme='dark'] .g-item,
+  :root[data-theme='dark'] .modal {
+    background: #1b2130;
+  }
+  :root[data-theme='dark'] .toast {
+    background: #080a10;
+  }
+}

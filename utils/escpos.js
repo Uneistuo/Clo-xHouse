@@ -6,8 +6,8 @@ const { gbkEncode } = require('./gbk');
 
 // 58mm 小票纸：每行 32 个汉字（按 16 字符宽度算）
 // 大字号时为 16 个汉字；正常字号 32 个汉字
-const LINE_WIDTH_NORMAL = 32;  // 正常字号（每行 32 汉字宽度）
-const LINE_WIDTH_LARGE = 16;   // 大字号（每行 16 汉字宽度）
+const LINE_WIDTH_NORMAL = 32; // 正常字号（每行 32 汉字宽度）
+const LINE_WIDTH_LARGE = 16; // 大字号（每行 16 汉字宽度）
 
 class EscPosBuilder {
   constructor() {
@@ -16,44 +16,44 @@ class EscPosBuilder {
 
   // ESC @ - 初始化打印机
   init() {
-    this.buffer.push(0x1B, 0x40);
+    this.buffer.push(0x1b, 0x40);
     return this;
   }
 
   // ESC a n - 对齐（0=左 1=居中 2=右）
   align(n) {
-    this.buffer.push(0x1B, 0x61, n);
+    this.buffer.push(0x1b, 0x61, n);
     return this;
   }
 
   // ESC E n - 加粗
   bold(on) {
-    this.buffer.push(0x1B, 0x45, on ? 0x01 : 0x00);
+    this.buffer.push(0x1b, 0x45, on ? 0x01 : 0x00);
     return this;
   }
 
   // ESC ! n - 字号选择（位 0-3 宽、4-7 高）
   // 0x00 正常；0x10 倍宽；0x01 倍高；0x11 倍宽倍高
   size(n) {
-    this.buffer.push(0x1B, 0x21, n);
+    this.buffer.push(0x1b, 0x21, n);
     return this;
   }
 
   // ESC - n - 下划线
   underline(on) {
-    this.buffer.push(0x1B, 0x2D, on ? 0x01 : 0x00);
+    this.buffer.push(0x1b, 0x2d, on ? 0x01 : 0x00);
     return this;
   }
 
   // ESC d n - 走纸 n 行
   feed(n) {
-    this.buffer.push(0x1B, 0x64, n);
+    this.buffer.push(0x1b, 0x64, n);
     return this;
   }
 
   // GS V m - 切纸（m=1 半切）
   cut() {
-    this.buffer.push(0x1D, 0x56, 0x01);
+    this.buffer.push(0x1d, 0x56, 0x01);
     return this;
   }
 
@@ -68,13 +68,13 @@ class EscPosBuilder {
   // 写入一行（末尾自动换行 0x0A）
   line(str = '') {
     this.text(str);
-    this.buffer.push(0x0A);
+    this.buffer.push(0x0a);
     return this;
   }
 
   // 空行
   blank(n = 1) {
-    for (let i = 0; i < n; i++) this.buffer.push(0x0A);
+    for (let i = 0; i < n; i++) this.buffer.push(0x0a);
     return this;
   }
 
@@ -99,12 +99,14 @@ class EscPosBuilder {
         used += b.length;
       }
       const pad = Math.max(0, w - used);
-      const pushSpaces = (n) => { for (let i = 0; i < n; i++) this.buffer.push(0x20); };
+      const pushSpaces = (n) => {
+        for (let i = 0; i < n; i++) this.buffer.push(0x20);
+      };
       if (c.align === 'right') pushSpaces(pad);
       for (const b of parts) for (let i = 0; i < b.length; i++) this.buffer.push(b[i]);
       if (c.align !== 'right') pushSpaces(pad);
     }
-    this.buffer.push(0x0A);
+    this.buffer.push(0x0a);
     return this;
   }
 
@@ -114,7 +116,7 @@ class EscPosBuilder {
     const spaceCount = Math.max(0, lineWidth - rightBytes.length);
     for (let i = 0; i < spaceCount; i++) this.buffer.push(0x20);
     for (let i = 0; i < rightBytes.length; i++) this.buffer.push(rightBytes[i]);
-    this.buffer.push(0x0A);
+    this.buffer.push(0x0a);
     return this;
   }
 
@@ -127,7 +129,7 @@ class EscPosBuilder {
     for (let i = 0; i < leftBytes.length; i++) this.buffer.push(leftBytes[i]);
     for (let i = 0; i < spaceCount; i++) this.buffer.push(0x20);
     for (let i = 0; i < rightBytes.length; i++) this.buffer.push(rightBytes[i]);
-    this.buffer.push(0x0A);
+    this.buffer.push(0x0a);
     return this;
   }
 

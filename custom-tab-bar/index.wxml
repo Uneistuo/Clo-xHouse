@@ -1,11 +1,12 @@
 <!--自定义底部导航：中间"开单"凸起-->
-<view class="tabbar {{animated ? 'tabbar-anim' : ''}} {{selected === 2 ? 'tabbar-billing' : ''}} {{dock ? 'tabbar-docked' : ''}}">
+<view class="tabbar {{animated ? 'tabbar-anim' : ''}} {{selected === 2 ? 'tabbar-billing' : ''}} {{dock ? 'tabbar-docked' : ''}} {{switching ? 'tabbar-switch-' + switching : ''}} {{middle ? 'tabbar-mid-' + middle : ''}}">
   <view wx:for="{{list}}" wx:key="pagePath"
         class="tabbar-item {{item.middle ? 'tabbar-item-middle' : ''}} {{selected === index ? 'active' : ''}}"
-        data-index="{{index}}" data-path="{{item.pagePath}}" bindtap="switchTab">
-    <view class="tabbar-icon-wrap">
+        data-index="{{index}}" data-path="{{item.pagePath}}" bindtap="switchTab"
+        aria-role="button" aria-label="{{item.text}}">
+    <view class="tabbar-icon-wrap" aria-hidden="true">
       <view class="icon {{item.icon}} tabbar-icon"></view>
     </view>
-    <view class="tabbar-text">{{item.text}}</view>
+    <view class="tabbar-text" aria-hidden="true">{{item.text}}</view>
   </view>
 </view>

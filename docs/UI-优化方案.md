@@ -10,6 +10,7 @@
 ## 一、整体评估
 
 ### ✅ 已做得好的部分
+
 - Design Token 体系完善（`tokens.wxss`），颜色/圆角/间距/阴影/动效统一
 - 玻璃拟态五档分层清晰：Wash / Standard / Dense / Hero / Overlay
 - 无障碍降级覆盖完整（`prefers-reduced-transparency` / `motion` / `contrast`）
@@ -17,13 +18,14 @@
 - 自定义 TabBar 悬浮胶囊设计有辨识度
 
 ### ⚠️ 主要问题归类
-| 类别 | 数量 | 说明 |
-|------|------|------|
-| 功能性 Bug（遮挡/错位） | 4 处 | 影响正常使用，需立即修复 |
-| 一致性问题 | 8 处 | 跨页面风格不统一，降低专业感 |
-| 交互体验缺陷 | 6 处 | 缺少反馈、操作歧义 |
-| 无障碍/性能隐患 | 3 处 | 低端设备兼容性 |
-| 代码维护成本 | 2 处 | 重复样式未提取 |
+
+| 类别                    | 数量 | 说明                         |
+| ----------------------- | ---- | ---------------------------- |
+| 功能性 Bug（遮挡/错位） | 4 处 | 影响正常使用，需立即修复     |
+| 一致性问题              | 8 处 | 跨页面风格不统一，降低专业感 |
+| 交互体验缺陷            | 6 处 | 缺少反馈、操作歧义           |
+| 无障碍/性能隐患         | 3 处 | 低端设备兼容性               |
+| 代码维护成本            | 2 处 | 重复样式未提取               |
 
 ---
 
@@ -38,6 +40,7 @@
 **影响：** 用户无法输入分类名称。
 
 **修复方案：**
+
 ```css
 /* pages/category/category.wxss */
 .add-card-fixed {
@@ -59,6 +62,7 @@
 **问题：** `footer-bar` 设置 `bottom: calc(140rpx + ...)`，但 TabBar 实际占用高度为 108rpx（栏高）+ 16rpx（间距）= 124rpx，结算栏高出 16rpx，视觉上产生断裂。
 
 **修复方案：**
+
 ```css
 /* pages/billing/billing.wxss */
 .footer-bar {
@@ -82,6 +86,7 @@
 **方案 A（推荐）：** 删除商品页 FAB，统一从 TabBar "开单"入口下单，商品管理在卡片内通过"编辑"+"上架/下架"操作。
 
 **方案 B：** 保留 FAB，但改为"新增商品"，使用不同图标和标签区分语义：
+
 ```xml
 <!-- pages/goods/goods.wxml -->
 <view class="fab fab-goods" bindtap="goAdd">
@@ -89,6 +94,7 @@
   <view class="fab-label">新商品</view>
 </view>
 ```
+
 ```css
 /* pages/goods/goods.wxss */
 .fab-goods {
@@ -112,16 +118,23 @@
 **问题：** 扫描状态下按钮变为 `.btn-warn` 样式，但无任何动画，用户无法确认是否正在搜索。
 
 **修复方案：** 添加脉冲动画
+
 ```css
 /* pages/printer-pair/printer-pair.wxss */
 @keyframes scan-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(214, 154, 60, 0.4); }
-  50% { box-shadow: 0 0 0 12rpx rgba(214, 154, 60, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(214, 154, 60, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12rpx rgba(214, 154, 60, 0);
+  }
 }
 .actions .btn-warn.scanning {
   animation: scan-pulse 1.2s ease infinite;
 }
 ```
+
 ```xml
 <!-- pages/printer-pair/printer-pair.wxml -->
 <button wx:if="{{scanning}}" class="btn btn-warn scanning" bindtap="onStopScan">
@@ -157,6 +170,7 @@
 ```
 
 各页 WXML 补充清除按钮（以商品页为例）：
+
 ```xml
 <view class="search-input-wrap">
   <view class="icon icon-search search-icon"></view>
@@ -175,6 +189,7 @@
 **现状：** 点击复制后无视觉/触觉反馈，用户不确定是否成功。
 
 **修复方案：** 在 JS 的 `handleCopyCode` 中添加 Toast：
+
 ```javascript
 handleCopyCode() {
   wx.setClipboardData({
@@ -195,17 +210,20 @@ handleCopyCode() {
 **现状：** 各页面自行硬编码 `calc(xxx rpx + env(safe-area-inset-bottom))`，数值不统一。
 
 **修复方案：** 在 `tokens.wxss` 新增统一 token：
+
 ```css
 /* styles/tokens.wxss */
-:host, page {
+:host,
+page {
   /* 新增 */
   --space-tabbar-bottom: 124rpx; /* 108rpx栏高 + 16rpx间距 */
-  --space-fab-bottom: 160rpx;    /* FAB 距底部安全区的额外间距 */
-  --space-fixed-bottom: 140rpx;  /* 批量操作栏等固定栏距底部安全区的间距 */
+  --space-fab-bottom: 160rpx; /* FAB 距底部安全区的额外间距 */
+  --space-fixed-bottom: 140rpx; /* 批量操作栏等固定栏距底部安全区的间距 */
 }
 ```
 
 各页统一引用：
+
 ```css
 /* pages/goods/goods.wxss */
 .fab {
@@ -226,11 +244,13 @@ handleCopyCode() {
 ### Cons-04：性别选择器样式重复
 
 **出现位置：**
+
 - `pages/billing/billing.wxss` L322（开单添加会员弹窗）
 - `pages/customer/list.wxss` L130（列表添加会员弹窗）
 - `pages/customer/detail.wxss` L149（详情编辑弹窗）
 
 **修复方案：** 提取为公共样式块，统一放到 `app.wxss`：
+
 ```css
 /* app.wxss — 新增通用性别选择器样式 */
 .gender-options {
@@ -263,9 +283,12 @@ handleCopyCode() {
 }
 /* 无障碍降级 */
 @media (prefers-reduced-transparency: reduce) {
-  .gender-options { background: #f4f6fa; }
+  .gender-options {
+    background: #f4f6fa;
+  }
 }
 ```
+
 各页面 wxss 删除重复定义。
 
 ---
@@ -280,20 +303,45 @@ handleCopyCode() {
 
 ```css
 /* pages/order-detail/order-detail.wxss */
-.status-pending  { background: var(--warning-tint);  color: var(--warning); }
-.status-paid     { background: var(--success-tint);  color: var(--success); }
-.status-done     { background: var(--info-tint);     color: var(--info); }
-.status-cancelled{ background: var(--bg-subtle);     color: var(--text-3); }
-.status-refunded { background: var(--danger-tint);   color: var(--danger); }
+.status-pending {
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+.status-paid {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.status-done {
+  background: var(--info-tint);
+  color: var(--info);
+}
+.status-cancelled {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
+.status-refunded {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
 ```
 
 ```css
 /* pages/customer/detail.wxss */
-.status-pending  { color: var(--warning); }
-.status-paid     { color: var(--success); }
-.status-done     { color: var(--info); }
-.status-cancelled{ color: var(--text-3); }
-.status-refunded { color: var(--danger); }
+.status-pending {
+  color: var(--warning);
+}
+.status-paid {
+  color: var(--success);
+}
+.status-done {
+  color: var(--info);
+}
+.status-cancelled {
+  color: var(--text-3);
+}
+.status-refunded {
+  color: var(--danger);
+}
 ```
 
 ---
@@ -305,6 +353,7 @@ handleCopyCode() {
 **现状：** `.head-title { font-size: 52rpx }` 与下方销售额数字（84rpx）竞争视觉焦点。
 
 **修复方案：**
+
 ```css
 .head-title {
   font-size: 36rpx; /* 原 52rpx 降至 36rpx */
@@ -321,6 +370,7 @@ handleCopyCode() {
 **现状：** 订单金额 `.order-amount { font-size: 34rpx }`，与商品页价格（30rpx）差异不大。
 
 **修复方案：** 提升订单金额字号，强化关键数据：
+
 ```css
 .order-amount {
   font-size: 40rpx; /* 原 34rpx */
@@ -337,6 +387,7 @@ handleCopyCode() {
 **现状：** `.img-placeholder` 和 `.goods-img-empty` 仅显示灰色图标，弱网/无图时视觉空洞。
 
 **修复方案：** 为占位图添加与正常图片相同的渐变背景：
+
 ```css
 .img-placeholder,
 .goods-img-empty {
@@ -365,6 +416,7 @@ handleCopyCode() {
 **问题：** 密码为 `password` 类型，用户无法核对输入内容，尤其在公共场合。
 
 **修复方案：**
+
 ```xml
 <!-- login.wxml — 密码字段 -->
 <view class="field {{focusField === 'password' ? 'is-focus' : ''}} {{passwordError ? 'is-error' : ''}}">
@@ -379,6 +431,7 @@ handleCopyCode() {
   </view>
 </view>
 ```
+
 ```css
 /* login.wxss */
 .pwd-toggle {
@@ -391,6 +444,7 @@ handleCopyCode() {
   padding: 8rpx;
 }
 ```
+
 > 注：需先在 `icons.wxss` 中添加 `icon-eye` 和 `icon-eye-off` SVG 路径。
 
 ---
@@ -402,6 +456,7 @@ handleCopyCode() {
 **问题：** 购物车行使用 Standard 玻璃卡（`bg-card` 68%白底），在裁缝店强光环境下可读性不足。
 
 **修复方案：** 购物车改用 Dense 密集层（纯白底），提升对比度：
+
 ```css
 /* pages/billing/billing.wxss */
 .cart-item {
@@ -426,6 +481,7 @@ handleCopyCode() {
 **问题：** `.batch-bar { z-index: 60 }` 低于 TabBar（z-index: 100），部分安卓机型上可能出现层级穿透。
 
 **修复方案：**
+
 ```css
 .batch-bar {
   z-index: 101; /* 原 60 */
@@ -441,12 +497,21 @@ handleCopyCode() {
 **问题：** 所有设备的信号强度文字统一灰色，用户无法快速判断连接质量。
 
 **修复方案：**
+
 ```css
-.device-rssi.strong  { color: var(--success); }
-.device-rssi.normal  { color: var(--warning); }
-.device-rssi.weak    { color: var(--danger); }
+.device-rssi.strong {
+  color: var(--success);
+}
+.device-rssi.normal {
+  color: var(--warning);
+}
+.device-rssi.weak {
+  color: var(--danger);
+}
 ```
+
 JS 层根据 RSSI 值动态绑定 class：
+
 ```javascript
 getRssiClass(rssi) {
   if (rssi >= -60) return 'strong';
@@ -464,11 +529,19 @@ getRssiClass(rssi) {
 **问题：** 低库存统一使用红色，未区分"断货"（stock=0）和"预警"（stock<5）两级风险。
 
 **修复方案：**
+
 ```css
 /* app.wxss — 新增 */
-.stock-zero  { color: var(--danger);   font-weight: 800; } /* 断货 */
-.stock-low   { color: var(--warning);  font-weight: 700; } /* 预警 */
+.stock-zero {
+  color: var(--danger);
+  font-weight: 800;
+} /* 断货 */
+.stock-low {
+  color: var(--warning);
+  font-weight: 700;
+} /* 预警 */
 ```
+
 ```xml
 <!-- goods.wxml -->
 <text class="{{item.stock === 0 ? 'stock-zero' : (item.stock < 5 ? 'stock-low' : '')}}">
@@ -485,11 +558,13 @@ getRssiClass(rssi) {
 **问题：** 输入 11 位手机号后才显示"添加会员"按钮，但期间无任何提示，用户可能不知道需要输入多少位。
 
 **修复方案：** 增加实时位数提示：
+
 ```xml
 <input class="field-input phone-input" type="number" placeholder="11 位手机号"
        value="{{customerPhone}}" bindinput="onPhoneInput" placeholder-class="ph" maxlength="11" />
 <view class="phone-count">{{customerPhone.length}} / 11</view>
 ```
+
 ```css
 .phone-count {
   font-size: 22rpx;
@@ -498,7 +573,9 @@ getRssiClass(rssi) {
   margin-top: 6rpx;
   transition: color var(--duration-fast);
 }
-.phone-count.done { color: var(--success); }
+.phone-count.done {
+  color: var(--success);
+}
 ```
 
 ---
@@ -512,6 +589,7 @@ getRssiClass(rssi) {
 **问题：** 状态卡和说明卡使用纯白底（`var(--bg-card)`），与其他页面的半透明玻璃质感不统一。
 
 **修复方案：** 为 `.status-card` 和 `.help` 添加 backdrop-filter：
+
 ```css
 .status-card,
 .help {
@@ -519,6 +597,7 @@ getRssiClass(rssi) {
   backdrop-filter: blur(20px) saturate(150%);
 }
 ```
+
 无障碍降级中补充 `backdrop-filter: none` 回退。
 
 ---
@@ -530,11 +609,13 @@ getRssiClass(rssi) {
 **问题：** 确认按钮固定使用红色渐变，但普通确认场景（如"确定删除"以外的操作）不需要红色警示。
 
 **修复方案：** 增加 `type` 属性支持，区分 primary / danger 两种样式：
+
 ```xml
 <!-- 调用方传入 type="primary" 或 type="danger"（默认 danger） -->
 <custom-confirm title="提示" content="确定要退出店铺吗？" type="danger" ... />
 <custom-confirm title="提示" content="操作已完成" type="primary" ... />
 ```
+
 ```css
 /* custom-confirm.wxss */
 .c-confirm-btn-confirm {
@@ -554,6 +635,7 @@ getRssiClass(rssi) {
 **问题：** `.trend-bar { width: 30rpx }` 固定宽度，7 列在小屏（如 iPhone SE）上排列过密。
 
 **修复方案：**
+
 ```css
 .trend-col {
   flex: 1;
@@ -575,6 +657,7 @@ getRssiClass(rssi) {
 **问题：** 使用 `icon-menu`（三条横杠）作为分类入口，语义偏向"菜单"而非"分类"。
 
 **修复方案：** 替换为更明确的图标：
+
 ```xml
 <!-- 旧 -->
 <view class="icon icon-menu"></view>
@@ -591,12 +674,14 @@ getRssiClass(rssi) {
 **问题：** 使用 `▾` unicode 字符，字号 20rpx 偏小，在不同字体渲染下可能显示不一致。
 
 **修复方案：** 替换为 icon 组件：
+
 ```xml
 <!-- 旧 -->
 <text class="fold-toggle-arrow">▾</text>
 <!-- 新 -->
 <view class="icon icon-chevron-down fold-toggle-arrow"></view>
 ```
+
 若图标集中无此图标，需在 `icons.wxss` 中补充 `icon-chevron-down`。
 
 ---
@@ -608,6 +693,7 @@ getRssiClass(rssi) {
 **问题：** 当 `storeId` 为空时，店铺页主要内容区域为空，用户可能不知道下一步该做什么。
 
 **修复方案：** 增加引导卡片：
+
 ```xml
 <view wx:else class="guide-card">
   <view class="guide-icon icon icon-store"></view>
@@ -625,7 +711,8 @@ getRssiClass(rssi) {
 
 ```css
 /* tokens.wxss 新增内容 */
-:host, page {
+:host,
+page {
   /* 安全区间距（统一计算基准） */
   --space-tabbar-height: 108rpx;
   --space-tabbar-gap: 16rpx;
@@ -634,8 +721,8 @@ getRssiClass(rssi) {
   --space-fixed-bar-bottom: 140rpx;
 
   /* 风险分级颜色（低库存等场景） */
-  --stock-critical: #e05d57;  /* 断货 */
-  --stock-warning: #d69a3c;   /* 预警 */
+  --stock-critical: #e05d57; /* 断货 */
+  --stock-warning: #d69a3c; /* 预警 */
 
   /* 信号强度颜色 */
   --rssi-strong: #3bae76;
@@ -648,13 +735,13 @@ getRssiClass(rssi) {
 
 ## 七、修改工作量评估
 
-| 优先级 | 事项数 | 预估工时 | 建议排期 |
-|--------|--------|---------|---------|
-| P0 功能性 Bug | 4 处 | 1h | 本周热修复 |
-| P1 一致性 | 8 处 | 3h | 下周迭代 |
-| P2 交互体验 | 6 处 | 4h | 下下周迭代 |
-| P3 代码质量 | 6 处 | 2h | 按需排入 |
-| **合计** | **24 处** | **~10h** | **约 2 周** |
+| 优先级        | 事项数    | 预估工时 | 建议排期    |
+| ------------- | --------- | -------- | ----------- |
+| P0 功能性 Bug | 4 处      | 1h       | 本周热修复  |
+| P1 一致性     | 8 处      | 3h       | 下周迭代    |
+| P2 交互体验   | 6 处      | 4h       | 下下周迭代  |
+| P3 代码质量   | 6 处      | 2h       | 按需排入    |
+| **合计**      | **24 处** | **~10h** | **约 2 周** |
 
 ---
 
@@ -667,4 +754,4 @@ getRssiClass(rssi) {
 
 ---
 
-*文档结束*
+_文档结束_

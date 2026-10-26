@@ -4,6 +4,7 @@
 const { request } = require('../../utils/api');
 const { printer } = require('../../utils/printer');
 const { confirm, toast } = require('../../utils/dialog');
+const warmup = require('../../utils/warmup');
 
 /** px -> rpx 换算比例（750rpx = 屏幕宽度） */
 function getRpxRatio() {
@@ -43,7 +44,7 @@ Page({
       this._setExpanded(this.data.membersExpanded);
     }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 4 });
+      this.getTabBar().applyBarState({ selected: 4, dock: false });
     }
     // 先用本地缓存兜底，避免接口返回前/失败时误显示未绑定引导
     const cached = wx.getStorageSync('adminInfo') || {};
@@ -90,10 +91,12 @@ Page({
     }
   },
 
-  /** 拉取当前绑定店铺信息 */
-  async loadInfo() {
+  /** 拉取当前绑定店铺信息（silent：静默刷新，不打断已渲染内容） */
+  async loadInfo(silent = false) {
+    // 首次进入命中启动预热：直接用快照渲染，骨架屏都不出现
+    const warm = silent ? null : warmup.take('store', {});
     try {
-      const data = await request({ url: '/api/store/info' });
+      const data = warm || (await warmup.fetch('store', { url: '/api/store/info' }));
       const members = data.members || [];
       const canExpandMembers =
         !!data.storeId && (members.length > 0 || (data.role === 'owner' && !!data.canCreateStore));
@@ -136,6 +139,8 @@ Page({
         storeId: data.storeId || 0,
         storeName: data.store ? data.store.name : null
       });
+      // 预热快照可能已经过时：先渲染再静默补拉一次最新数据
+      if (warm) this.loadInfo(true);
     } catch (e) {
       this.setData({ loading: false });
     }

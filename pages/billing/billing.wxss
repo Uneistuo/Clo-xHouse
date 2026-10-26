@@ -363,20 +363,51 @@
   min-height: var(--dock-bar-height, 136rpx);
   padding: 24rpx 32rpx;
   margin: 0;
-  background: var(--bg-overlay);
+  /* 不透明度提高一点替代毛玻璃：固定层一旦做 backdrop-filter，
+     滚动和位移时每帧都要重新采样背景，是这块最贵的地方。
+     底色与拼接态 TabBar 共用 --dock-bg，两块面板接缝处不能有色差。 */
+  background: var(--dock-bg, rgba(255, 255, 255, 0.94));
   border: 1rpx solid var(--glass-border);
   border-bottom: none;
   border-radius: var(--radius-card) var(--radius-card) 0 0;
   box-shadow:
     0 -14rpx 40rpx rgba(35, 45, 75, 0.08),
     var(--inner-light);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
 }
 .footer-left {
   display: flex;
   flex-direction: column;
 }
+
+/* ===== 拼接态入场：结算栏从 TabBar 后方「拉出」 =====
+   只由「普通栏 → 拼接栏」那一次切换挂上类名（见 _pullDockCard），
+   静止时没有任何动画，反复进出页面不会自己动一下。
+   只动 transform / opacity 两项合成属性：
+     · 位移 = 自身高度 + TabBar 底距，起手整块在屏幕外，因此要带上安全区；
+     · 动画期间沉到 TabBar 之下（z-index 99），视觉上是从栏里抽出一块卡片；
+     · will-change 让这一层在运动前就栅格化好，投影不跟着每帧重画。 */
+.footer-bar.dock-pulling {
+  z-index: 99;
+  will-change: transform, opacity;
+  animation: dock-card-pull 0.36s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+/* 页面被隐藏期间先藏住结算栏（见 onHide）：缓存页重新显示时，
+   第一帧不会先画出「上一次的静止态」，拉出动画因此只播一次。
+   只动透明度，不参与布局，也不留 transform，切换页时不会错位。 */
+.footer-bar.dock-hidden {
+  opacity: 0;
+}
+@keyframes dock-card-pull {
+  from {
+    transform: translateY(calc(100% + var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom)));
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .footer-spec {
   font-size: 22rpx;
   color: var(--text-2);
@@ -523,8 +554,6 @@
   }
   .footer-bar {
     background: #ffffff;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -538,5 +567,9 @@
   .step-btn:active,
   .footer-btn:active {
     transform: none;
+  }
+  /* 结算栏拉出动画一并关闭，直接落位 */
+  .footer-bar.dock-pulling {
+    animation: none !important;
   }
 }

@@ -1,8 +1,8 @@
 <!--注册 + 绑定页（独立页面）：第1步注册账号 → 第2步绑定店铺 → 第3步完成-->
 <view class="reg-page glow-page">
   <!-- 背景光晕 -->
-  <view class="glow glow-1"></view>
-  <view class="glow glow-2"></view>
+  <view class="glow glow-1" aria-hidden="true"></view>
+  <view class="glow glow-2" aria-hidden="true"></view>
 
   <view class="reg-wrap">
     <!-- 顶部标题区 -->
@@ -12,7 +12,7 @@
     </view>
 
     <!-- 步骤条：1 → 2 → 3 + 进度连接线 -->
-    <view class="steps">
+    <view class="steps" aria-label="注册进度：第 {{step}} 步，共 3 步">
       <view class="step-node {{step > 1 ? 'done' : ''}} {{step === 1 ? 'active' : ''}}">
         <text wx:if="{{step > 1}}">✓</text>
         <text wx:else>1</text>
@@ -40,7 +40,7 @@
         <view class="field-label">账号</view>
         <input class="field-input" placeholder="3-20 位字母、数字或下划线" value="{{username}}"
                bindinput="onUsernameInput" bindfocus="onFocus" bindblur="onBlur" data-name="username"
-               placeholder-class="ph" />
+               placeholder-class="ph" aria-label="账号" />
       </view>
       <view wx:if="{{usernameError}}" class="field-tip">
         {{usernameError}}
@@ -51,9 +51,9 @@
         <view class="field-label">密码</view>
         <input class="field-input" placeholder="6-32 位" password="{{!showPassword}}" value="{{password}}"
                bindinput="onPasswordInput" bindfocus="onFocus" bindblur="onBlur" data-name="password"
-               placeholder-class="ph" />
-        <view class="pwd-toggle" bindtap="togglePassword">
-          <view class="icon {{showPassword ? 'icon-eye-off' : 'icon-eye'}}"></view>
+               placeholder-class="ph" aria-label="密码" />
+        <view class="pwd-toggle" bindtap="togglePassword" aria-role="button" aria-label="{{showPassword ? '隐藏密码' : '显示密码'}}">
+          <view class="icon {{showPassword ? 'icon-eye-off' : 'icon-eye'}}" aria-hidden="true"></view>
         </view>
       </view>
       <view wx:if="{{passwordError}}" class="field-tip">{{passwordError}}</view>
@@ -62,9 +62,9 @@
         <view class="field-label">确认密码</view>
         <input class="field-input" placeholder="请再次输入密码" password="{{!showConfirmPassword}}" value="{{confirmPassword}}"
                bindinput="onConfirmInput" bindfocus="onFocus" bindblur="onBlur" data-name="confirm"
-               placeholder-class="ph" />
-        <view class="pwd-toggle" bindtap="toggleConfirmPassword">
-          <view class="icon {{showConfirmPassword ? 'icon-eye-off' : 'icon-eye'}}"></view>
+               placeholder-class="ph" aria-label="确认密码" />
+        <view class="pwd-toggle" bindtap="toggleConfirmPassword" aria-role="button" aria-label="{{showConfirmPassword ? '隐藏确认密码' : '显示确认密码'}}">
+          <view class="icon {{showConfirmPassword ? 'icon-eye-off' : 'icon-eye'}}" aria-hidden="true"></view>
         </view>
       </view>
       <view wx:if="{{confirmError}}" class="field-tip">{{confirmError}}</view>
@@ -78,8 +78,10 @@
     <!-- ===== 第 2 步：绑定店铺 ===== -->
     <view class="panel" wx:elif="{{step === 2}}">
       <view class="segmented">
-        <view class="seg-item {{bindMethod === 'create' ? 'active' : ''}}" data-method="create" bindtap="switchBindMethod">创建新店铺</view>
-        <view class="seg-item {{bindMethod === 'join' ? 'active' : ''}}" data-method="join" bindtap="switchBindMethod">加入已有店铺</view>
+        <view class="seg-item {{bindMethod === 'create' ? 'active' : ''}}" data-method="create" bindtap="switchBindMethod"
+              aria-role="tab" aria-label="创建新店铺">创建新店铺</view>
+        <view class="seg-item {{bindMethod === 'join' ? 'active' : ''}}" data-method="join" bindtap="switchBindMethod"
+              aria-role="tab" aria-label="加入已有店铺">加入已有店铺</view>
       </view>
 
       <!-- 创建店铺 -->
@@ -88,7 +90,7 @@
           <view class="field-label">店铺名称</view>
           <input class="field-input" placeholder="请输入店铺名称" value="{{storeName}}"
                  bindinput="onStoreNameInput" bindfocus="onFocus" bindblur="onBlur" data-name="storeName"
-                 placeholder-class="ph" maxlength="30" />
+                 placeholder-class="ph" maxlength="30" aria-label="店铺名称" />
         </view>
         <view class="register-hint">创建后您即店主，将获得专属店铺码供员工绑定</view>
         <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleCreate" disabled="{{loading}}">
@@ -102,7 +104,7 @@
           <view class="field-label">店铺码</view>
           <input class="field-input" placeholder="请输入8位店铺码" value="{{code}}"
                  bindinput="onCodeInput" bindfocus="onFocus" bindblur="onBlur" data-name="code"
-                 placeholder-class="ph" maxlength="8" />
+                 placeholder-class="ph" maxlength="8" aria-label="8 位店铺码" />
         </view>
         <view class="register-hint">绑定后该店铺的商品、订单数据自动同步到您的账号</view>
         <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleJoin" disabled="{{loading}}">
@@ -110,7 +112,7 @@
         </button>
       </view>
 
-      <view wx:if="{{canBackStep1}}" class="back-link" bindtap="goStep1">上一步</view>
+      <view wx:if="{{canBackStep1}}" class="back-link" bindtap="goStep1" aria-role="button" aria-label="返回上一步">上一步</view>
     </view>
 
     <!-- ===== 第 3 步：完成确认 ===== -->
@@ -147,14 +149,14 @@
     <!-- ===== 底部操作区 ===== -->
     <view class="foot">
       <block wx:if="{{mode === 'register'}}">
-        <text>已有账号？</text><text class="foot-link" bindtap="goLogin">返回登录</text>
+        <text>已有账号？</text><text class="foot-link" bindtap="goLogin" aria-role="button" aria-label="返回登录">返回登录</text>
       </block>
       <block wx:else>
-        <text class="foot-link" bindtap="handleLogout">退出登录</text>
+        <text class="foot-link" bindtap="handleLogout" aria-role="button" aria-label="退出登录">退出登录</text>
       </block>
     </view>
     <view wx:if="{{resumeHint}}" class="foot foot-sub">
-      <text class="foot-link" bindtap="resetRegister">注册新账号</text>
+      <text class="foot-link" bindtap="resetRegister" aria-role="button" aria-label="注册新账号">注册新账号</text>
     </view>
   </view>
 </view>

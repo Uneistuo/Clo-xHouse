@@ -1,0 +1,203 @@
+/* ============================================================
+   web/styles/responsive.css —— 响应式布局与无障碍降级
+   ============================================================ */
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    box-shadow: var(--shadow-soft-1);
+    border-right: none;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .sidebar nav {
+    display: flex;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+  .sidebar nav a {
+    padding: 11px 16px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .sidebar nav a.active {
+    background: var(--primary-tint);
+  }
+  /* 移动端：扁平化分组，隐藏小标题，导航改为横向滚动 */
+  .sidebar nav .nav-group {
+    display: contents;
+  }
+  .sidebar nav .nav-group-title {
+    display: none;
+  }
+  .sidebar .side-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+  }
+  .sidebar .side-user .side-user-info {
+    flex: 1 1 auto;
+  }
+  .sidebar .side-user .store-name {
+    margin-bottom: 0;
+  }
+  .sidebar .side-user .side-actions {
+    margin-top: 0;
+    margin-left: auto;
+  }
+  .sidebar .side-user .side-actions #btn-sidebar-toggle {
+    display: none;
+  }
+  .sidebar .side-user .btn {
+    width: auto;
+    margin-top: 0;
+    padding: 6px 14px;
+    font-size: 12.5px;
+  }
+  .main {
+    padding: 18px 16px;
+  }
+  .billing-wrap {
+    flex-direction: column;
+  }
+  .cart-panel {
+    width: 100%;
+    position: static;
+  }
+  .modal {
+    width: 92vw;
+    padding: 22px;
+  }
+  .auth-card {
+    width: 90vw;
+    padding: 32px 24px;
+  }
+}
+
+/* ========== 兼容 / 无障碍降级 ========== */
+/* 不支持 backdrop-filter：玻璃退化为纯半透明底，仍可读 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sidebar,
+  .auth-card,
+  .modal,
+  .toast {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.94);
+  }
+  .glass-wash {
+    background: rgba(255, 255, 255, 0.92);
+  }
+  .glass-card,
+  .glass-dense,
+  .glass-overlay {
+    background: #ffffff;
+  }
+  .toast {
+    background: rgba(29, 34, 43, 0.92);
+  }
+  .modal-mask {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+/* 降低透明度：玻璃退化为不透明纯色底 */
+@media (prefers-reduced-transparency: reduce) {
+  .sidebar,
+  .auth-card,
+  .modal,
+  .toast {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-wash {
+    background: rgba(255, 255, 255, 0.92);
+  }
+  .glass-card,
+  .glass-dense,
+  .glass-overlay {
+    background: #ffffff;
+  }
+  .sidebar {
+    background: #ffffff;
+  }
+  .auth-card {
+    background: #ffffff;
+  }
+  .modal {
+    background: #ffffff;
+  }
+  .toast {
+    background: rgba(29, 34, 43, 0.96);
+  }
+  .modal-mask {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+/* 减少动态效果：过渡与动画静止，按压不做缩放 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .g-item:hover {
+    transform: none;
+  }
+}
+/* 增强对比度：文字加深、描边实心 */
+@media (prefers-contrast: more) {
+  :root {
+    --text-1: #0c1016;
+    --text-2: #3c434f;
+    --text-3: #5f6874;
+    --hairline: rgba(29, 34, 43, 0.25);
+    --border: rgba(29, 34, 43, 0.35);
+    --divider: rgba(29, 34, 43, 0.25);
+    --glass-border: rgba(29, 34, 43, 0.28);
+  }
+  .card,
+  .stat-card,
+  .g-item,
+  .auth-card,
+  .modal {
+    background: #ffffff;
+  }
+  .sidebar {
+    background: #ffffff;
+  }
+}
+
+/* 暗色 + 高对比：保持深色表面，仅提升文字与描边对比 */
+@media (prefers-contrast: more) {
+  :root[data-theme='dark'] {
+    --text-1: #ffffff;
+    --text-2: #dbe2ee;
+    --text-3: #b6c0d1;
+    --hairline: rgba(255, 255, 255, 0.32);
+    --border: rgba(255, 255, 255, 0.42);
+    --divider: rgba(255, 255, 255, 0.32);
+    --glass-border: rgba(255, 255, 255, 0.4);
+  }
+  :root[data-theme='dark'] .card,
+  :root[data-theme='dark'] .stat-card,
+  :root[data-theme='dark'] .g-item,
+  :root[data-theme='dark'] .auth-card,
+  :root[data-theme='dark'] .modal {
+    background: #1b2130;
+  }
+  :root[data-theme='dark'] .sidebar {
+    background: #151a26;
+  }
+}

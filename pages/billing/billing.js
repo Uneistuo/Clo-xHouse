@@ -6,6 +6,7 @@ const { fmtMoney, resolveImg } = require('../../utils/util');
 const { printer } = require('../../utils/printer');
 const { buildReceiptWithSettings, recordPrint } = require('../../utils/print-service');
 const { confirm, toast, loading: showLoading, hideLoading } = require('../../utils/dialog');
+const warmup = require('../../utils/warmup');
 
 /** 低库存阈值（与统计接口 LOW_STOCK 一致） */
 const LOW_STOCK = 5;
@@ -20,6 +21,8 @@ const PRESET_FLAG_KEY = 'billing_preset_frequent';
  * 首帧用缓存渲染可避免「先进页面、后补数据」造成的整页下移。
  */
 const STORE_CACHE_KEY = 'billing_store_cache';
+/** 结算栏「拉出」类名的兜底清理时间：正常由 animationend 精确摘除，动画被降级/中断时靠它 */
+const DOCK_PULL_MS = 420;
 
 function readStoreCache() {
   try {
@@ -63,6 +66,8 @@ Page({
     restricted: storeCache ? !storeCache.billingEnabled : false,
     restrictedExpired: storeCache ? !storeCache.billingEnabled && !!storeCache.billingExpireAt : false,
     billingExpireText: storeCache && storeCache.billingEnabled ? storeCache.billingExpireAt || '' : '',
+    dockPulling: false, // 结算栏「从 TabBar 后方拉出」动画：只在普通栏→拼接栏那一次为 true
+    dockHidden: false, // 页面被隐藏时先把结算栏藏起来，避免下次显示的第一帧先露出原位（见 onHide）
     successInfo: null,
 
     showAddCustomerBtn: false,
@@ -98,15 +103,50 @@ Page({
   _syncTabBar() {
     if (typeof this.getTabBar !== 'function') return;
     const tabBar = this.getTabBar();
-    if (!tabBar) return;
+    if (!tabBar || typeof tabBar.applyBarState !== 'function') return;
     const dock = !this.data.restricted;
-    // 状态没变就不要 setData：重复下发会让固定定位的 TabBar 在每次进页面时重绘一帧
-    if (tabBar.data.selected === 2 && tabBar.data.dock === dock) return;
-    tabBar.setData({ selected: 2, dock });
+    const info = tabBar.applyBarState({ selected: 2, dock });
+    // 结算栏要拉出的两种情形：
+    //   · c：普通栏 → 拼接栏，栏体刚落位，结算栏跟着从后方抽出来；
+    //   · 页面从缓存里重新显示（onHide 里把结算栏藏了）：也要拉一次，
+    //     否则它会直接"凭空出现"，看着又是一次弹跳。
+    if (dock && (!info || info.switching === 'c' || this.data.dockHidden)) {
+      this._pullDockCard();
+    } else if (this.data.dockHidden) {
+      this.setData({ dockHidden: false });
+    }
+  },
+
+  /**
+   * 结算栏拉出：类名留在场上时 CSS 不会重播，所以同一状态的重复同步不会打断动画。
+   * 结算栏是固定定位的，动画只走 transform，不影响列表排版。
+   */
+  _pullDockCard() {
+    if (this.data.dockPulling) return;
+    clearTimeout(this._pullTimer);
+    this.setData({ dockPulling: true, dockHidden: false });
+    this._pullTimer = setTimeout(() => this.setData({ dockPulling: false }), DOCK_PULL_MS);
+  },
+
+  /** 结算栏「拉出」动画结束：立刻摘掉类名，z-index 在落位那一帧就回到 TabBar 之上 */
+  onDockPullEnd() {
+    clearTimeout(this._pullTimer);
+    if (this.data.dockPulling) this.setData({ dockPulling: false });
+  },
+
+  /**
+   * 离开页面时先把结算栏藏起来（只改透明度，不动布局）。
+   * 开单页是 tab 页，会被缓存复用：不藏的话，下次切回来的第一帧画的是
+   * 「上一次的静止态」，紧接着才被动画拉下去重新抽出——看起来就是弹两下。
+   */
+  onHide() {
+    clearTimeout(this._pullTimer);
+    this.setData({ dockPulling: false, dockHidden: true });
   },
 
   onUnload() {
     clearTimeout(this._searchTimer);
+    clearTimeout(this._pullTimer);
   },
 
   onPullDownRefresh() {
@@ -286,12 +326,12 @@ Page({
     // 已经成功加载过一次后，再次进入页面走静默刷新：
     // 不翻 loading，骨架屏/加载提示节点就不会被重建，页面显示后不再重排
     const silent = reset && this._goodsLoadedOnce;
-    if (!silent) this.setData({ loading: true });
+    const params = { keyword: this.data.keyword.trim(), status: 'on', page, pageSize: 20 };
+    // 首次进入命中启动预热：直接渲染，骨架屏不出现
+    const warm = reset && !silent ? warmup.take('billing-goods', params) : null;
+    if (!silent && !warm) this.setData({ loading: true });
     try {
-      const data = await request({
-        url: '/api/goods',
-        data: { keyword: this.data.keyword.trim(), status: 'on', page, pageSize: 20 }
-      });
+      const data = warm || (await request({ url: '/api/goods', data: params }));
       if (seq !== this._goodsSeq) return;
       const list = (data.list || []).map((g) => ({
         ...g,
@@ -311,6 +351,8 @@ Page({
       });
       // 首页「快速开单」进入后，首屏商品加载完成时按常用商品预置购物车
       if (reset && this._presetPending) this._presetFrequentGoods();
+      // 预热快照可能已经过时：先渲染再静默补拉一次最新数据
+      if (warm) this.loadGoods(true);
     } catch (e) {
       if (seq === this._goodsSeq && this.data.loading) this.setData({ loading: false });
     }
@@ -497,33 +539,26 @@ Page({
   },
 
   pickColor(e) {
-    this.setData({ selColor: e.currentTarget.dataset.v });
-    this._refreshSelOptions();
+    this._refreshSelOptions('selColor', e.currentTarget.dataset.v);
   },
   pickSize(e) {
-    this.setData({ selSize: e.currentTarget.dataset.v });
-    this._refreshSelOptions();
+    this._refreshSelOptions('selSize', e.currentTarget.dataset.v);
   },
 
-  /** 选择变化后刷新低库存标记 + 库存数 */
-  _refreshSelOptions() {
-    const { selGoods, selColor, selSize } = this.data;
+  /** 选择变化：选项标记 + 库存数合并为一次 setData，减少渲染次数 */
+  _refreshSelOptions(key, value) {
+    const { selGoods } = this.data;
     if (!selGoods) return;
+    const selColor = key === 'selColor' ? value : this.data.selColor;
+    const selSize = key === 'selSize' ? value : this.data.selSize;
     const recent = this._loadRecentSpecs(selGoods.id);
-    this.setData(this._buildSelOptions(selGoods, selColor, selSize, recent));
-    this.syncSelSkuStock();
-  },
-
-  syncSelSkuStock() {
-    const { selGoods, selColors, selSizes, selColor, selSize } = this.data;
-    if (!selGoods) return;
-    let stock;
-    if ((selColors.length && !selColor) || (selSizes.length && !selSize)) {
-      stock = selGoods.stock;
-    } else {
-      stock = this.getSkuStock(selGoods, selColor, selSize);
-    }
-    this.setData({ selSkuStock: stock });
+    const opts = this._buildSelOptions(selGoods, selColor, selSize, recent);
+    const partial = (opts.selColors.length && !selColor) || (opts.selSizes.length && !selSize);
+    this.setData({
+      ...(key ? { [key]: value } : {}),
+      ...opts,
+      selSkuStock: partial ? selGoods.stock : this.getSkuStock(selGoods, selColor, selSize)
+    });
   },
 
   selQtyMinus() {
@@ -607,25 +642,33 @@ Page({
   },
 
   cartMinus(e) {
-    const idx = e.currentTarget.dataset.index;
+    const idx = Number(e.currentTarget.dataset.index);
     const cart = this.data.cart;
-    if (cart[idx].quantity <= 1) return;
-    cart[idx].quantity -= 1;
-    cart[idx].subtotal = fmtMoney(cart[idx].price * cart[idx].quantity);
-    this.setData({ cart });
+    if (!cart[idx] || cart[idx].quantity <= 1) return;
+    const quantity = cart[idx].quantity - 1;
+    const subtotal = fmtMoney(cart[idx].price * quantity);
+    // 数量/小计用路径更新，避免整个 cart 数组参与差量计算
+    this.setData({
+      [`cart[${idx}].quantity`]: quantity,
+      [`cart[${idx}].subtotal`]: subtotal
+    });
     this.calcTotal();
     this.persistCart();
   },
   cartPlus(e) {
-    const idx = e.currentTarget.dataset.index;
+    const idx = Number(e.currentTarget.dataset.index);
     const cart = this.data.cart;
+    if (!cart[idx]) return;
     if (cart[idx].quantity >= cart[idx].stock) {
       toast('已达商品库存上限', 'none');
       return;
     }
-    cart[idx].quantity += 1;
-    cart[idx].subtotal = fmtMoney(cart[idx].price * cart[idx].quantity);
-    this.setData({ cart });
+    const quantity = cart[idx].quantity + 1;
+    const subtotal = fmtMoney(cart[idx].price * quantity);
+    this.setData({
+      [`cart[${idx}].quantity`]: quantity,
+      [`cart[${idx}].subtotal`]: subtotal
+    });
     this.calcTotal();
     this.persistCart();
   },

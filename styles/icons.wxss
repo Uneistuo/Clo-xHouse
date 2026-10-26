@@ -1,7 +1,9 @@
 /* ============================================================
-   styles/icons.wxss —— 矢量图标（由脚本生成，勿手改）
+   styles/icons.wxss —— 矢量图标（由 scripts/build-icons.js 生成，勿手改）
+   数据源：styles/icons.source.json（与 Web 端共享同一套图标）
    用法：<view class="icon icon-search"></view>，颜色随 currentColor，大小随 font-size
    ============================================================ */
+
 .icon {
   display: inline-block;
   width: 1em;
@@ -15,6 +17,7 @@
   mask-size: contain;
   vertical-align: -0.125em;
 }
+
 .icon-search { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iNyIvPjxwYXRoIGQ9Ik0yMSAyMWwtNC4zNS00LjM1Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iNyIvPjxwYXRoIGQ9Ik0yMSAyMWwtNC4zNS00LjM1Ii8+PC9zdmc+"); }
 .icon-package { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTIxIDhsLTktNS05IDUgOSA1IDktNXoiLz48cGF0aCBkPSJNMyA4djhsOSA1IDktNVY4Ii8+PHBhdGggZD0iTTEyIDEzdjgiLz48L3N2Zz4="); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTIxIDhsLTktNS05IDUgOSA1IDktNXoiLz48cGF0aCBkPSJNMyA4djhsOSA1IDktNVY4Ii8+PHBhdGggZD0iTTEyIDEzdjgiLz48L3N2Zz4="); }
 .icon-receipt { -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTYgMmgxMnYyMGwtMy0yLTMgMi0zLTItMyAyeiIvPjxwYXRoIGQ9Ik05IDdoNk05IDExaDZNOSAxNWg0Ii8+PC9zdmc+"); mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMDAwJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0iTTYgMmgxMnYyMGwtMy0yLTMgMi0zLTItMyAyeiIvPjxwYXRoIGQ9Ik05IDdoNk05IDExaDZNOSAxNWg0Ii8+PC9zdmc+"); }

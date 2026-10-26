@@ -175,11 +175,15 @@ class BluetoothPrinter {
           if (nc) {
             try {
               await this.enableNotify(deviceId, svcUuid, nc.uuid);
-            } catch (e) { /* 非关键 */ }
+            } catch (e) {
+              /* 非关键 */
+            }
           }
           break;
         }
-      } catch (e) { /* 跳过这个 service */ }
+      } catch (e) {
+        /* 跳过这个 service */
+      }
     }
 
     if (!writeChar) throw new Error('未找到可写特征（设备不兼容？）');

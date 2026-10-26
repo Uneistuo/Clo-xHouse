@@ -1,0 +1,268 @@
+/* ============================================================
+   web/styles/pages.css —— 页面级样式（登录、仪表盘、商品、开单）
+   ============================================================ */
+/* ========== 登录页 ========== */
+.auth-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: transparent;
+}
+.auth-card {
+  background: var(--auth-card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-hero);
+  padding: 40px 32px;
+  width: 400px;
+  max-width: 92vw;
+  box-shadow: var(--shadow-float), var(--inner-light);
+  -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(150%);
+  backdrop-filter: blur(var(--blur-lg)) saturate(150%);
+}
+.auth-card h1 {
+  font-size: 24px;
+  color: var(--text-1);
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+.auth-card .sub {
+  color: var(--text-3);
+  font-size: 13.5px;
+  margin-bottom: 26px;
+}
+.auth-card .btn {
+  width: 100%;
+  padding: 11px;
+  font-size: 15px;
+  margin-top: 6px;
+}
+.auth-switch {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.auth-switch a {
+  color: var(--primary-dark);
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+/* ========== 仪表盘 ========== */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  box-shadow: var(--shadow-soft-2), var(--inner-light);
+  border: 1px solid var(--glass-border);
+}
+.stat-card .label {
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.stat-card .num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-top: 8px;
+  letter-spacing: -0.5px;
+}
+.stat-card .num small {
+  font-size: 13px;
+  color: var(--text-3);
+  font-weight: 400;
+  margin-left: 5px;
+}
+
+/* ========== 商品 ========== */
+.goods-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.goods-toolbar input,
+.goods-toolbar select {
+  width: auto;
+}
+.goods-toolbar .grow {
+  flex: 1;
+  min-width: 170px;
+}
+.goods-img {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--bg-subtle);
+  border: 1px solid var(--hairline);
+}
+.goods-img-placeholder {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  background: var(--placeholder-grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 18px;
+  border: 1px solid var(--hairline);
+}
+
+/* ========== 开单 ========== */
+.billing-wrap {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.billing-goods {
+  flex: 1;
+  min-width: 0;
+}
+.billing-goods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+.load-more {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.g-item {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  box-shadow: var(--shadow-soft-1);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.g-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft-2);
+  border-color: rgba(123, 140, 247, 0.34);
+}
+.g-item img,
+.g-item .ph {
+  width: 100%;
+  height: 115px;
+  border-radius: var(--radius-input);
+  object-fit: cover;
+  background: var(--placeholder-grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 24px;
+  border: 1px solid var(--hairline);
+}
+.g-item .g-name {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  height: 40px;
+  overflow: hidden;
+  color: var(--text-1);
+  font-weight: 500;
+}
+.g-item .g-price {
+  color: var(--primary-dark);
+  font-weight: 800;
+  margin-top: 6px;
+  font-size: 15px;
+}
+.g-item .g-stock {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+.cart-panel {
+  width: 340px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 26px;
+}
+.cart-line {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--hairline);
+}
+.cart-line .cl-info {
+  flex: 1;
+  min-width: 0;
+}
+.cart-line .cl-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-1);
+}
+.cart-line .cl-sku {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.cart-line .qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cart-line .qty button {
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  border: 1px solid var(--hairline);
+  background: var(--bg-subtle);
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.cart-line .qty button:hover {
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+}
+.cart-line .qty span {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16px 0 6px;
+  font-size: 15px;
+  border-top: 1px solid var(--hairline);
+  margin-top: 8px;
+}
+.cart-total .sum {
+  color: var(--primary-dark);
+  font-size: 24px;
+  font-weight: 800;
+}

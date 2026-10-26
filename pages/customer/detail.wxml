@@ -9,7 +9,7 @@
     <!-- 会员信息卡 -->
     <view class="card profile-card">
       <view class="profile-top">
-        <view class="profile-avatar">{{customer.displayName[0]}}</view>
+        <view class="profile-avatar" aria-hidden="true">{{customer.displayName[0]}}</view>
         <view class="profile-info">
           <view class="profile-name-row">
             <view class="profile-name">{{customer.displayName}}</view>
@@ -19,8 +19,8 @@
         </view>
       </view>
       <view class="profile-actions">
-        <view class="action-btn" bindtap="openEdit">编辑</view>
-        <view class="action-btn danger" bindtap="onDelete">删除</view>
+        <view class="action-btn" bindtap="openEdit" aria-role="button" aria-label="编辑会员 {{customer.displayName}}">编辑</view>
+        <view class="action-btn danger" bindtap="onDelete" aria-role="button" aria-label="删除会员 {{customer.displayName}}">删除</view>
       </view>
     </view>
 
@@ -28,7 +28,7 @@
     <view class="card crm-card">
       <view class="crm-head">
         <view class="crm-title">会员档案</view>
-        <view class="crm-edit" bindtap="openEdit">补充资料</view>
+        <view class="crm-edit" bindtap="openEdit" aria-role="button" aria-label="补充会员资料">补充资料</view>
       </view>
       <view class="crm-row">
         <view class="crm-label">标签</view>
@@ -45,7 +45,7 @@
           <block wx:if="{{customer.birthday}}">
             <text class="crm-text">{{customer.birthdayText}}</text>
             <text class="birthday-chip {{customer.daysLeft === 0 ? 'today' : ''}}">
-              <text class="icon icon-cake"></text>
+              <text class="icon icon-cake" aria-hidden="true"></text>
               {{customer.daysLeft === 0 ? '今天生日' : customer.daysLeft + ' 天后生日'}}
             </text>
           </block>
@@ -78,7 +78,8 @@
 
     <!-- 消费记录 -->
     <view class="section-title">消费记录（{{orderTotal}}）</view>
-    <view class="order-card" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="goOrder">
+    <view class="order-card" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="goOrder"
+          aria-role="button" aria-label="订单 {{item.orderNo}}，{{statusText(item.status)}}，金额 {{item.totalAmount}} 元">
       <view class="order-top">
         <text class="order-no">{{item.orderNo}}</text>
         <text class="order-status status-{{item.status}}">{{statusText(item.status)}}</text>
@@ -91,7 +92,7 @@
 
     <!-- 消费记录空状态 -->
     <view wx:if="{{orderLoaded && orders.length === 0}}" class="empty">
-      <view class="empty-icon icon icon-package"></view>
+      <view class="empty-icon icon icon-package" aria-hidden="true"></view>
       <view>该会员暂无消费记录</view>
     </view>
     <view class="loading-tip" wx:if="{{orders.length > 0}}">
@@ -111,13 +112,15 @@
     <view class="form-item">
       <view class="form-label required">姓氏</view>
       <input class="form-input" placeholder="如：赵" value="{{editSurname}}"
-             bindinput="onEditSurnameInput" placeholder-class="ph" maxlength="10" />
+             bindinput="onEditSurnameInput" placeholder-class="ph" maxlength="10" aria-label="会员姓氏" />
     </view>
     <view class="form-item">
       <view class="form-label required">性别</view>
       <view class="gender-options">
-        <view class="gender-option {{editGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onEditGenderTap">先生</view>
-        <view class="gender-option {{editGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onEditGenderTap">女士</view>
+        <view class="gender-option {{editGender === 1 ? 'active' : ''}}" data-gender="1" bindtap="onEditGenderTap"
+              aria-role="radio" aria-label="先生">先生</view>
+        <view class="gender-option {{editGender === 2 ? 'active' : ''}}" data-gender="2" bindtap="onEditGenderTap"
+              aria-role="radio" aria-label="女士">女士</view>
       </view>
     </view>
 
@@ -127,10 +130,11 @@
       <view class="chip-options">
         <view wx:for="{{tagPresets}}" wx:key="*this"
               class="chip-option {{editTags.indexOf(item) >= 0 ? 'active' : ''}}"
-              data-tag="{{item}}" bindtap="onEditTagPreset">+ {{item}}</view>
+              data-tag="{{item}}" bindtap="onEditTagPreset"
+              aria-role="button" aria-label="添加标签 {{item}}">+ {{item}}</view>
       </view>
       <input class="form-input" placeholder="如：常客、高价值" value="{{editTags}}"
-             bindinput="onEditTagsInput" placeholder-class="ph" maxlength="120" />
+             bindinput="onEditTagsInput" placeholder-class="ph" maxlength="120" aria-label="会员标签" />
     </view>
 
     <!-- CRM：生日（用于生日提醒） -->
@@ -138,10 +142,11 @@
       <view class="form-label">生日（选填）</view>
       <view class="birthday-row">
         <picker class="birthday-picker" mode="date" value="{{editBirthday}}" start="1930-01-01" end="2020-12-31"
-                bindchange="onEditBirthdayChange">
+                bindchange="onEditBirthdayChange" aria-label="选择会员生日">
           <view class="picker-value {{editBirthday ? '' : 'ph'}}">{{editBirthday || '选择生日'}}</view>
         </picker>
-        <view wx:if="{{editBirthday}}" class="birthday-clear" bindtap="clearEditBirthday">清除</view>
+        <view wx:if="{{editBirthday}}" class="birthday-clear" bindtap="clearEditBirthday"
+              aria-role="button" aria-label="清除生日">清除</view>
       </view>
     </view>
 
@@ -151,16 +156,17 @@
       <view class="chip-options">
         <view wx:for="{{remarkPresets}}" wx:key="*this"
               class="chip-option {{editRemark.indexOf(item) >= 0 ? 'active' : ''}}"
-              data-text="{{item}}" bindtap="onRemarkPreset">+ {{item}}</view>
+              data-text="{{item}}" bindtap="onRemarkPreset"
+              aria-role="button" aria-label="添加备注短语 {{item}}">+ {{item}}</view>
       </view>
       <textarea class="form-textarea" placeholder="记录偏好、到店习惯等" value="{{editRemark}}"
-                bindinput="onEditRemarkInput" placeholder-class="ph" maxlength="200" auto-height />
+                bindinput="onEditRemarkInput" placeholder-class="ph" maxlength="200" auto-height aria-label="会员备注" />
     </view>
 
     <view class="modal-btns">
-      <button class="btn-ghost modal-btn" bindtap="closeEdit">取消</button>
+      <button class="btn-ghost modal-btn" bindtap="closeEdit" aria-label="取消编辑">取消</button>
       <button class="btn-primary modal-btn primary {{saving ? 'btn-loading' : ''}}" bindtap="confirmEdit"
-              disabled="{{saving}}">{{saving ? '保存中…' : '保存'}}</button>
+              disabled="{{saving}}" aria-label="{{saving ? '保存中' : '保存会员资料'}}">{{saving ? '保存中…' : '保存'}}</button>
     </view>
   </view>
 </view>

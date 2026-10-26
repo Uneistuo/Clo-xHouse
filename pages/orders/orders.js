@@ -1,6 +1,6 @@
 // 订单管理页：订单列表 + 订单号搜索 + 状态筛选（tab 化）+ 时间范围筛选
-const { request } = require('../../utils/api');
 const { fmtMoney, STATUS_TEXT, STATUS_CLASS, PAY_METHOD_TEXT } = require('../../utils/util');
+const warmup = require('../../utils/warmup');
 
 const PAGE_SIZE = 20;
 
@@ -38,7 +38,7 @@ Page({
   onShow() {
     if (!getApp().checkLogin()) return;
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 3 });
+      this.getTabBar().applyBarState({ selected: 3, dock: false });
     }
     // 首页"待收款订单"待办跳转：自动切到待收款 tab（一次性标记）
     try {
@@ -78,24 +78,24 @@ Page({
   },
 
   /** 拉取订单列表（无订单时显示空状态） */
-  async loadOrders(reset = false) {
+  async loadOrders(reset = false, silent = false) {
     // 分页加载中忽略重复请求；reset（切筛选/搜索）允许打断
     if (this.data.loading && !reset) return;
     const page = reset ? 1 : this.data.page + 1;
+    const params = {
+      status: this.data.statusKey,
+      range: this.data.ranges[this.data.rangeIndex].key,
+      keyword: this.data.keyword.trim(),
+      page,
+      pageSize: PAGE_SIZE
+    };
     // 请求序号：晚到的旧响应丢弃，防止切换筛选时竞态覆盖
     const seq = (this._seq = (this._seq || 0) + 1);
-    this.setData({ loading: true });
+    // 首次进入命中启动预热：直接渲染，骨架屏不出现
+    const warm = reset && !silent ? warmup.take('orders', params) : null;
+    if (!silent && !warm) this.setData({ loading: true });
     try {
-      const data = await request({
-        url: '/api/orders',
-        data: {
-          status: this.data.statusKey,
-          range: this.data.ranges[this.data.rangeIndex].key,
-          keyword: this.data.keyword.trim(),
-          page,
-          pageSize: PAGE_SIZE
-        }
-      });
+      const data = warm || (await warmup.fetch('orders', { url: '/api/orders', data: params }));
       if (seq !== this._seq) return;
       const list = (data.list || []).map((o) => ({
         ...o,
@@ -112,6 +112,8 @@ Page({
         loading: false,
         loaded: true
       });
+      // 预热快照可能已经过时：先渲染再静默补拉一次最新数据
+      if (warm) this.loadOrders(true, true);
     } catch (e) {
       if (seq === this._seq) this.setData({ loading: false, loaded: true });
     }

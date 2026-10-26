@@ -3,7 +3,8 @@
   <!-- 页面顶部：标题 + 右上角管理/退出管理 -->
   <view class="cat-page-header">
     <view class="cat-page-title">商品分类</view>
-    <view class="cat-manage-btn" hover-class="weui-active" bindtap="toggleManage">
+    <view class="cat-manage-btn" hover-class="weui-active" bindtap="toggleManage"
+          aria-role="button" aria-label="{{manageMode ? '退出分类管理' : '进入分类管理'}}">
       {{manageMode ? '退出管理' : '管理'}}
     </view>
   </view>
@@ -18,19 +19,21 @@
       <view class="section-title">新增分类</view>
       <view class="add-row">
         <input class="add-input" placeholder="分类名称，如：上衣" value="{{addName}}"
-               bindinput="onAddNameInput" placeholder-class="ph" />
-        <view class="btn-ghost {{adding ? 'btn-loading btn-loading-dark' : ''}}" bindtap="handleAdd">添加</view>
+               bindinput="onAddNameInput" placeholder-class="ph" aria-label="分类名称" />
+        <view class="btn-ghost {{adding ? 'btn-loading btn-loading-dark' : ''}}" bindtap="handleAdd"
+              aria-role="button" aria-label="添加分类">添加</view>
       </view>
     </view>
 
     <!-- 分类列表为空时的空状态（仅默认模式显示） -->
     <view wx:if="{{list.length === 0 && !loading && !manageMode}}" class="empty">
-      <view class="empty-icon icon icon-folder"></view>
+      <view class="empty-icon icon icon-folder" aria-hidden="true"></view>
       <view>暂无分类，请在下方添加</view>
     </view>
 
     <view wx:for="{{list}}" wx:key="id" class="card cat-row"
           data-index="{{index}}"
+          aria-label="分类 {{item.name}}，{{item.goods_count}} 个商品"
           bindlongpress="{{manageMode ? 'onLongPress' : ''}}"
           bindtouchmove="{{manageMode ? 'onTouchMove' : ''}}"
           bindtouchend="{{manageMode ? 'onTouchEnd' : ''}}"
@@ -42,7 +45,7 @@
       </view>
       <view class="cat-actions" wx:if="{{manageMode}}">
         <view class="btn-danger btn-mini" data-id="{{item.id}}" data-name="{{item.name}}"
-              catchtap="handleDelete">删除</view>
+              catchtap="handleDelete" aria-role="button" aria-label="删除分类 {{item.name}}">删除</view>
       </view>
     </view>
   </scroll-view>
@@ -51,8 +54,9 @@
   <view wx:if="{{!manageMode && list.length > 0}}" class="card add-card-fixed">
     <view class="add-row">
       <input class="add-input" placeholder="分类名称，如：上衣" value="{{addName}}"
-             bindinput="onAddNameInput" placeholder-class="ph" />
-      <view class="btn-ghost {{adding ? 'btn-loading btn-loading-dark' : ''}}" bindtap="handleAdd">添加</view>
+             bindinput="onAddNameInput" placeholder-class="ph" aria-label="分类名称" />
+      <view class="btn-ghost {{adding ? 'btn-loading btn-loading-dark' : ''}}" bindtap="handleAdd"
+            aria-role="button" aria-label="添加分类">添加</view>
     </view>
   </view>
 </view>

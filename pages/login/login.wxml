@@ -1,8 +1,8 @@
 <!--裁间 · 登录页-->
 <view class="login-page glow-page">
   <!-- 背景光晕 -->
-  <view class="glow glow-1"></view>
-  <view class="glow glow-2"></view>
+  <view class="glow glow-1" aria-hidden="true"></view>
+  <view class="glow glow-2" aria-hidden="true"></view>
 
   <view class="login-wrap">
     <!-- 品牌区 -->
@@ -19,7 +19,7 @@
         <view class="field-label">账号</view>
         <input class="field-input" placeholder="请输入商家账号" value="{{username}}"
                bindinput="onUsernameInput" bindfocus="onFocus" bindblur="onBlur" data-name="username"
-               placeholder-class="ph" />
+               placeholder-class="ph" aria-label="商家账号" />
       </view>
       <view wx:if="{{usernameError}}" class="field-tip">{{usernameError}}</view>
 
@@ -28,22 +28,23 @@
         <view class="field-label">密码</view>
         <input class="field-input" placeholder="请输入密码" password="{{!showPassword}}" value="{{password}}"
                bindinput="onPasswordInput" bindfocus="onFocus" bindblur="onBlur" data-name="password"
-               placeholder-class="ph" />
-        <view class="pwd-toggle" bindtap="togglePassword">
-          <view class="icon {{showPassword ? 'icon-eye-off' : 'icon-eye'}}"></view>
+               placeholder-class="ph" aria-label="密码" />
+        <view class="pwd-toggle" bindtap="togglePassword" aria-role="button" aria-label="{{showPassword ? '隐藏密码' : '显示密码'}}">
+          <view class="icon {{showPassword ? 'icon-eye-off' : 'icon-eye'}}" aria-hidden="true"></view>
         </view>
       </view>
       <view wx:if="{{passwordError}}" class="field-tip">{{passwordError}}</view>
 
       <!-- 提交按钮 -->
-      <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleSubmit" disabled="{{loading}}">
+      <button class="login-btn {{loading ? 'btn-loading' : ''}}" bindtap="handleSubmit" disabled="{{loading}}"
+              aria-label="{{loading ? '登录中' : '登录'}}">
         {{loading ? '登录中…' : '登 录'}}
       </button>
     </view>
 
     <!-- 底部：跳转独立的注册+绑定页 -->
     <view class="foot">
-      <text>还没有账号？</text><text class="foot-link" bindtap="goRegister">立即注册</text>
+      <text>还没有账号？</text><text class="foot-link" bindtap="goRegister" aria-role="button" aria-label="立即注册">立即注册</text>
     </view>
   </view>
 </view>

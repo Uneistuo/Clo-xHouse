@@ -1,0 +1,99 @@
+/* ============================================================
+   web/styles/print.css —— 打印样式
+   目标：订单/商品表格可直接打印；订单详情弹窗只打印小票内容
+   ============================================================ */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000;
+  }
+
+  /* 应用外壳与交互控件不打印 */
+  .sidebar,
+  .theme-fab,
+  .toast,
+  .breadcrumb,
+  .goods-toolbar,
+  .pager,
+  .page-title,
+  .icon-btn,
+  .btn,
+  .modal-actions {
+    display: none !important;
+  }
+
+  .layout {
+    display: block;
+    min-height: auto;
+  }
+
+  .main {
+    max-width: none;
+    padding: 0;
+  }
+
+  /* 打印时去掉玻璃与阴影，保证纸面清晰 */
+  .card,
+  .stat-card,
+  .g-item,
+  .auth-card,
+  .modal,
+  .toast {
+    background: #fff !important;
+    box-shadow: none !important;
+    border: 1px solid #d9dde5 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .modal-mask {
+    position: static;
+    display: block;
+    background: none;
+    padding: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid #e3e6ec;
+    padding: 6px 8px;
+  }
+
+  th {
+    color: #000;
+  }
+
+  a[href]::after {
+    content: '';
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  /* 订单详情：只打印弹窗，隐藏底层页面 */
+  body.print-order > #app,
+  body.print-order > #toast,
+  body.print-order > .theme-fab {
+    display: none !important;
+  }
+}

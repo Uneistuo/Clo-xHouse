@@ -9,7 +9,7 @@
   <view wx:if="{{loading && list.length === 0}}" class="plat-tip">加载中...</view>
 
   <!-- 店铺列表 -->
-  <view wx:for="{{list}}" wx:key="id" class="store-row">
+  <view wx:for="{{list}}" wx:key="id" class="store-row" aria-label="店铺 {{item.name}}，店主 {{item.owner_name || '未知'}}，{{item.enabled ? '可开单' : '未授权开单'}}">
     <view class="store-main">
       <view class="store-nm ellipsis">{{item.name}}</view>
       <view class="store-meta">店主 {{item.owner_name || '-'}} · 成员 {{item.member_count}} · 订单 {{item.order_count}}</view>
@@ -21,12 +21,13 @@
       <view wx:else class="store-bill off">未授权开单</view>
     </view>
     <view class="store-ctrl">
-      <view class="ctrl-btn primary" data-index="{{index}}" bindtap="openAuth">{{item.enabled ? '续期' : '授权'}}</view>
+      <view class="ctrl-btn primary" data-index="{{index}}" bindtap="openAuth"
+            aria-role="button" aria-label="{{item.enabled ? '续期' : '授权'}}店铺 {{item.name}}">{{item.enabled ? '续期' : '授权'}}</view>
       <view wx:if="{{item.expireAt}}" class="ctrl-btn ghost" data-id="{{item.id}}" data-name="{{item.name}}"
-            bindtap="onCloseAuth">关闭</view>
+            bindtap="onCloseAuth" aria-role="button" aria-label="关闭店铺 {{item.name}} 的开单授权">关闭</view>
       <view class="ctrl-btn ghost"
             data-id="{{item.id}}" data-name="{{item.name}}"
-            bindtap="onRenameStore">改名</view>
+            bindtap="onRenameStore" aria-role="button" aria-label="重命名店铺 {{item.name}}">改名</view>
     </view>
   </view>
 
@@ -45,24 +46,25 @@
       <view class="opt-row">
         <view wx:for="{{quickDays}}" wx:key="*this"
               class="opt-item {{selDays === item ? 'opt-active' : ''}}"
-              data-days="{{item}}" bindtap="pickDays">{{item}} 天</view>
+              data-days="{{item}}" bindtap="pickDays"
+              aria-role="button" aria-label="授权 {{item}} 天">{{item}} 天</view>
       </view>
 
       <view class="opt-label">自定义天数</view>
       <input class="opt-input" type="number" placeholder="输入天数（如 15）" value="{{customDays}}"
-             bindinput="onCustomDays" placeholder-class="ph" />
+             bindinput="onCustomDays" placeholder-class="ph" aria-label="自定义授权天数" />
 
       <view class="opt-label">或指定到期日期</view>
-      <picker mode="date" value="{{dateValue}}" bindchange="onDateChange">
+      <picker mode="date" value="{{dateValue}}" bindchange="onDateChange" aria-label="选择授权到期日期">
         <view class="opt-item picker {{dateValue ? 'opt-active' : ''}}">
           {{dateValue ? dateValue + '（当日 23:59:59 到期）' : '选择到期日期'}}
         </view>
       </picker>
 
       <view class="modal-btns">
-        <button class="btn-ghost modal-btn" bindtap="closeAuth">取消</button>
+        <button class="btn-ghost modal-btn" bindtap="closeAuth" aria-label="取消授权设置">取消</button>
         <button class="btn-primary modal-btn primary {{submitting ? 'btn-loading' : ''}}" bindtap="confirmAuth"
-                disabled="{{submitting}}">{{submitting ? '提交中…' : '确认授权'}}</button>
+                disabled="{{submitting}}" aria-label="{{submitting ? '提交中' : '确认授权'}}">{{submitting ? '提交中…' : '确认授权'}}</button>
       </view>
     </view>
   </view>

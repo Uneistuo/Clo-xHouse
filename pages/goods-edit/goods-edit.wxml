@@ -14,12 +14,16 @@
           bindtouchend="onImgTouchEnd"
           bindtouchcancel="onImgTouchEnd"
         >
-          <image src="{{item}}" mode="aspectFill" class="img-thumb" data-index="{{index}}" bindtap="previewImage" />
+          <image src="{{item}}" mode="aspectFill" class="img-thumb" data-index="{{index}}" bindtap="previewImage"
+                 aria-label="商品图片 {{index + 1}}" />
           <view wx:if="{{index === 0}}" class="img-cover">封面</view>
-          <view wx:else class="img-setcover" data-index="{{index}}" catchtap="setCover">设封面</view>
-          <view class="img-del" data-index="{{index}}" catchtap="removeImage">×</view>
+          <view wx:else class="img-setcover" data-index="{{index}}" catchtap="setCover"
+                aria-role="button" aria-label="设为封面">设封面</view>
+          <view class="img-del" data-index="{{index}}" catchtap="removeImage"
+                aria-role="button" aria-label="删除第 {{index + 1}} 张图片">×</view>
         </view>
-        <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage"><view class="icon icon-plus"></view></view>
+        <view wx:if="{{imagePaths.length < 3}}" class="img-add" bindtap="chooseImage"
+              aria-role="button" aria-label="添加商品图片"><view class="icon icon-plus" aria-hidden="true"></view></view>
       </view>
       <view class="img-hint">支持裁剪/旋转，第 1 张为封面；点击预览，长按拖动排序</view>
     </view>
@@ -27,39 +31,39 @@
     <view class="form-item">
       <view class="form-label required">商品名称</view>
       <input class="form-input" placeholder="如：修身针织连衣裙" value="{{form.name}}"
-             bindinput="onNameInput" placeholder-class="ph" />
+             bindinput="onNameInput" placeholder-class="ph" aria-label="商品名称" />
     </view>
 
     <view class="form-item">
       <view class="form-label">货号</view>
       <input class="form-input" placeholder="选填，如：NZ-2026-001" value="{{form.goodsNo}}"
-             bindinput="onGoodsNoInput" placeholder-class="ph" />
+             bindinput="onGoodsNoInput" placeholder-class="ph" aria-label="商品货号" />
     </view>
 
     <view class="form-item">
       <view class="form-label required">售价(元)</view>
       <input class="form-input" type="digit" placeholder="0.00" value="{{form.price}}"
-             bindinput="onPriceInput" placeholder-class="ph" />
+             bindinput="onPriceInput" placeholder-class="ph" aria-label="商品售价，单位元" />
     </view>
 
     <view class="form-item">
       <view class="form-label">原价(元)</view>
       <input class="form-input" type="digit" placeholder="选填" value="{{form.originalPrice}}"
-             bindinput="onOriginPriceInput" placeholder-class="ph" />
+             bindinput="onOriginPriceInput" placeholder-class="ph" aria-label="商品原价，单位元" />
     </view>
 
     <!-- 无颜色/尺码属性时，填写单一库存；有属性时在下方按规格填写 -->
     <view class="form-item" wx:if="{{!hasSpec}}">
       <view class="form-label required">库存数量</view>
       <input class="form-input" type="number" placeholder="0" value="{{skus[0].stock}}"
-             data-index="{{0}}" bindinput="onSkuStockInput" placeholder-class="ph" />
+             data-index="{{0}}" bindinput="onSkuStockInput" placeholder-class="ph" aria-label="库存数量" />
     </view>
 
     <view class="form-item">
       <view class="form-label">商品分类</view>
       <view class="cat-input-row">
         <input class="form-input cat-input" placeholder="输入分类名"
-               value="{{categoryInput}}" bindinput="onCategoryInput" placeholder-class="ph" />
+               value="{{categoryInput}}" bindinput="onCategoryInput" placeholder-class="ph" aria-label="商品分类" />
         <view wx:if="{{showAddCategory}}" class="btn-ghost btn-mini cat-add-btn" bindtap="addCategory">新增</view>
       </view>
     </view>
@@ -124,5 +128,6 @@
   </view>
 
   <button class="btn-primary submit-btn {{submitting ? 'btn-loading' : ''}}" bindtap="handleSubmit"
-          disabled="{{submitting}}">{{submitting ? '保存中…' : (isEdit ? '保存修改' : '立即上架')}}</button>
+          disabled="{{submitting}}"
+          aria-label="{{submitting ? '保存中' : (isEdit ? '保存修改' : '立即上架')}}">{{submitting ? '保存中…' : (isEdit ? '保存修改' : '立即上架')}}</button>
 </view>

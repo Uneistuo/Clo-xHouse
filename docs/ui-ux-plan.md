@@ -9,17 +9,18 @@
 
 ## 0. 已锁定的设计决策
 
-| 决策项 | 结论 |
-|--------|------|
-| 品牌主色 | **A 方案 · 时尚红 `#E1483C`**（延续"衣/零售"心智，比现 `#7E2F2F` 更醒目） |
+| 决策项   | 结论                                                                                                     |
+| -------- | -------------------------------------------------------------------------------------------------------- |
+| 品牌主色 | **A 方案 · 时尚红 `#E1483C`**（延续"衣/零售"心智，比现 `#7E2F2F` 更醒目）                                |
 | 导航结构 | TabBar 重排：`首页 · 商品 · 开单(中间凸起) · 订单 · 我的`；店铺/平台管理/打印设置/设置合并进**"我的"页** |
-| 交付方式 | 只出方案与文档，分阶段实施 |
+| 交付方式 | 只出方案与文档，分阶段实施                                                                               |
 
 ---
 
 ## 实施进度
 
 ### ✅ P0 基建（已完成）
+
 - [x] 设计变量（Design Tokens）：`app.wxss`（小程序，CSS 变量）+ `web/style.css`（`:root`）+ `utils/theme.js`（JS 侧）
 - [x] 全局组件样式：按钮 / 表单 / 标签 / 空态 / 骨架屏 / 弹层（统一在 `app.wxss`）
 - [x] 全站换肤：旧酒红米色 → 时尚红 `#E1483C` + 中性灰底
@@ -28,6 +29,7 @@
 - [x] 删除死代码组件 `components/navigation-bar/`
 
 ### ✅ P2 开单动线（部分完成）
+
 - [x] 修复打印拦截 bug：`_checkPrinterBeforeBill()` 返回值接入 `submitOrder()`，未配对时真正中止
 - [x] 购物车本地持久化（`billing_cart`）：误退出/跳转不丢，成功开单后清空
 - [x] 开单成功卡片：替代系统 modal，含订单号/金额/收款状态 + 继续开单 / 查看订单 / 补打小票
@@ -35,32 +37,38 @@
 - [x] 补齐下拉刷新：店铺 / 分类 / 订单详情
 
 ### ✅ P1 交互规范（部分完成）
+
 - [x] 骨架屏：商品列表 / 订单列表 / 首页今日单据（首次加载）
 - [x] 空态统一：全局 `.empty` + 矢量图标
 - [x] 下拉刷新补齐（开单 / 店铺 / 分类 / 订单详情）
 
 ### ✅ P2 剩余（已完成）
+
 - [x] 订单状态 **tab 化** + **时间范围筛选**（今日/近7天/近30天，对齐 Web）
 - [x] 商品**低库存预警**标识（库存 ≤ 5 高亮）
 - [x] 商品**批量上下架 / 批量删除**（管理模式 + 全选）
 
 ### ✅ P3 TabBar + "我的"页（已完成）
+
 - [x] 自定义底部导航 `custom-tab-bar/`：首页 · 商品 · **开单(中间凸起)** · 订单 · 我的
 - [x] 店铺页改造为 **"我的"页**：店铺信息/成员 + 打印设置 + 平台管理 + 退出登录
 - [x] 各 tab 页 `getTabBar().setData({ selected })` 高亮同步
 - [x] 适配自定义 TabBar：内容底部留白、开单结算栏/FAB/批量栏上移、弹层 `z-index` 提升
 
 ### ✅ P3 剩余（已完成）
+
 - [x] 看板**多周期切换**（今日/本周/本月）+ **近 7 天销售趋势**柱状图 + **低库存提醒**
 - [x] 登录页**记住账号**（下次自动回填）
 - [x] Web 端同步：商品**低库存标识**
 
 ### ✅ P4 后端配合（已完成）
+
 - [x] `GET /api/stats/dashboard`：新增 `range` 周期统计、`trend`（近 7 天）、`lowStock`、`topProducts`（旧字段全部保留）
 - [x] `GET /api/goods`：关键词同时匹配商品名与**货号**（`goods_no`）
 - [x] 向后兼容，老客户端不受影响
 
 ### 📌 说明
+
 - 小程序与 Web 共用同一套设计 Token 与矢量图标
 - 待真机 / 开发者工具验收渲染（图标 `mask`、自定义 TabBar 凸起按钮）
 
@@ -69,26 +77,28 @@
 ## 1. 现状诊断（实证问题清单）
 
 ### 1.1 视觉层
-| # | 问题 | 位置 |
-|---|------|------|
-| V1 | 无设计变量，颜色硬编码 | 全部 `.wxss` / `web/style.css` |
-| V2 | 同名样式重复/冲突 | `.mask/.modal/.modal-title/.modal-btns`（billing + platform）；`.btn-ghost`（app 胶囊 vs store 圆角）；`.form-item/.form-label/.form-input`（app vs store 宽度不同）；`login.wxss` `.login-form` 定义两次 |
-| V3 | 图标全用 emoji，跨端不一致 | 各页 wxml + `web/app.js`（见 §4 对照表） |
-| V4 | `components/navigation-bar/` 是死代码 | 无任何页面 `usingComponents` 引用 |
-| V5 | 仅一档阴影，无层次 | 全局 |
+
+| #   | 问题                                  | 位置                                                                                                                                                                                                      |
+| --- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| V1  | 无设计变量，颜色硬编码                | 全部 `.wxss` / `web/style.css`                                                                                                                                                                            |
+| V2  | 同名样式重复/冲突                     | `.mask/.modal/.modal-title/.modal-btns`（billing + platform）；`.btn-ghost`（app 胶囊 vs store 圆角）；`.form-item/.form-label/.form-input`（app vs store 宽度不同）；`login.wxss` `.login-form` 定义两次 |
+| V3  | 图标全用 emoji，跨端不一致            | 各页 wxml + `web/app.js`（见 §4 对照表）                                                                                                                                                                  |
+| V4  | `components/navigation-bar/` 是死代码 | 无任何页面 `usingComponents` 引用                                                                                                                                                                         |
+| V5  | 仅一档阴影，无层次                    | 全局                                                                                                                                                                                                      |
 
 ### 1.2 操作/交互层
-| # | 问题 | 位置 |
-|---|------|------|
-| O1 | **打印校验未真正拦截**：`_checkPrinterBeforeBill()` 返回 `false` 但提交流程未接收 | `pages/billing/billing.js` |
-| O2 | 开单一次拉 200 条商品，前端过滤、无分页 | `billing.js` `pageSize:200` |
-| O3 | 购物车为本地数组，不持久化，误退即丢 | `billing.js` |
-| O4 | 开单成功仅 modal，无小票状态/继续开单动线 | `billing.js` |
-| O5 | 白名单受限(1002)整页清空，丢失上下文 | `billing.js` |
-| O6 | 时间范围筛选两端不一致（后端支持、Web 有、小程序无） | `orders.js` vs `web/app.js` |
-| O7 | 部分列表页缺下拉刷新 | goods-edit / order-detail / billing / store / category / printer-pair |
-| O8 | 加载态仅"加载中..."文本，无骨架屏 | 全局 |
-| O9 | 无批量操作（商品上下架、订单收款） | goods / orders |
+
+| #   | 问题                                                                              | 位置                                                                  |
+| --- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| O1  | **打印校验未真正拦截**：`_checkPrinterBeforeBill()` 返回 `false` 但提交流程未接收 | `pages/billing/billing.js`                                            |
+| O2  | 开单一次拉 200 条商品，前端过滤、无分页                                           | `billing.js` `pageSize:200`                                           |
+| O3  | 购物车为本地数组，不持久化，误退即丢                                              | `billing.js`                                                          |
+| O4  | 开单成功仅 modal，无小票状态/继续开单动线                                         | `billing.js`                                                          |
+| O5  | 白名单受限(1002)整页清空，丢失上下文                                              | `billing.js`                                                          |
+| O6  | 时间范围筛选两端不一致（后端支持、Web 有、小程序无）                              | `orders.js` vs `web/app.js`                                           |
+| O7  | 部分列表页缺下拉刷新                                                              | goods-edit / order-detail / billing / store / category / printer-pair |
+| O8  | 加载态仅"加载中..."文本，无骨架屏                                                 | 全局                                                                  |
+| O9  | 无批量操作（商品上下架、订单收款）                                                | goods / orders                                                        |
 
 ---
 
@@ -97,50 +107,53 @@
 **单一来源**：小程序在 `app.wxss` 顶层定义 CSS 变量 + `utils/theme.js` 导出同值常量；Web 在 `web/style.css` `:root` 定义同名变量。两端数值保持一致。
 
 ### 2.1 色板
+
 ```css
 :root {
   /* 中性 */
-  --bg-app:        #F4F5F7;   /* 页面底 */
-  --bg-card:       #FFFFFF;   /* 卡片 */
-  --bg-subtle:     #F0F1F4;   /* 分区/输入底 */
-  --border:        #E6E8EC;
-  --border-strong: #D3D7DE;
+  --bg-app: #f4f5f7; /* 页面底 */
+  --bg-card: #ffffff; /* 卡片 */
+  --bg-subtle: #f0f1f4; /* 分区/输入底 */
+  --border: #e6e8ec;
+  --border-strong: #d3d7de;
 
   /* 文字 */
-  --text-1: #14161A;   /* 主标题/正文 */
-  --text-2: #5B616E;   /* 次要 */
-  --text-3: #9AA0AC;   /* 弱化/占位 */
+  --text-1: #14161a; /* 主标题/正文 */
+  --text-2: #5b616e; /* 次要 */
+  --text-3: #9aa0ac; /* 弱化/占位 */
 
   /* 品牌主色（已锁定 A） */
-  --primary:       #E1483C;
-  --primary-dark:  #C5362C;   /* 按下/hover */
-  --primary-tint:  #FDECEA;   /* 浅底/选中态 */
+  --primary: #e1483c;
+  --primary-dark: #c5362c; /* 按下/hover */
+  --primary-tint: #fdecea; /* 浅底/选中态 */
 
   /* 语义色 */
-  --success: #16A34A;
-  --warning: #F59E0B;
-  --danger:  #DC2626;
-  --info:    #2563EB;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+  --info: #2563eb;
 }
 ```
 
 ### 2.2 订单状态 → 徽标
-| status | 语义色 | 说明 |
-|--------|--------|------|
-| pending | warning | 待收款 |
-| paid | success | 已收款 |
-| done | info | 待售后 |
+
+| status    | 语义色                            | 说明   |
+| --------- | --------------------------------- | ------ |
+| pending   | warning                           | 待收款 |
+| paid      | success                           | 已收款 |
+| done      | info                              | 待售后 |
 | cancelled | neutral(`--bg-subtle`/`--text-3`) | 已取消 |
-| refunded | danger | 已售后 |
+| refunded  | danger                            | 已售后 |
 
 ### 2.3 排版 / 间距 / 圆角 / 阴影
-| Token | 值 |
-|-------|-----|
-| 字体 | 系统字体栈；金额/统计用 `font-variant-numeric: tabular-nums` |
-| 主数字字重/字号 | 700 / 32–44rpx |
-| 间距基准 | 4；小程序步进 8rpx：`8 / 16 / 24 / 32 / 40 / 48` |
-| 圆角 | 卡片 24rpx、按钮 pill、输入 16rpx、弹窗 28rpx |
-| 阴影 | `--shadow-1`(卡片) / `--shadow-2`(悬浮) / `--shadow-3`(弹窗) 三档 |
+
+| Token           | 值                                                                |
+| --------------- | ----------------------------------------------------------------- |
+| 字体            | 系统字体栈；金额/统计用 `font-variant-numeric: tabular-nums`      |
+| 主数字字重/字号 | 700 / 32–44rpx                                                    |
+| 间距基准        | 4；小程序步进 8rpx：`8 / 16 / 24 / 32 / 40 / 48`                  |
+| 圆角            | 卡片 24rpx、按钮 pill、输入 16rpx、弹窗 28rpx                     |
+| 阴影            | `--shadow-1`(卡片) / `--shadow-2`(悬浮) / `--shadow-3`(弹窗) 三档 |
 
 ---
 
@@ -148,18 +161,18 @@
 
 新建/规范 `components/`，各页引用，不再各自写冲突 CSS。同时删除 V4 死代码 `components/navigation-bar/`（改用原生导航 + 统一标题规范）。
 
-| 组件 | 替换掉的散落实现 |
-|------|------------------|
-| `btn`（primary/ghost/danger/mini） | `app.wxss` + `store.wxss` 冲突的 `.btn-*` |
-| `cell` / `form-item` | `app.wxss` + `store.wxss` 冲突的 `.form-item` |
-| `tag` / `badge` | 各页 `.tag-*`、`.store-bill`、`web .badge` |
-| `modal` / `bottom-sheet` | `billing.wxss` + `platform.wxss` 重复的 `.mask/.modal` |
-| `search-bar` | goods / orders / billing 三处搜索框 |
-| `empty-state` | 各页 `.empty`（保留现有优质空态，统一为组件 + 主操作按钮） |
-| `skeleton` | 新增，替代"加载中..."文本 |
-| `stepper` | billing 两处步进器 |
-| `tabs` / `picker-bar` | goods 筛选、orders 状态筛选 |
-| `popup` | store 切换店铺弹窗 |
+| 组件                               | 替换掉的散落实现                                           |
+| ---------------------------------- | ---------------------------------------------------------- |
+| `btn`（primary/ghost/danger/mini） | `app.wxss` + `store.wxss` 冲突的 `.btn-*`                  |
+| `cell` / `form-item`               | `app.wxss` + `store.wxss` 冲突的 `.form-item`              |
+| `tag` / `badge`                    | 各页 `.tag-*`、`.store-bill`、`web .badge`                 |
+| `modal` / `bottom-sheet`           | `billing.wxss` + `platform.wxss` 重复的 `.mask/.modal`     |
+| `search-bar`                       | goods / orders / billing 三处搜索框                        |
+| `empty-state`                      | 各页 `.empty`（保留现有优质空态，统一为组件 + 主操作按钮） |
+| `skeleton`                         | 新增，替代"加载中..."文本                                  |
+| `stepper`                          | billing 两处步进器                                         |
+| `tabs` / `picker-bar`              | goods 筛选、orders 状态筛选                                |
+| `popup`                            | store 切换店铺弹窗                                         |
 
 ---
 
@@ -167,25 +180,25 @@
 
 引入一套矢量图标（推荐 **IconPark / Tabler**；小程序用 iconfont 字体或内联 SVG，Web 直接 SVG）。
 
-| 现 emoji/字符 | 出现位置 | 替换为 | 用途 |
-|---------------|----------|--------|------|
-| 🔍 | goods / orders / billing 搜索框 | `search` | 搜索 |
-| 📦 | goods 空态 | `package` | 空商品 |
-| 🧾 | orders 空态 | `receipt` | 空订单 |
-| 🛍️ | billing 空态 | `shopping-bag` | 无可开单商品 |
-| 🗂️ | category 空态 | `folder` | 空分类 |
-| 🧥 | web 商品占位/导航 | `shirt` | 商品 |
-| ⌂ | index 按钮 | `home` / `storefront` | 现场开单入口 |
-| ＋ | index / goods FAB | `plus` | 新增 |
-| ⇄ | store 切换店铺 | `swap` / `arrows-exchange` | 切换 |
-| ↻ | store 重置店铺码 | `refresh` | 重置 |
-| › | store / platform 箭头 | `chevron-right` | 进入 |
-| ⏳ | platform 授权到期 | `hourglass` | 已到期 |
-| 🔒 | platform 未授权 | `lock` | 未授权 |
-| 🖨 | printer-pair 状态 | `printer` | 打印机 |
-| 📋 | printer-pair 已配对 | `clipboard` | 已配对 |
-| ✅ / ❌ | printer-pair 连接/失败 | `check-circle` / `x-circle` | 成功/失败 |
-| 🏠🧥🧾📦🏪🛡️ | `web/app.js` NAV_ITEMS | `home/shirt/receipt/package/store/shield` | 侧边栏导航 |
+| 现 emoji/字符 | 出现位置                        | 替换为                                    | 用途         |
+| ------------- | ------------------------------- | ----------------------------------------- | ------------ |
+| 🔍            | goods / orders / billing 搜索框 | `search`                                  | 搜索         |
+| 📦            | goods 空态                      | `package`                                 | 空商品       |
+| 🧾            | orders 空态                     | `receipt`                                 | 空订单       |
+| 🛍️            | billing 空态                    | `shopping-bag`                            | 无可开单商品 |
+| 🗂️            | category 空态                   | `folder`                                  | 空分类       |
+| 🧥            | web 商品占位/导航               | `shirt`                                   | 商品         |
+| ⌂             | index 按钮                      | `home` / `storefront`                     | 现场开单入口 |
+| ＋            | index / goods FAB               | `plus`                                    | 新增         |
+| ⇄             | store 切换店铺                  | `swap` / `arrows-exchange`                | 切换         |
+| ↻             | store 重置店铺码                | `refresh`                                 | 重置         |
+| ›             | store / platform 箭头           | `chevron-right`                           | 进入         |
+| ⏳            | platform 授权到期               | `hourglass`                               | 已到期       |
+| 🔒            | platform 未授权                 | `lock`                                    | 未授权       |
+| 🖨             | printer-pair 状态               | `printer`                                 | 打印机       |
+| 📋            | printer-pair 已配对             | `clipboard`                               | 已配对       |
+| ✅ / ❌       | printer-pair 连接/失败          | `check-circle` / `x-circle`               | 成功/失败    |
+| 🏠🧥🧾📦🏪🛡️  | `web/app.js` NAV_ITEMS          | `home/shirt/receipt/package/store/shield` | 侧边栏导航   |
 
 ---
 
@@ -203,12 +216,14 @@
 ## 6. 小程序端改动清单（逐页）
 
 ### 6.1 导航（TabBar + 页面）
+
 - [ ] 自定义 tabBar：`首页 · 商品 · 开单(中间凸起) · 订单 · 我的`，图标用 §4 表。
 - [ ] 新增"我的"页，合并：店铺信息、成员管理、打印设置、平台管理（仅 `isPlatform`）、设置、退出登录。
 - [ ] `pages/store/store` 改造为"我的"页；平台/打印入口从现店铺页迁入。
 - [ ] 统一各页 `navigationBarTitleText` 规范；删除死代码 `components/navigation-bar/`。
 
 ### 6.2 开单 `pages/billing`（核心）
+
 - [ ] **修 O1**：`_checkPrinterBeforeBill()` 返回值接入 `submitOrder()`，真正阻断或提供"跳过打印"。
 - [ ] **O2**：商品按货号/名称/拼音**后端分页搜索**，替代一次 200 条；售罄置灰；显示各规格剩余库存。
 - [ ] 规格弹层：支持**快速数字输入**数量、记忆常用规格、常用组合一键加购。
@@ -220,37 +235,45 @@
 - [ ] 开启下拉刷新 + 骨架屏。
 
 ### 6.3 商品 `pages/goods` / `goods-edit`
+
 - [ ] 列表：**批量上下架/删除**、分类快速筛选条、**低库存预警标识**。
 - [ ] 编辑页：**分区/分步表单**（基础 → 规格库存 → 图片）；SKU 表格化编辑 + 实时库存合计 + 即时校验。
 - [ ] 图片：**预览、拖拽排序、封面标记**、压缩上传。
 - [ ] `goods-edit` 开启下拉刷新/加载态骨架。
 
 ### 6.4 订单 `pages/orders` / `order-detail`
+
 - [ ] 列表：状态改 **tab 化**（替代 picker）；**补齐时间范围筛选**（today/week/month/all，对齐 Web）；卡片加商品缩略图、客户、明细摘要。
 - [ ] 详情：状态操作按状态正确显示；加**时间线**（创建→收款→完成→售后）。
 - [ ] 批量：批量收款/完成（可选）。
 - [ ] `order-detail` 开启下拉刷新 + 骨架屏。
 
 ### 6.5 分类 `pages/category`
+
 - [ ] 保留长按拖拽排序；改用 `tabs`/组件统一视觉；开启下拉刷新。
 
 ### 6.6 首页看板 `pages/index`
+
 - [ ] 今日/本周/本月切换；新增**销售趋势**（后端新接口）、**低库存提醒**、待办卡（待收款）。
 - [ ] 统计数字可点击下钻到对应列表。
 
 ### 6.7 店铺/我的 + 平台 `pages/store` / `platform`
+
 - [ ] "我的"页整理信息层级；重置店铺码/改名加影响说明。
 - [ ] 平台授权弹层保持（快捷 7/30/90/365 天 + 自定义 + 指定日期），视觉统一。
 
 ### 6.8 登录 `pages/login`
+
 - [ ] 记住账号、错误内联提示；可选 `wx.login` 微信免密。
 
 ### 6.9 打印配对 `pages/printer-pair`
+
 - [ ] 状态图标换成 §4 图标；开启下拉刷新；补齐空态。
 
 ---
 
 ## 7. Web 后台改动 `web/`
+
 - [ ] `style.css` 顶部 `:root` 定义 §2 同名 token，全站换肤。
 - [ ] `app.js`（~900 行单文件）拆成 **ES Module** 多文件（零构建）；或引入轻框架。
 - [ ] 侧边栏导航图标换 §4 图标。
@@ -261,12 +284,12 @@
 
 ## 8. 后端配合改造 `backend/`（向后兼容）
 
-| 接口 | 改造 |
-|------|------|
-| `GET /api/goods` | 支持 `goods_no` 搜索、`sort`；返回 `stock_status`（低库存/售罄）、`lowStock` 阈值字段 |
-| `GET /api/orders` | 统一暴露 `range`（小程序补齐）；可选批量状态操作 |
-| `GET /api/stats/dashboard` | 新增 `salesTrend(days)`、`lowStockList`、`topProducts` |
-| 全局 | 统一错误码、分页上限、列表索引与性能 |
+| 接口                       | 改造                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------- |
+| `GET /api/goods`           | 支持 `goods_no` 搜索、`sort`；返回 `stock_status`（低库存/售罄）、`lowStock` 阈值字段 |
+| `GET /api/orders`          | 统一暴露 `range`（小程序补齐）；可选批量状态操作                                      |
+| `GET /api/stats/dashboard` | 新增 `salesTrend(days)`、`lowStockList`、`topProducts`                                |
+| 全局                       | 统一错误码、分页上限、列表索引与性能                                                  |
 
 > 均为新增字段/参数，老客户端不受影响。
 
@@ -274,17 +297,18 @@
 
 ## 9. 落地路线图
 
-| 阶段 | 内容 | 验收点 |
-|------|------|--------|
-| **P0 基建** | 设计 token（两端）、组件库、图标替换、清理重复样式与死代码导航组件 | 全站用 token 换肤通过；无同名样式冲突 |
-| **P1 视觉换肤** | 全站套用新视觉 + 全局交互规范（骨架屏/空态/反馈/下拉刷新补齐） | 视觉一致、无"加载中..."裸文本 |
-| **P2 核心动线** | 开单（含修 O1 打印拦截 bug）> 商品 > 订单 重构 | 开单可分页搜索、购物车防丢、成功卡片 |
-| **P3 业务页** | "我的"页、平台、首页看板、登录 + Web 同步 | 两端能力与视觉对齐 |
-| **P4 后端** | 新接口（趋势/低库存/货号搜索）与性能 | 看板有趋势、商品有低库存预警 |
+| 阶段            | 内容                                                               | 验收点                                |
+| --------------- | ------------------------------------------------------------------ | ------------------------------------- |
+| **P0 基建**     | 设计 token（两端）、组件库、图标替换、清理重复样式与死代码导航组件 | 全站用 token 换肤通过；无同名样式冲突 |
+| **P1 视觉换肤** | 全站套用新视觉 + 全局交互规范（骨架屏/空态/反馈/下拉刷新补齐）     | 视觉一致、无"加载中..."裸文本         |
+| **P2 核心动线** | 开单（含修 O1 打印拦截 bug）> 商品 > 订单 重构                     | 开单可分页搜索、购物车防丢、成功卡片  |
+| **P3 业务页**   | "我的"页、平台、首页看板、登录 + Web 同步                          | 两端能力与视觉对齐                    |
+| **P4 后端**     | 新接口（趋势/低库存/货号搜索）与性能                               | 看板有趋势、商品有低库存预警          |
 
 ---
 
 ## 10. 验收清单（整体）
+
 - [ ] 全站无硬编码颜色，改主色一次生效
 - [ ] 全站无 emoji 图标，风格统一
 - [ ] 无同名 CSS 类跨页冲突
@@ -296,6 +320,7 @@
 ---
 
 ## 附录 A · 待修 bug（重构时顺手处理）
+
 1. `billing.js` 打印校验返回值未接入提交流程（§1-O1）。
 2. `login.wxss` `.login-form` 重复定义（§1-V2）。
 3. `store.wxss` 覆盖全局 `.btn-ghost`/`.form-item` 导致跨页不一致（§1-V2）。
@@ -303,6 +328,7 @@
 5. `components/navigation-bar/` 未被引用的死代码（§1-V4）。
 
 ## 附录 B · 参考文件
+
 - 小程序全局：`app.js` / `app.json` / `app.wxss`
 - 后端：`backend/routes/*`、`backend/schema.sql`
 - Web：`web/app.js`、`web/style.css`

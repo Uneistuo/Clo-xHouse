@@ -22,7 +22,9 @@ module.exports = async function auth(req, res, next) {
   }
   try {
     // 以数据库中的最新账号状态为准（账号被删 / 绑定关系变更即时生效）
-    const admin = await db.get('SELECT id, username, store_id, role, is_platform FROM admin WHERE id = ?', [payload.id]);
+    const admin = await db.get('SELECT id, username, store_id, role, is_platform FROM admin WHERE id = ?', [
+      payload.id
+    ]);
     if (!admin) {
       return res.status(401).json({ code: 401, message: '账号不存在，请重新登录' });
     }

@@ -12,16 +12,18 @@
     <!-- 店铺名称 + 切换店铺图标（仅图标，无圆圈与背景） -->
     <view class="store-name-row">
       <view class="store-name">{{store.name}}</view>
-      <view class="switch-icon" wx:if="{{role === 'owner' && myStores.length}}" bindtap="openSwitchPopup"><view class="icon icon-swap"></view></view>
+      <view class="switch-icon" wx:if="{{role === 'owner' && myStores.length}}" bindtap="openSwitchPopup"
+            aria-role="button" aria-label="切换店铺"><view class="icon icon-swap" aria-hidden="true"></view></view>
     </view>
     <view class="store-role">{{role === 'owner' ? '店主' : '员工'}}</view>
 
     <view class="code-box">
       <view class="code-head">
         <view class="code-label">店铺码</view>
-        <view class="reset-icon" wx:if="{{role === 'owner'}}" bindtap="handleResetCode"><view class="icon icon-refresh"></view></view>
+        <view class="reset-icon" wx:if="{{role === 'owner'}}" bindtap="handleResetCode"
+              aria-role="button" aria-label="重置店铺码"><view class="icon icon-refresh" aria-hidden="true"></view></view>
       </view>
-      <view class="code-value" bindtap="handleCopyCode">
+      <view class="code-value" bindtap="handleCopyCode" aria-role="button" aria-label="复制店铺码 {{store.bind_code}}">
         {{store.bind_code}} <text class="code-copy">复制</text>
       </view>
     </view>
@@ -38,7 +40,8 @@
         <!-- 店铺成员（与店铺信息同一板块） -->
         <view class="member-section">
           <view class="member-title">店铺成员（{{members.length}}）</view>
-          <view class="member-item" wx:for="{{members}}" wx:key="id">
+          <view class="member-item" wx:for="{{members}}" wx:key="id"
+                aria-label="成员 {{item.username}}，{{item.role === 'owner' ? '店主' : '员工'}}">
             <view class="member-info">
               <view class="member-name">{{item.username}}</view>
               <view class="member-role {{item.role === 'owner' ? 'role-owner' : ''}}">
@@ -46,7 +49,8 @@
               </view>
             </view>
             <view class="member-remove" wx:if="{{role === 'owner' && item.role !== 'owner'}}"
-                  data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember">移除</view>
+                  data-id="{{item.id}}" data-name="{{item.username}}" bindtap="handleRemoveMember"
+                  aria-role="button" aria-label="移除成员 {{item.username}}">移除</view>
           </view>
 
           <!-- 注册店铺：店主名下不满 3 家时显示（满 3 家自动隐藏） -->
@@ -72,44 +76,44 @@
   </view>
 
   <view wx:else class="guide-card">
-    <view class="guide-icon icon icon-store"></view>
+    <view class="guide-icon icon icon-store" aria-hidden="true"></view>
     <view class="guide-title">还没有绑定店铺？</view>
     <view class="guide-sub">注册账号后即可创建或加入店铺</view>
     <button class="btn-primary guide-btn" bindtap="goRegister">去注册</button>
   </view>
 
   <!-- ===== 会员客户：已绑定店铺才显示（会员列表/消费记录/CRM） ===== -->
-  <view class="platform-card" wx:if="{{storeId}}" bindtap="goCustomers">
+  <view class="platform-card" wx:if="{{storeId}}" bindtap="goCustomers" aria-role="button" aria-label="会员客户">
     <view class="platform-info">
       <view class="platform-title">会员客户</view>
       <view class="platform-sub">管理会员信息与消费记录</view>
     </view>
-    <view class="platform-arrow icon icon-chevron-right"></view>
+    <view class="platform-arrow icon icon-chevron-right" aria-hidden="true"></view>
   </view>
 
   <!-- ===== 打印设置：已绑定店铺才显示（开单需要小票） ===== -->
-  <view class="platform-card" wx:if="{{storeId}}" bindtap="goPrinter">
+  <view class="platform-card" wx:if="{{storeId}}" bindtap="goPrinter" aria-role="button" aria-label="打印设置，{{printerHint}}">
     <view class="platform-info">
       <view class="platform-title">打印设置</view>
       <view class="platform-sub">{{printerHint}}</view>
     </view>
-    <view class="platform-arrow icon icon-chevron-right"></view>
+    <view class="platform-arrow icon icon-chevron-right" aria-hidden="true"></view>
   </view>
 
   <!-- ===== 平台管理入口：仅平台管理员可见（控制各店铺开单白名单时效） ===== -->
-  <view class="platform-card" wx:if="{{isPlatform}}" bindtap="goPlatform">
+  <view class="platform-card" wx:if="{{isPlatform}}" bindtap="goPlatform" aria-role="button" aria-label="平台管理">
     <view class="platform-info">
       <view class="platform-title">平台管理</view>
       <view class="platform-sub">控制各店铺开单授权时效</view>
     </view>
-    <view class="platform-arrow icon icon-chevron-right"></view>
+    <view class="platform-arrow icon icon-chevron-right" aria-hidden="true"></view>
   </view>
 
   <!-- ===== 设置 ===== -->
   <view class="settings-card">
-    <view class="settings-item" bindtap="handleLogout">
+    <view class="settings-item" bindtap="handleLogout" aria-role="button" aria-label="退出登录">
       <text class="settings-label">退出登录</text>
-      <view class="settings-arrow icon icon-chevron-right"></view>
+      <view class="settings-arrow icon icon-chevron-right" aria-hidden="true"></view>
     </view>
   </view>
 
@@ -122,11 +126,12 @@
     <view class="popup-title">切换店铺</view>
     <view class="popup-item {{item.id === storeId ? 'current' : ''}}"
           wx:for="{{myStores}}" wx:key="id"
-          data-id="{{item.id}}" data-name="{{item.name}}" bindtap="handleSwitchStore">
+          data-id="{{item.id}}" data-name="{{item.name}}" bindtap="handleSwitchStore"
+          aria-role="button" aria-label="切换到店铺 {{item.name}}{{item.id === storeId ? '（当前）' : ''}}">
       <view class="popup-store-name">{{item.name}}</view>
       <view class="popup-store-tag" wx:if="{{item.id === storeId}}">当前</view>
       <view class="popup-store-arrow" wx:else>切换</view>
     </view>
-    <view class="popup-cancel" bindtap="closeSwitchPopup">取消</view>
+    <view class="popup-cancel" bindtap="closeSwitchPopup" aria-role="button" aria-label="取消切换店铺">取消</view>
   </view>
 </view>

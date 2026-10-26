@@ -700,8 +700,7 @@ const HAN_TABLE_B64 =
   '/UT3+/1F9/r9RrHH/Uf3/Pf9/Uj9Sf1K/Uv9TPf+/U39Tv1P/VD9Uf1S/VP9VP1V/Vb9V8br7LT9WP1Z' +
   '/Vr9W/1c/V39Xv1f/WD9Yf1i/WP9ZP1l/Wb9Z/1o/Wn9av1r/Wz9bf1u/W/9cP1x/XL9c/10/XX9dv13' +
   '/Xj9ef16/Xv9fP19/X79gP2B/YL9g/2E/YWz3faz/Yb9h/a0weT2tfa29rf2uPa59rrIo/a7/Yj9if2K' +
-  '/Yv9jP2N/Y79j/2Q/ZH9kv2Twfq5qO3o/ZT9lf2WuerZ3/2X/Zj9mf2a/Zs='
-;
+  '/Yv9jP2N/Y79j/2Q/ZH9kv2Twfq5qO3o/ZT9lf2WuerZ3/2X/Zj9mf2a/Zs=';
 
 // Lazy init
 let _hanTable = null;
@@ -715,17 +714,17 @@ function getHanTable() {
 
 // Common fullwidth symbols (used in receipts) -> GBK code
 const SYMBOL_TABLE = {
-  0x201C: 0xA1B0,  // left double quote
-  0x201D: 0xA1B1,  // right double quote
-  0x2018: 0xA1AE,  // left single quote
-  0x2019: 0xA1AF,  // right single quote
-  0x3001: 0xA1A2,  // ideographic comma
-  0x3002: 0xA1A3,  // ideographic full stop
-  0x300A: 0xA1B6,  // left double angle bracket
-  0x300B: 0xA1B7,  // right double angle bracket
-  0x3010: 0xA1BE,  // left black lenticular bracket
-  0x3011: 0xA1BF,  // right black lenticular bracket
-  0xFFE5: 0xA1A7   // fullwidth yuan sign
+  0x201c: 0xa1b0, // left double quote
+  0x201d: 0xa1b1, // right double quote
+  0x2018: 0xa1ae, // left single quote
+  0x2019: 0xa1af, // right single quote
+  0x3001: 0xa1a2, // ideographic comma
+  0x3002: 0xa1a3, // ideographic full stop
+  0x300a: 0xa1b6, // left double angle bracket
+  0x300b: 0xa1b7, // right double angle bracket
+  0x3010: 0xa1be, // left black lenticular bracket
+  0x3011: 0xa1bf, // right black lenticular bracket
+  0xffe5: 0xa1a7 // fullwidth yuan sign
 };
 
 /**
@@ -741,18 +740,18 @@ function gbkEncode(str) {
       result.push(code);
     } else if (SYMBOL_TABLE[code] !== undefined) {
       const v = SYMBOL_TABLE[code];
-      result.push((v >> 8) & 0xFF);
-      result.push(v & 0xFF);
-    } else if (code >= 0x4E00 && code <= 0x9FA5) {
-      const gbk = hanTable[code - 0x4E00];
+      result.push((v >> 8) & 0xff);
+      result.push(v & 0xff);
+    } else if (code >= 0x4e00 && code <= 0x9fa5) {
+      const gbk = hanTable[code - 0x4e00];
       if (gbk) {
-        result.push((gbk >> 8) & 0xFF);
-        result.push(gbk & 0xFF);
+        result.push((gbk >> 8) & 0xff);
+        result.push(gbk & 0xff);
       } else {
-        result.push(0x3F);
+        result.push(0x3f);
       }
     } else {
-      result.push(0x3F);
+      result.push(0x3f);
     }
   }
   return new Uint8Array(result);

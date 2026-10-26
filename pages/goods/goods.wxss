@@ -110,32 +110,58 @@
   font-weight: bold;
   color: var(--text-1);
 }
+/* 头部一行：左标题（商品名 + 货号），右价格（售价 / 原价两行） */
+.goods-head {
+  display: flex;
+  align-items: flex-start;
+}
+.goods-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
 .goods-price {
-  margin: 8rpx 0;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  text-align: right;
+}
+.price {
+  display: block;
   font-size: 32rpx;
+  line-height: 1.25;
 }
 .origin-price {
-  color: var(--text-2);
-  font-size: 22rpx;
+  display: block;
+  color: var(--text-3);
+  font-size: 20rpx;
+  line-height: 1.25;
+  margin-top: 6rpx;
   text-decoration: line-through;
-  margin-left: 16rpx;
 }
 .goods-meta {
   font-size: 24rpx;
   color: var(--text-2);
-  margin-bottom: 8rpx;
+  margin-top: 8rpx;
   display: flex;
   align-items: center;
 }
+/* 上架状态灯：绿灯=上架中，红灯=已下架 */
+.status-dot {
+  flex-shrink: 0;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+.status-dot-on {
+  background: var(--success);
+  box-shadow: 0 0 0 4rpx var(--success-tint);
+}
+.status-dot-off {
+  background: var(--danger);
+  box-shadow: 0 0 0 4rpx var(--danger-tint);
+}
 .goods-meta text:first-child {
   margin-right: 16rpx;
-}
-.goods-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid var(--hairline);
 }
 
 .loading-tip {
@@ -246,7 +272,10 @@
   box-sizing: border-box;
   /* 与开单页结算栏等高，避免两页来回切换时面板高度跳变 */
   min-height: var(--dock-bar-height, 136rpx);
-  background: var(--bg-overlay);
+  /* 不透明度提高一点替代毛玻璃：固定层做 backdrop-filter 后，
+     滚动和位移时每帧都要重新采样背景，是这块最贵的地方。
+     底色与拼接态 TabBar 共用 --dock-bg，接缝处不能有色差。 */
+  background: var(--dock-bg, rgba(255, 255, 255, 0.94));
   padding: 24rpx 32rpx;
   border: 1rpx solid var(--glass-border);
   border-bottom: none;
@@ -254,17 +283,28 @@
   box-shadow:
     0 -14rpx 40rpx rgba(35, 45, 75, 0.08),
     var(--inner-light);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-  /* 从 TabBar 后方滑出，替代原先的瞬间出现 */
-  animation: dock-bar-in 0.26s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
-@keyframes dock-bar-in {
+/* ===== 拼接态入场：批量栏从 TabBar 后方「拉出」 =====
+   只在「普通栏 → 拼接栏」那一次挂上类名（见 _pullBatchBar），
+   静止时没有任何动画；只动 transform / opacity，投影不逐帧重画。 */
+.batch-bar.batch-pulling {
+  z-index: 99;
+  will-change: transform, opacity;
+  animation: dock-card-pull 0.36s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+/* 页面被隐藏期间先藏住批量栏（见 onHide），缓存页重新显示的第一帧
+   不会先画出「上一次的静止态」，拉出动画因此只播一次。 */
+.batch-bar.batch-hidden {
+  opacity: 0;
+}
+@keyframes dock-card-pull {
   from {
-    transform: translateY(16rpx);
+    transform: translateY(calc(100% + var(--space-tabbar-bottom, 124rpx) + env(safe-area-inset-bottom)));
+    opacity: 0;
   }
   to {
     transform: translateY(0);
+    opacity: 1;
   }
 }
 .batch-all {
@@ -310,8 +350,6 @@
   }
   .batch-bar {
     background: #ffffff;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -322,5 +360,9 @@
   }
   .fab:active {
     transform: none;
+  }
+  /* 批量栏拉出动画一并关闭，直接落位 */
+  .batch-bar.batch-pulling {
+    animation: none !important;
   }
 }

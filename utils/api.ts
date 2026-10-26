@@ -39,6 +39,8 @@ interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT';
   data?: Record<string, unknown>;
   header?: Record<string, string>;
+  /** 静默请求：失败不弹 toast（启动预热用，避免后台预取失败打扰用户） */
+  silent?: boolean;
 }
 
 /** 读取本地登录 Token */
@@ -50,7 +52,8 @@ export function getToken(): string {
 function handleResponse(
   res: WechatMiniprogram.RequestSuccessCallbackResult,
   resolve: (data: any) => void,
-  reject: (err: BizError) => void
+  reject: (err: BizError) => void,
+  silent = false
 ): void {
   // 登录失效：清除本地登录信息并跳转登录页
   if (res.statusCode === 401) {
@@ -63,8 +66,10 @@ function handleResponse(
   const body = res.data as { code?: number; message?: string; data?: any } | undefined;
   // 未绑定店铺（code=1001）：引导到注册+绑定页（第 2 步）
   if (body && body.code === 1001) {
-    wx.showToast({ title: body.message || '请先绑定店铺', icon: 'none' });
-    wx.reLaunch({ url: '/pages/register/register?mode=bind' });
+    if (!silent) {
+      wx.showToast({ title: body.message || '请先绑定店铺', icon: 'none' });
+      wx.reLaunch({ url: '/pages/register/register?mode=bind' });
+    }
     reject(new Error(body.message || '请先绑定店铺'));
     return;
   }
@@ -72,11 +77,26 @@ function handleResponse(
     resolve(body.data);
   } else {
     const msg = (body && body.message) || '请求失败';
-    wx.showToast({ title: msg, icon: 'none' });
+    if (!silent) wx.showToast({ title: msg, icon: 'none' });
     const err: BizError = new Error(msg);
     err.code = body ? body.code : 0; // 业务错误码（如 1002 开单授权失效），供页面区分处理
     reject(err);
   }
+}
+
+/** 把对象序列化为 query string（undefined / null 直接丢弃） */
+function toQuery(data: Record<string, unknown>): string {
+  return Object.keys(data)
+    .filter((k) => data[k] !== undefined && data[k] !== null)
+    .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(String(data[k]))}`)
+    .join('&');
+}
+
+/** GET 的完整路径：把参数拼到 query 上（path 自带 ? 时改用 & 续接） */
+function buildPath(url: string, data: Record<string, unknown>): string {
+  const qs = toQuery(data);
+  if (!qs) return url;
+  return `${url}${url.indexOf('?') >= 0 ? '&' : '?'}${qs}`;
 }
 
 /**
@@ -95,12 +115,15 @@ function describeFail(errMsg: string, inDev: boolean): string {
   return inDev ? '网络错误，请确认后端服务已启动' : '云服务请求失败，请稍后重试';
 }
 
-export function request({ url, method = 'GET', data = {}, header = {} }: RequestOptions): Promise<any> {
+export function request({ url, method = 'GET', data = {}, header = {}, silent = false }: RequestOptions): Promise<any> {
   return new Promise((resolve, reject) => {
     // 云托管空闲会缩容到 0，冷启动常需 10~60s：固定 1.5s×2 覆盖不到，改为指数退避
     const RETRY_DELAYS = [1500, 3000, 6000, 10000];
     let attempt = 0;
-    const headers = Object.assign({ 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() }, header);
+    const headers = Object.assign(
+      { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() },
+      header
+    );
 
     const onDone = (statusCode: number, body: any): void => {
       // 云托管临时不可用（冷启动/重启）：延迟后自动重试
@@ -109,7 +132,12 @@ export function request({ url, method = 'GET', data = {}, header = {} }: Request
         attempt += 1;
         return;
       }
-      handleResponse({ statusCode, data: body } as WechatMiniprogram.RequestSuccessCallbackResult, resolve, reject);
+      handleResponse(
+        { statusCode, data: body } as WechatMiniprogram.RequestSuccessCallbackResult,
+        resolve,
+        reject,
+        silent
+      );
     };
 
     const onFail = (errMsg: string, raw: unknown): void => {
@@ -122,7 +150,13 @@ export function request({ url, method = 'GET', data = {}, header = {} }: Request
       // 真机看不到控制台时，靠这条 toast 判断原因（也可在「真机调试」里看完整日志）
       console.error('[api] request fail', url, errMsg);
       const reason = describeFail(errMsg, inDev);
-      wx.showToast({ title: inDev ? reason : reason + '（' + (errMsg || 'unknown') + '）', icon: 'none', duration: 3000 });
+      if (!silent) {
+        wx.showToast({
+          title: inDev ? reason : reason + '（' + (errMsg || 'unknown') + '）',
+          icon: 'none',
+          duration: 3000
+        });
+      }
       reject(raw instanceof Error ? raw : new Error(errMsg));
     };
 
@@ -141,7 +175,10 @@ export function request({ url, method = 'GET', data = {}, header = {} }: Request
       if (canCallContainer()) {
         (wx as any).cloud.callContainer({
           config: { env: CLOUD_ENV },
-          path: url,
+          // 关键：云托管通道不会把 GET 的 data 转成 query，必须自己拼到 path 上。
+          // 否则 status / keyword / page 等筛选参数会被静默丢弃，后端只能返回全量数据
+          //（典型现象：「已下架」页看到上架中的商品、搜索无效）。
+          path: method === 'GET' ? buildPath(url, data) : url,
           method,
           header: Object.assign({ 'X-WX-SERVICE': CLOUD_SERVICE }, headers),
           data: method === 'GET' ? undefined : data,
@@ -190,15 +227,42 @@ export function uploadFile(filePath: string): Promise<string> {
   });
 }
 
-/** 压缩图片（减小 base64 体积）；不支持或失败时返回原图 */
+/**
+ * 上传前压缩：长边 > 1200px 或文件 > 800KB 时压至质量 80
+ * - 尺寸/大小读取失败、低版本基础库、压缩失败时回退原图，保证上传流程不中断
+ */
 function compressIfNeeded(filePath: string): Promise<string> {
   return new Promise((resolve) => {
     if (typeof (wx as any).compressImage !== 'function') return resolve(filePath);
-    (wx as any).compressImage({
+    const doCompress = () => {
+      (wx as any).compressImage({
+        src: filePath,
+        quality: 80,
+        success: (res: any) => resolve(res.tempFilePath || filePath),
+        fail: () => resolve(filePath)
+      });
+    };
+    let fileSize = 0;
+    try {
+      fileSize = (wx.getFileSystemManager().statSync(filePath) as any).size || 0;
+    } catch (e) {
+      fileSize = 0;
+    }
+    if (typeof (wx as any).getImageInfo !== 'function') {
+      if (fileSize > 800 * 1024) doCompress();
+      else resolve(filePath);
+      return;
+    }
+    (wx as any).getImageInfo({
       src: filePath,
-      quality: 80,
-      success: (res: any) => resolve(res.tempFilePath || filePath),
-      fail: () => resolve(filePath)
+      success: (info: any) => {
+        if (!info || info.width > 1200 || info.height > 1200 || fileSize > 800 * 1024) doCompress();
+        else resolve(filePath);
+      },
+      fail: () => {
+        if (fileSize > 800 * 1024) doCompress();
+        else resolve(filePath);
+      }
     });
   });
 }
@@ -218,16 +282,17 @@ async function uploadViaBackend(filePath: string): Promise<string> {
   return data.url as string;
 }
 
-/** 云开发存储直传，返回 fileID（cloud://…，仅小程序内可显示） */
-function uploadViaCloudStorage(filePath: string): Promise<string> {
+/** 云开发存储直传（先压缩），返回 fileID（cloud://…，仅小程序内可显示） */
+async function uploadViaCloudStorage(filePath: string): Promise<string> {
+  const src = await compressIfNeeded(filePath);
   return new Promise((resolve, reject) => {
     const cloud = (wx as any).cloud;
-    const extMatch = filePath.split('?')[0].match(/\.[a-zA-Z0-9]+$/);
+    const extMatch = src.split('?')[0].match(/\.[a-zA-Z0-9]+$/);
     const ext = extMatch ? extMatch[0].toLowerCase() : '.jpg';
     const cloudPath = `goods/${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
     cloud.uploadFile({
       cloudPath,
-      filePath,
+      filePath: src,
       success(res: any) {
         resolve(res.fileID);
       },

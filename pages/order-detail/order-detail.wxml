@@ -2,7 +2,7 @@
 <view class="page glow-page" wx:if="{{order}}">
   <!-- 订单状态 -->
   <view class="card status-card">
-    <view class="tag status-{{order.status}} status-tag {{statusPulse ? 'pulse' : ''}}">{{statusText}}</view>
+    <view class="tag status-{{order.status}} status-tag {{statusPulse ? 'pulse' : ''}}" aria-label="订单状态：{{statusText}}">{{statusText}}</view>
     <view class="status-amount">订单金额 <text class="price">￥{{amountText}}</text></view>
     <view class="status-sub">收款方式：{{payText}}</view>
   </view>
@@ -12,8 +12,8 @@
     <view class="section-title">订单动态</view>
     <view class="timeline">
       <view wx:for="{{timeline}}" wx:key="key" class="timeline-item {{item.done ? 'is-done' : 'is-pending'}}">
-        <view class="timeline-dot {{item.done ? 'done' : 'pending'}}"></view>
-        <view class="timeline-content">
+        <view class="timeline-dot {{item.done ? 'done' : 'pending'}}" aria-hidden="true"></view>
+        <view class="timeline-content" aria-label="{{item.label}}：{{item.done ? item.time : '待更新'}}">
           <view class="timeline-label">{{item.label}}</view>
           <view class="timeline-time">{{item.done ? item.time : '待更新'}}</view>
         </view>
@@ -24,7 +24,8 @@
   <!-- 商品明细 -->
   <view class="card">
     <view class="section-title">商品明细</view>
-    <view wx:for="{{items}}" wx:key="id" class="item-row">
+    <view wx:for="{{items}}" wx:key="id" class="item-row"
+          aria-label="{{item.goods_name}}，{{item.color || '默认'}} / {{item.size || '默认'}}，单价 {{item.price}} 元，数量 {{item.quantity}}，小计 {{item.amountText}} 元">
       <view class="item-info">
         <view class="item-name ellipsis">{{item.goods_name}}</view>
         <view class="item-spec">
@@ -70,7 +71,7 @@
     <view wx:else class="action-none">该订单已结束，无可用操作</view>
 
     <!-- 补打小票：所有有效订单都可补打 -->
-    <button class="btn-ghost action-btn" bindtap="reprintReceipt" disabled="{{actionLoading}}">补打小票</button>
+    <button class="btn-ghost action-btn" bindtap="reprintReceipt" disabled="{{actionLoading}}" aria-label="补打小票">补打小票</button>
   </view>
 </view>
 

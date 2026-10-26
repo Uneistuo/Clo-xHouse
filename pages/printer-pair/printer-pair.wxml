@@ -5,29 +5,29 @@
 <view class="page glow-page">
   <!-- 顶部状态卡片 -->
   <view class="status-card {{stateClass}}">
-    <view class="status-icon icon {{stateIconClass}}"></view>
+    <view class="status-icon icon {{stateIconClass}}" aria-hidden="true"></view>
     <view class="status-title">{{stateTitle}}</view>
     <view class="status-sub">{{stateSub}}</view>
     <view wx:if="{{savedDevice}}" class="saved-device">
       <text>已配对：{{savedDevice.name || '未知设备'}}</text>
-      <text wx:if="{{connected}}" class="dot dot-on"></text>
-      <text wx:else class="dot dot-off"></text>
+      <text wx:if="{{connected}}" class="dot dot-on" aria-hidden="true"></text>
+      <text wx:else class="dot dot-off" aria-hidden="true"></text>
     </view>
   </view>
 
   <!-- 操作区 -->
   <view class="actions">
-    <button wx:if="{{!scanning}}" class="btn btn-primary" bindtap="onScan">扫描附近打印机</button>
-    <button wx:else class="btn btn-warn scanning" bindtap="onStopScan">停止扫描</button>
+    <button wx:if="{{!scanning}}" class="btn btn-primary" bindtap="onScan" aria-label="扫描附近打印机">扫描附近打印机</button>
+    <button wx:else class="btn btn-warn scanning" bindtap="onStopScan" aria-label="停止扫描">停止扫描</button>
 
-    <button wx:if="{{savedDevice && !connected}}" class="btn btn-ghost" bindtap="onReconnect">重新连接已配对设备</button>
-    <button wx:if="{{savedDevice && connected}}" class="btn btn-ghost" bindtap="onTestPrint">打印测试页</button>
-    <button wx:if="{{savedDevice && connected}}" class="btn btn-danger" bindtap="onUnpair">解除配对</button>
+    <button wx:if="{{savedDevice && !connected}}" class="btn btn-ghost" bindtap="onReconnect" aria-label="重新连接已配对设备">重新连接已配对设备</button>
+    <button wx:if="{{savedDevice && connected}}" class="btn btn-ghost" bindtap="onTestPrint" aria-label="打印测试页">打印测试页</button>
+    <button wx:if="{{savedDevice && connected}}" class="btn btn-danger" bindtap="onUnpair" aria-label="解除打印机配对">解除配对</button>
   </view>
 
   <!-- 离线提示：未连接时开单不会自动打印 -->
   <view wx:if="{{!connected}}" class="offline-hint">
-    <view class="icon icon-clock"></view>
+    <view class="icon icon-clock" aria-hidden="true"></view>
     <text>打印机离线中，开单后小票将无法自动打印；连接成功后可随时补打。</text>
   </view>
 
@@ -39,7 +39,8 @@
       <view class="settings-options">
         <view wx:for="{{templates}}" wx:key="key"
               class="setting-chip {{template === item.key ? 'active' : ''}}"
-              data-key="{{item.key}}" bindtap="onTemplateTap">{{item.name}}</view>
+              data-key="{{item.key}}" bindtap="onTemplateTap"
+              aria-role="radio" aria-label="小票模板 {{item.name}}">{{item.name}}</view>
       </view>
     </view>
     <view class="settings-row">
@@ -47,7 +48,8 @@
       <view class="settings-options">
         <view wx:for="{{paperWidths}}" wx:key="value"
               class="setting-chip {{paperWidth === item.value ? 'active' : ''}}"
-              data-value="{{item.value}}" bindtap="onPaperTap">{{item.name}}</view>
+              data-value="{{item.value}}" bindtap="onPaperTap"
+              aria-role="radio" aria-label="小票纸张 {{item.name}}">{{item.name}}</view>
       </view>
     </view>
     <view class="settings-tip">设置保存在本机，开单与补打时自动套用；可先「打印测试页」验证版式。</view>
@@ -57,10 +59,10 @@
   <view class="logs-card" wx:if="{{printLogs.length > 0}}">
     <view class="logs-head">
       <view class="settings-title">最近打印记录</view>
-      <view class="logs-clear" bindtap="onClearLogs">清空</view>
+      <view class="logs-clear" bindtap="onClearLogs" aria-role="button" aria-label="清空打印记录">清空</view>
     </view>
-    <view wx:for="{{printLogs}}" wx:key="index" class="log-item">
-      <view class="log-icon icon {{item.ok ? 'icon-check-circle ok' : 'icon-x-circle fail'}}"></view>
+    <view wx:for="{{printLogs}}" wx:key="index" class="log-item" aria-label="{{item.ok ? '打印成功' : '打印失败'}}，订单 {{item.orderNo || '未知单号'}}，{{item.time}}">
+      <view class="log-icon icon {{item.ok ? 'icon-check-circle ok' : 'icon-x-circle fail'}}" aria-hidden="true"></view>
       <view class="log-main">{{item.orderNo || '未知单号'}}</view>
       <view class="log-meta">{{item.time}} · {{item.paperWidth}}mm</view>
     </view>
@@ -70,11 +72,12 @@
   <!-- 设备列表 -->
   <view wx:if="{{devices.length > 0}}" class="device-list">
     <view class="device-list-title">发现的设备（{{devices.length}}）</view>
-    <view wx:for="{{devices}}" wx:key="deviceId" class="device-item" data-id="{{item.deviceId}}" data-name="{{item.name}}" bindtap="onSelectDevice">
+    <view wx:for="{{devices}}" wx:key="deviceId" class="device-item" data-id="{{item.deviceId}}" data-name="{{item.name}}" bindtap="onSelectDevice"
+          aria-role="button" aria-label="连接打印机 {{item.name || '未知设备'}}，信号 {{item.RSSI}} dBm">
       <view class="device-name">{{item.name || '未知设备'}}</view>
       <view class="device-id">{{item.deviceId}}</view>
       <view wx:if="{{item.RSSI !== undefined}}" class="device-rssi {{item.rssiClass}}">信号 {{item.RSSI}} dBm</view>
-      <view class="device-arrow icon icon-chevron-right"></view>
+      <view class="device-arrow icon icon-chevron-right" aria-hidden="true"></view>
     </view>
   </view>
 
