@@ -1,10 +1,30 @@
-@import '../../styles/tokens.wxss';
-
 /* ============================================================
    自定义确认对话框（Overlay 浮层 · 清透质感）
    遮罩：深蓝 32% + 6px 模糊；面板：白 82% 玻璃 + 内高光。
-   组件样式隔离，var() 带新版兜底色值。
+
+   ⚠️ 不 @import tokens.wxss：其中含标签选择器，组件 wxss 不支持，
+      会报 "Some selectors are not allowed in component wxss"。
+      这里用 :host 声明本组件用到的变量（取值与 tokens.wxss 一致），
+      其余 var() 仍带兜底色值。
    ============================================================ */
+:host {
+  --bg-overlay: rgba(255, 255, 255, 0.82);
+  --bg-subtle: rgba(255, 255, 255, 0.46);
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --text-1: #1d222b;
+  --text-2: #5a6270;
+  --radius-hero: 44rpx;
+  --radius-pill: 999rpx;
+  --font-h3: 32rpx;
+  --shadow-float: 0 24rpx 60rpx rgba(35, 45, 75, 0.12);
+  --shadow-primary: 0 16rpx 36rpx rgba(123, 140, 247, 0.26);
+  --inner-light: inset 0 1rpx 0 rgba(255, 255, 255, 0.85);
+  --duration-fast: 150ms;
+  --duration-slow: 350ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --scale-press: 0.98;
+}
 .c-confirm-mask {
   position: fixed;
   inset: 0;

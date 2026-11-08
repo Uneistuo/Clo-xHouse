@@ -151,7 +151,7 @@
 .offline-hint .icon {
   font-size: 28rpx;
   flex-shrink: 0;
-  margin-top: 2rpx;
+  margin-top: 4rpx;
 }
 
 /* 打印设置卡（模板 / 纸张宽度） */

@@ -90,7 +90,6 @@
   <view wx:if="{{!manageMode}}" class="fab fab-goods" bindtap="goAdd"
         aria-role="button" aria-label="新增商品">
     <view class="icon icon-plus" aria-hidden="true"></view>
-    <view class="fab-label" aria-hidden="true">新商品</view>
   </view>
 
   <!-- 批量操作栏 -->

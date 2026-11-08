@@ -6,15 +6,16 @@
 
 ## 文档索引
 
-| 文档           | 路径                                | 内容                     |
-| -------------- | ----------------------------------- | ------------------------ |
-| 设计方案 v2.0  | `docs/DESIGN-SPEC-V2.md`            | 小程序端完整设计规范     |
-| Web 设计方案   | `docs/DESIGN-SPEC-WEB.md`           | Web 管理后台设计规范     |
-| 小程序优化方案 | `docs/OPTIMIZATION-PLAN-MINIAPP.md` | 性能 + 体验优化 14 项    |
-| Web 优化方案   | `docs/OPTIMIZATION-PLAN-WEB.md`     | 架构 + 体验优化 12 项    |
-| UI 审核报告    | `UI-AUDIT-REPORT.md`                | 40 处样式问题修复清单    |
-| 首轮审查报告   | `docs/REVIEW-REPORT-2026-10-26.md`  | 历史基线（问题清单来源） |
-| 二次审查报告   | `docs/REVIEW-REPORT-2026-10-27.md`  | 整改复核结论与残余风险   |
+| 文档             | 路径                                | 内容                                       |
+| ---------------- | ----------------------------------- | ------------------------------------------ |
+| 设计方案 v2.0    | `docs/DESIGN-SPEC-V2.md`            | 小程序端完整设计规范                       |
+| Web 设计方案     | `docs/DESIGN-SPEC-WEB.md`           | Web 管理后台设计规范                       |
+| 小程序优化方案   | `docs/OPTIMIZATION-PLAN-MINIAPP.md` | 性能 + 体验优化 14 项                      |
+| Web 优化方案     | `docs/OPTIMIZATION-PLAN-WEB.md`     | 架构 + 体验优化 12 项                      |
+| **视觉对齐方案** | `docs/ALIGNMENT-SPEC.md`            | **8pt 网格 + 三层 Token + 对齐规则速查卡** |
+| UI 审核报告      | `UI-AUDIT-REPORT.md`                | 40 处样式问题修复清单                      |
+| 首轮审查报告     | `docs/REVIEW-REPORT-2026-10-26.md`  | 历史基线（问题清单来源）                   |
+| 二次审查报告     | `docs/REVIEW-REPORT-2026-10-27.md`  | 整改复核结论与残余风险                     |
 
 ---
 
@@ -164,12 +165,14 @@ P3（持续）：
 
 1. 小程序开单分页、图片懒加载与 15 页 ARIA 标签的真机表现
 2. Web 登录后的商品、开单、订单、会员、店铺、平台流程
+3. **视觉对齐审核**：40 处间距/圆角/字号修复后的端到端验证
 
 ### 暂缓（高成本 / 高收益不确定）
 
 1. Skyline 渲染引擎迁移（需整套页面回归）
 2. Web Vite + TypeScript 迁移（与 GitHub Pages 零构建目标冲突）
 3. E2E 测试体系（当前以静态 smoke test 为主）
+4. **自动化对齐审计脚本**（pending 实现）
 
 ---
 

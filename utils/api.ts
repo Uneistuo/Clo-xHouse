@@ -7,8 +7,22 @@
 // CLOUD_BASE_URL：云托管服务的公网默认域名（仅供测试，微信不允许配置为正式环境的服务器域名）
 const CLOUD_BASE_URL = 'https://express-3how-324239-10-1501349049.sh.run.tcloudbase.com';
 
+/**
+ * 是否运行在开发者工具中
+ * getSystemInfoSync 已废弃：优先用拆分后的 getDeviceInfo（低版本基础库才回退）
+ */
+function detectDevtools(): boolean {
+  try {
+    const getDeviceInfo = (wx as any).getDeviceInfo;
+    const info = typeof getDeviceInfo === 'function' ? getDeviceInfo() : (wx as any).getSystemInfoSync();
+    return !!info && info.platform === 'devtools';
+  } catch (err) {
+    return false;
+  }
+}
+
 const DEV_BASE = 'http://127.0.0.1:3000';
-const IS_DEVTOOLS = wx.getSystemInfoSync().platform === 'devtools';
+const IS_DEVTOOLS = detectDevtools();
 // 本地后端已切换为 MySQL：本地未安装 MySQL，开发者工具也直连云托管后端
 const FORCE_CLOUD = true;
 
@@ -146,7 +160,7 @@ export function request({ url, method = 'GET', data = {}, header = {}, silent = 
         attempt += 1;
         return;
       }
-      const inDev = wx.getSystemInfoSync().platform === 'devtools';
+      const inDev = IS_DEVTOOLS;
       // 真机看不到控制台时，靠这条 toast 判断原因（也可在「真机调试」里看完整日志）
       console.error('[api] request fail', url, errMsg);
       const reason = describeFail(errMsg, inDev);

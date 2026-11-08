@@ -135,7 +135,7 @@
   color: var(--text-3);
   font-size: 20rpx;
   line-height: 1.25;
-  margin-top: 6rpx;
+  margin-top: 8rpx;
   text-decoration: line-through;
 }
 .goods-meta {
@@ -188,17 +188,6 @@
 }
 .fab:active {
   transform: scale(var(--scale-press));
-}
-.fab-label {
-  position: absolute;
-  left: 50%;
-  bottom: -32rpx;
-  transform: translateX(-50%);
-  font-size: 20rpx;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--primary-dark);
-  white-space: nowrap;
 }
 
 /* 搜索栏右侧入口 */

@@ -172,7 +172,13 @@
   <!-- 开单成功卡片（替代系统 modal：可继续开单 / 查看订单 / 补打小票） -->
   <view wx:if="{{successInfo}}" class="mask" bindtap="closeSuccess">
     <view class="modal success-modal" catchtap="noop">
-      <view class="success-icon icon icon-check-circle"></view>
+      <view class="success-glow" aria-hidden="true">
+        <view class="glow-halo"></view>
+        <view class="spark s1"></view>
+        <view class="spark s2"></view>
+        <view class="spark s3"></view>
+        <view class="success-icon icon icon-check-circle"></view>
+      </view>
       <view class="success-title">开单成功</view>
       <view class="success-order">{{successInfo.orderNo}}</view>
       <view class="success-amount">￥{{successInfo.totalAmount}}</view>

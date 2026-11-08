@@ -128,4 +128,41 @@ function prompt(msg, defaultValue = '') {
   });
 }
 
-export { toast, openModal, closeModal, confirm, prompt, setBtnLoading, showFieldError, clearFieldError };
+/* ================= 光雾成功反馈（参考 LeiBox transfer-glow） ================= */
+let glowTimer = null;
+let glowHideTimer = null;
+function hideGlow() {
+  const card = $('#glow-root .glow-toast');
+  if (!card) return;
+  card.classList.add('out');
+  glowHideTimer = setTimeout(() => {
+    const root = $('#glow-root');
+    if (root) root.innerHTML = '';
+  }, 300);
+}
+function successGlow(title, detail = '') {
+  let root = $('#glow-root');
+  if (!root) {
+    root = document.createElement('div');
+    root.id = 'glow-root';
+    document.body.appendChild(root);
+  }
+  root.innerHTML = `
+    <div class="glow-toast" role="status" aria-live="polite">
+      <div class="glow-icon-wrap" aria-hidden="true">
+        <span class="glow-halo"></span>
+        <span class="glow-spark s1"></span>
+        <span class="glow-spark s2"></span>
+        <span class="glow-spark s3"></span>
+        <span class="icon icon-check-circle glow-icon"></span>
+      </div>
+      <div class="glow-title">${esc(title)}</div>
+      ${detail ? `<div class="glow-detail">${esc(detail)}</div>` : ''}
+    </div>`;
+  clearTimeout(glowTimer);
+  clearTimeout(glowHideTimer);
+  glowTimer = setTimeout(hideGlow, 2800);
+  $('.glow-toast', root).addEventListener('click', hideGlow);
+}
+
+export { toast, openModal, closeModal, confirm, prompt, setBtnLoading, showFieldError, clearFieldError, successGlow };

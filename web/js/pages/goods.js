@@ -7,6 +7,27 @@ import { STATUS, STATUS_CLASS } from '../config.js';
 import { requestRender } from '../bus.js';
 
 /* ================= 商品管理 ================= */
+
+/**
+ * 列表缩略图：图片地址不可用（无图 / cloud:// 等浏览器无法访问的 fileID）时给出占位块，
+ * 避免出现裂图
+ */
+function goodsThumb(image) {
+  const src = fixImg(firstImg(image));
+  if (!src) return '<div class="goods-img-placeholder"><span class="icon icon-shirt"></span></div>';
+  return `<img class="goods-img" src="${esc(src)}" alt="" loading="lazy" decoding="async">`;
+}
+
+/** 编辑弹窗里的小尺寸预览（60×60），不可用时同样给占位块 */
+function goodsPreview(image) {
+  const src = fixImg(image);
+  const box = 'width:60px;height:60px';
+  if (!src) {
+    return `<div class="goods-img-placeholder" title="该图片为云存储地址，请重新上传" style="${box}"><span class="icon icon-shirt"></span></div>`;
+  }
+  return `<img src="${esc(src)}" alt="商品图片" loading="lazy" decoding="async" style="${box};object-fit:cover;border-radius:8px">`;
+}
+
 async function renderGoods(view) {
   const state = { keyword: '', status: '', categoryId: '', page: 1, pageSize: 15 };
   view.innerHTML = `<div class="page-title">商品管理</div><div class="empty">加载中…</div>`;
@@ -49,7 +70,7 @@ async function renderGoods(view) {
                 .map(
                   (g) => `
                 <tr>
-                  <td>${firstImg(g.image) ? `<img class="goods-img" src="${esc(fixImg(firstImg(g.image)))}" alt="${esc(g.name)}" loading="lazy" decoding="async">` : '<div class="goods-img-placeholder"><span class="icon icon-shirt"></span></div>'}</td>
+                  <td>${goodsThumb(g.image)}</td>
                   <td><b>${esc(g.name)}</b>${g.skus && g.skus.length ? `<div class="muted" style="font-size:12px">${g.skus.map((s) => `${esc(s.color || '默认')}/${esc(s.size || '默认')}×${s.stock}`).join('，')}</div>` : ''}</td>
                   <td class="muted">${esc(g.goods_no || '-')}</td>
                   <td class="muted">${esc(g.category_name || '-')}</td>
@@ -180,7 +201,7 @@ async function openGoodsEditor(id, onDone) {
       <label class="field"><span class="lbl">商品图片（最多 3 张，单张 ≤ 5MB）</span>
         <input name="file" type="file" accept="image/*" multiple>
         <div id="img-list" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          ${images.map((u) => `<img src="${esc(fixImg(u))}" alt="商品图片" loading="lazy" decoding="async" style="width:60px;height:60px;object-fit:cover;border-radius:8px">`).join('')}
+          ${images.map(goodsPreview).join('')}
         </div></label>
       <label class="field"><span class="lbl">商品描述</span><textarea name="description" rows="3">${esc(g.description || '')}</textarea></label>
       <div class="modal-actions">
@@ -208,12 +229,7 @@ async function openGoodsEditor(id, onDone) {
         return;
       }
     }
-    $('#img-list').innerHTML = images
-      .map(
-        (u) =>
-          `<img src="${esc(fixImg(u))}" alt="商品图片" loading="lazy" decoding="async" style="width:60px;height:60px;object-fit:cover;border-radius:8px">`
-      )
-      .join('');
+    $('#img-list').innerHTML = images.map(goodsPreview).join('');
     e.target.value = '';
   });
 

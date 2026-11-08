@@ -37,8 +37,8 @@ Page({
       const list = await request({ url: '/api/category' });
       const arr = (list || []).map((c) => ({ ...c, shiftY: 0 }));
       // 列表项高度换算（rpx -> px）用于拖动位移计算
-      const sys = wx.getSystemInfoSync();
-      const itemH = (this.data.itemHrpx * sys.windowWidth) / 750;
+      const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const itemH = (this.data.itemHrpx * (sys.windowWidth || 375)) / 750;
       this.setData({ list: arr, loading: false, itemH });
     } catch (e) {
       this.setData({ loading: false });

@@ -430,6 +430,186 @@ tr:hover td {
   background: linear-gradient(135deg, #e87872 0%, #d95750 100%);
 }
 
+/* ================= 光雾成功反馈（参考 LeiBox transfer-glow） ================= */
+#glow-root {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.glow-toast {
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 240px;
+  padding: 26px 40px 22px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-float);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+  text-align: center;
+  animation: glow-in var(--duration-slow) var(--ease-spring) both;
+}
+.glow-toast.out {
+  animation: glow-out var(--duration-fast) var(--ease-out) both;
+}
+.glow-icon-wrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.glow-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 48px;
+  color: var(--success);
+  animation: glow-pop var(--duration-slow) var(--ease-spring) both;
+}
+.glow-halo {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(76, 199, 138, 0.32) 0%, rgba(76, 199, 138, 0) 70%);
+  animation: glow-halo-breathe 1.8s var(--ease-out) infinite;
+}
+.glow-spark {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0;
+}
+.glow-spark.s1 {
+  background: var(--success);
+  animation: glow-spark-rise-1 1.5s ease-out 0.3s infinite;
+}
+.glow-spark.s2 {
+  background: var(--warning);
+  animation: glow-spark-rise-2 1.7s ease-out 0.7s infinite;
+}
+.glow-spark.s3 {
+  background: var(--primary);
+  animation: glow-spark-rise-3 1.9s ease-out 1.1s infinite;
+}
+.glow-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.glow-detail {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+@keyframes glow-in {
+  from {
+    transform: scale(0.85) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes glow-out {
+  to {
+    transform: scale(0.92) translateY(6px);
+    opacity: 0;
+  }
+}
+@keyframes glow-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes glow-halo-breathe {
+  0%,
+  100% {
+    transform: scale(0.88);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+@keyframes glow-spark-rise-1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-22px, -46px) scale(0.4);
+    opacity: 0;
+  }
+}
+@keyframes glow-spark-rise-2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(18px, -52px) scale(0.4);
+    opacity: 0;
+  }
+}
+@keyframes glow-spark-rise-3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(4px, -58px) scale(0.4);
+    opacity: 0;
+  }
+}
+
+/* 主题切换按钮：图标切换时旋转落位（innerHTML 重置后动画自动重放） */
+[data-theme-toggle] .icon {
+  display: inline-block;
+  animation: theme-icon-in var(--duration-slow) var(--ease-spring);
+}
+@keyframes theme-icon-in {
+  from {
+    transform: rotate(-120deg) scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
 /* 低库存预警（语义警示色，避免正常页面出现红色） */
 .stock-warn {
   color: var(--warning-ink);

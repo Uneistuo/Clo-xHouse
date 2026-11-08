@@ -1,7 +1,7 @@
 /** 开单收银 */
 /* eslint-env browser */
 import { $, $$, esc, fixImg, firstImg, debounce } from '../utils.js';
-import { toast, openModal, closeModal, confirm, prompt, setBtnLoading } from '../ui.js';
+import { toast, openModal, closeModal, confirm, prompt, setBtnLoading, successGlow } from '../ui.js';
 import { api, admin } from '../store.js';
 import { STATUS, STATUS_CLASS } from '../config.js';
 import { requestRender } from '../bus.js';
@@ -15,18 +15,21 @@ async function fetchBillingGoods(page) {
   return { list: data.list || [], total: Number(data.total || 0) };
 }
 
-/** 商品卡片（列表追加时复用，图片懒加载） */
-const goodsCard = (g) => `
+/** 商品卡片（列表追加时复用，图片懒加载；地址不可用时用占位块而不是裂图） */
+const goodsCard = (g) => {
+  const src = fixImg(firstImg(g.image));
+  return `
   <div class="g-item" data-add="${g.id}">
     ${
-      firstImg(g.image)
-        ? `<img src="${esc(fixImg(firstImg(g.image)))}" alt="${esc(g.name)}" loading="lazy" decoding="async">`
+      src
+        ? `<img src="${esc(src)}" alt="${esc(g.name)}" loading="lazy" decoding="async">`
         : '<div class="ph"><span class="icon icon-shirt"></span></div>'
     }
     <div class="g-name">${esc(g.name)}</div>
     <div class="g-price">¥${g.price}</div>
     <div class="g-stock">库存 ${g.stock}</div>
   </div>`;
+};
 
 async function renderBilling(view) {
   view.innerHTML = `<div class="page-title">开单</div><div class="empty">加载中…</div>`;
@@ -289,7 +292,7 @@ async function renderBilling(view) {
             paidNow: $('#bl-paid').checked
           }
         });
-        toast(`开单成功：${res.orderNo}（¥${res.totalAmount}）`);
+        successGlow('开单成功', `单号 ${res.orderNo} · ¥${res.totalAmount}`);
         cart.length = 0;
         selectedCustomerId = 0;
         blPhone = '';

@@ -231,7 +231,7 @@
   flex-shrink: 0;
   font-size: 24rpx;
   color: var(--text-3);
-  padding-top: 2rpx;
+  padding-top: 4rpx;
 }
 .crm-value {
   flex: 1;

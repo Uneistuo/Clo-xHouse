@@ -1,9 +1,14 @@
 <!--首页：经营看板（优化版：CSS 变量 + 统一空状态 + 加载态）-->
 <view class="page home glow-page">
-  <!-- 顶部日期与标题 -->
   <view class="head">
-    <view class="head-date">{{dateText}}</view>
-    <view class="head-title">经营看板</view>
+    <view class="head-left">
+      <view class="head-date">{{dateText}}</view>
+      <view class="head-title">经营看板</view>
+    </view>
+    <view wx:if="{{totalTodoCount > 0}}" class="head-action" bindtap="openTodoModal"
+          aria-role="button" aria-label="查看今日待办，共 {{totalTodoCount}} 项">
+      <view class="icon icon-clipboard head-action-icon" aria-hidden="true"></view>
+    </view>
   </view>
 
   <!-- 销售额主卡（书签式周期切换） -->
@@ -39,22 +44,8 @@
     </view>
   </view>
 
-  <!-- 今日待办（P1：待收款 / 低库存 / 会员生日） -->
-  <view wx:if="{{todoList.length > 0}}" class="card todo-card anim-in" style="--i: 2">
-    <view class="section-head">
-      <view class="section-title">今日待办</view>
-    </view>
-    <view wx:for="{{todoList}}" wx:key="key" class="todo-item" data-key="{{item.key}}" bindtap="onTodoTap"
-          aria-role="button" aria-label="{{item.text}}，{{item.count}} 条">
-      <view class="todo-icon icon {{item.icon}}" aria-hidden="true"></view>
-      <view class="todo-text">{{item.text}}</view>
-      <view class="todo-count">{{item.count}}</view>
-      <view class="todo-arrow icon icon-chevron-right" aria-hidden="true"></view>
-    </view>
-  </view>
-
   <!-- 商品概览 + 近 7 天销售：库存结构在上、销售走势在下，合成同一张数据卡 -->
-  <view class="card stat-card anim-in" style="--i: 3">
+  <view class="card stat-card anim-in" style="--i: 2">
     <view class="stat-goods" bindtap="goGoods" aria-role="button" aria-label="商品概览：全部 {{goodsTotal}} 件，在售 {{goodsOnSale}} 件，下架 {{goodsOffSale}} 件">
       <view class="tri-item">
         <view class="tri-num">{{goodsTotal}}</view>
@@ -92,18 +83,30 @@
     </view>
   </view>
 
-  <!-- 低库存提醒（点击可去补货） -->
-  <view wx:if="{{lowStock.length > 0}}" class="card anim-in" style="--i: 4">
-    <view class="section-head">
-      <view class="section-title">低库存提醒</view>
-      <view class="section-link" bindtap="goGoods">全部商品<view class="icon icon-chevron-right"></view></view>
-    </view>
-    <view wx:for="{{lowStock}}" wx:key="id" class="low-item"
-          data-id="{{item.id}}" bindtap="goRestock"
-          aria-role="button" aria-label="{{item.name}}，剩余库存 {{item.stock}}">
-      <view class="low-name ellipsis">{{item.name}}</view>
-      <view class="low-stock {{item.stock === 0 ? 'stock-zero' : 'stock-low'}}">剩余 {{item.stock}}</view>
-      <view class="low-arrow icon icon-chevron-right" aria-hidden="true"></view>
+  <view wx:if="{{showTodoModal}}" class="mask" bindtap="closeTodoModal">
+    <view class="todo-modal" catchtap="noop">
+      <view class="todo-modal-head">
+        <view class="todo-modal-title">今日待办</view>
+        <view class="todo-close" bindtap="closeTodoModal" aria-role="button" aria-label="关闭">
+          <view class="icon icon-x-circle" aria-hidden="true"></view>
+        </view>
+      </view>
+      <scroll-view scroll-y class="todo-body">
+        <view wx:for="{{modalItems}}" wx:key="key"
+              class="todo-item {{item.colorClass}}"
+              data-key="{{item.key}}" bindtap="goToCategory"
+              aria-role="button" aria-label="{{item.text}}，{{item.count}} 条">
+          <view class="todo-bar" aria-hidden="true"></view>
+          <view class="todo-icon icon {{item.iconClass}}" aria-hidden="true"></view>
+          <view class="todo-text">{{item.text}}</view>
+          <view class="todo-count">{{item.count}}</view>
+          <view class="todo-arrow icon icon-chevron-right" aria-hidden="true"></view>
+        </view>
+        <view wx:if="{{modalItems.length === 0}}" class="todo-empty">
+          <view class="todo-empty-icon icon icon-check-circle" aria-hidden="true"></view>
+          <view class="todo-empty-text">今日暂无待办事项</view>
+        </view>
+      </scroll-view>
     </view>
   </view>
 

@@ -1,15 +1,30 @@
 @import '../styles/icons.wxss';
-@import '../styles/tokens.wxss';
 
 /* ============================================================
    自定义底部导航（裁间）—— 悬浮 Wash 玻璃胶囊
    栏高 108rpx，左右各留 24rpx，距底部安全区 16rpx；
    中间"开单"为绝对定位的凸起圆钮，浮在栏上方，不影响栏高。
 
-   ⚠️ 自定义 tabBar 是组件（样式隔离），tokens.wxss 里的
-      page / :host 变量可能传不进来。因此所有 var() 均带兜底色值，
-      取不到变量时回退为新版设计稿的固定色，避免背景失效变透明。
+   ⚠️ 自定义 tabBar 是组件（样式隔离），所以不 @import tokens.wxss：
+      那个文件的选择器以标签名开头，组件 wxss 不支持标签选择器，
+      编译时会报 "Some selectors are not allowed in component wxss"。
+      这里改成用 :host（组件根节点）声明本组件用到的变量，
+      取值与 tokens.wxss 完全一致；其余 var() 仍带兜底色值。
    ============================================================ */
+:host {
+  --primary: #7b8cf7;
+  --primary-dark: #6675e8;
+  --primary-tint: rgba(123, 140, 247, 0.12);
+  --text-3: #97a0ae;
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --dock-bg: rgba(255, 255, 255, 0.94);
+  --shadow-float: 0 24rpx 60rpx rgba(35, 45, 75, 0.12);
+  --shadow-primary: 0 16rpx 36rpx rgba(123, 140, 247, 0.26);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --scale-press-dock: 0.94;
+  --space-tabbar-height: 108rpx;
+  --space-tabbar-gap: 16rpx;
+}
 .tabbar {
   position: fixed;
   left: 24rpx;
