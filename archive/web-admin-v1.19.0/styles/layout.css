@@ -1,0 +1,278 @@
+/* ============================================================
+   web/styles/layout.css —— 应用骨架、侧边栏与内容区
+   ============================================================ */
+/* ========== 布局 ========== */
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  color: var(--text-1);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  border-right: 1px solid var(--hairline);
+  box-shadow: var(--shadow-soft-1);
+  -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(140%);
+  backdrop-filter: blur(var(--blur-sm)) saturate(140%);
+  transition: width var(--duration-normal) var(--ease-out);
+  z-index: 50;
+}
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-1);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--sidebar-brand-bg);
+}
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8a9bf9 0%, #b3a1fb 100%);
+  box-shadow: 0 4px 12px rgba(123, 140, 247, 0.26);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+}
+.brand-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar nav {
+  flex: 1;
+  padding: 14px 0;
+  overflow-y: auto;
+}
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  color: var(--text-2);
+  transition: var(--transition);
+  font-size: 14px;
+  white-space: nowrap;
+  border-radius: 12px;
+  margin: 2px 12px;
+}
+.sidebar nav a .icon {
+  flex-shrink: 0;
+}
+.sidebar nav a .nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar nav a:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+.sidebar nav a.active {
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(123, 140, 247, 0.16);
+}
+/* 导航分组：轻量分隔 + 小标题，保持浅色玻璃基调 */
+.sidebar nav .nav-group + .nav-group {
+  margin-top: 6px;
+}
+.sidebar nav .nav-group-title {
+  padding: 10px 18px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--text-3);
+}
+.sidebar .side-user {
+  padding: 14px 18px;
+  border-top: 1px solid var(--hairline);
+  font-size: 13px;
+  color: var(--text-2);
+  background: var(--sidebar-user-bg);
+}
+.side-user-info {
+  min-width: 0;
+}
+.sidebar .side-user .store-name {
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 4px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.side-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+.side-actions .btn .icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle);
+  color: var(--text-2);
+  transition: var(--transition);
+}
+.icon-btn:hover {
+  background: var(--primary-tint);
+  color: var(--primary-dark);
+}
+.icon-btn:active {
+  transform: scale(var(--scale-press));
+}
+.icon-btn .icon {
+  font-size: 16px;
+}
+
+.main {
+  flex: 1;
+  padding: 26px var(--main-padding-x);
+  max-width: var(--main-max-width);
+  min-width: 0;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+/* 面包屑：位于页面标题上方，弱化存在感 */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-3);
+  margin-bottom: 10px;
+  min-height: 18px;
+}
+.breadcrumb a {
+  color: var(--text-3);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.breadcrumb a:hover {
+  color: var(--primary-dark);
+}
+.breadcrumb [aria-current='page'] {
+  color: var(--text-2);
+  font-weight: 600;
+}
+.breadcrumb .crumb-sep {
+  color: var(--text-3);
+  opacity: 0.6;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 22px;
+  letter-spacing: -0.2px;
+}
+
+/* 侧边栏折叠（仅桌面端；移动端保持横向导航） */
+@media (min-width: 769px) {
+  .layout.sidebar-collapsed .sidebar {
+    width: var(--sidebar-collapsed-width);
+  }
+  .layout.sidebar-collapsed .brand {
+    justify-content: center;
+    padding: 20px 8px;
+  }
+  .layout.sidebar-collapsed .brand-text,
+  .layout.sidebar-collapsed .nav-group-title,
+  .layout.sidebar-collapsed .nav-label,
+  .layout.sidebar-collapsed .side-user-info {
+    display: none;
+  }
+  .layout.sidebar-collapsed .sidebar nav a {
+    justify-content: center;
+    padding: 12px 0;
+    margin: 3px 12px;
+  }
+  .layout.sidebar-collapsed .sidebar nav .nav-group + .nav-group {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--hairline);
+  }
+  .layout.sidebar-collapsed .side-user {
+    padding: 14px 10px;
+  }
+  .layout.sidebar-collapsed .side-actions {
+    flex-direction: column;
+  }
+  .layout.sidebar-collapsed .side-actions .btn {
+    width: 100%;
+    height: 34px;
+    padding: 0;
+  }
+  .layout.sidebar-collapsed .side-actions .btn .btn-text {
+    display: none;
+  }
+  .layout.sidebar-collapsed #btn-sidebar-toggle .icon {
+    transform: scaleX(-1);
+  }
+}
+
+/* 未登录页的浮动主题切换按钮 */
+.theme-fab {
+  position: fixed;
+  top: calc(18px + env(safe-area-inset-top, 0px));
+  right: calc(18px + env(safe-area-inset-right, 0px));
+  z-index: 120;
+  display: none;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-overlay);
+  box-shadow: var(--shadow-soft-2);
+  -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(140%);
+  backdrop-filter: blur(var(--blur-sm)) saturate(140%);
+}
+body.auth-mode .theme-fab {
+  display: inline-flex;
+}

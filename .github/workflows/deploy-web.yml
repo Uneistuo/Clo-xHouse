@@ -1,5 +1,5 @@
-# 将 web/ 目录（Web 版管理系统）发布到 GitHub Pages
-name: Deploy Web Admin to Pages
+# 将 web/ 目录（项目展示页）发布到 GitHub Pages
+name: Deploy Project Showcase to Pages
 
 on:
   push:

@@ -1,53 +1,1105 @@
-<!--
-  Web 管理后台入口 HTML：挂载根节点并引入样式和脚本
--->
 <!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="裁间 · 管理后台：服装店商品、开单、订单与会员管理" />
-    <meta name="theme-color" content="#F3F5FA" id="meta-theme-color" />
+    <title>裁间 Clo-xHouse · 服装店进销存与收银系统</title>
+    <meta
+      name="description"
+      content="裁间是一套面向小型服装零售门店的进销存与收银系统，包含微信小程序、Web 管理后台与 Node.js 后端。覆盖商品 SKU、开单收银、订单流转、会员 CRM、蓝牙小票与多店经营。"
+    />
+    <meta name="keywords" content="服装店管理系统,进销存,收银系统,微信小程序,Node.js,MySQL,开源项目,裁间,Clo-xHouse" />
+    <meta name="author" content="Uneistuo" />
+    <meta name="theme-color" content="#f6f7fb" id="meta-theme-color" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="裁间" />
-    <title>裁间 · 管理后台</title>
+    <link rel="canonical" href="https://uneistuo.github.io/Clo-xHouse/" />
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="裁间 Clo-xHouse" />
+    <meta property="og:title" content="裁间 Clo-xHouse · 服装店进销存与收银系统" />
+    <meta
+      property="og:description"
+      content="微信小程序 + Web 管理后台 + Node.js 后端，覆盖商品、开单、订单、会员、打印与多店经营全流程。"
+    />
+    <meta property="og:url" content="https://uneistuo.github.io/Clo-xHouse/" />
+    <meta property="og:image" content="https://uneistuo.github.io/Clo-xHouse/assets/icon-512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="裁间 Clo-xHouse · 服装店进销存与收银系统" />
+    <meta
+      name="twitter:description"
+      content="微信小程序 + Web 管理后台 + Node.js 后端，覆盖商品、开单、订单、会员、打印与多店经营全流程。"
+    />
+    <meta name="twitter:image" content="https://uneistuo.github.io/Clo-xHouse/assets/icon-512.png" />
+
+    <link rel="stylesheet" href="styles/tokens.css" />
     <link rel="stylesheet" href="styles/base.css" />
-    <link rel="stylesheet" href="styles/theme.css" />
     <link rel="stylesheet" href="styles/layout.css" />
     <link rel="stylesheet" href="styles/components.css" />
-    <link rel="stylesheet" href="styles/pages.css" />
-    <link rel="stylesheet" href="styles/responsive.css" />
-    <link rel="stylesheet" href="styles/print.css" />
+    <link rel="stylesheet" href="styles/animations.css" />
     <link rel="stylesheet" href="icons.css" />
+    <noscript>
+      <style>
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      </style>
+    </noscript>
+
     <script>
       // 首屏前应用主题，避免暗色模式闪白
       (function () {
         var theme;
         try {
-          var saved = localStorage.getItem('cj-theme');
+          var saved = localStorage.getItem('cj-site-theme');
           if (saved === 'dark' || saved === 'light') theme = saved;
         } catch (e) {}
         if (!theme) {
           theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.setAttribute('data-theme', theme);
-        var meta = document.getElementById('meta-theme-color');
-        if (meta) meta.setAttribute('content', theme === 'dark' ? '#121722' : '#F3F5FA');
       })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "裁间 Clo-xHouse",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "WeChat Mini Program, Web",
+        "description": "面向小型服装零售门店的进销存与收银系统，包含微信小程序、Web 管理后台与 Node.js 后端。",
+        "url": "https://uneistuo.github.io/Clo-xHouse/",
+        "codeRepository": "https://github.com/Uneistuo/Clo-xHouse",
+        "softwareVersion": "1.19.0",
+        "author": {
+          "@type": "Organization",
+          "name": "Uneistuo"
+        }
+      }
     </script>
   </head>
   <body>
-    <div id="app"></div>
-    <div id="toast" class="toast"></div>
-    <div id="modal-root"></div>
-    <button class="icon-btn theme-fab" id="theme-fab" data-theme-toggle type="button" aria-label="切换主题">
-      <span class="icon icon-moon"></span>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+
+    <header class="site-header" data-header>
+      <div class="container nav">
+        <a class="brand" href="#top">
+          <img class="brand__logo" src="assets/favicon.svg" alt="" width="38" height="38" />
+          <span class="brand__text"><strong>裁间</strong><small>Clo-xHouse</small></span>
+        </a>
+
+        <nav class="nav__links" id="site-nav" aria-label="主导航">
+          <a href="#features">功能</a>
+          <a href="#preview">三端预览</a>
+          <a href="#architecture">架构</a>
+          <a href="#engineering">工程亮点</a>
+          <a href="#quickstart">快速开始</a>
+          <a href="#roadmap">路线图</a>
+        </nav>
+
+        <div class="nav__actions">
+          <a
+            class="btn btn--ghost btn--sm nav__github"
+            href="https://github.com/Uneistuo/Clo-xHouse"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.1c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.66.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"
+              />
+            </svg>
+            <span>GitHub</span>
+          </a>
+          <button class="icon-btn" type="button" data-theme-toggle aria-label="切换主题">
+            <span class="icon icon-moon" aria-hidden="true"></span>
+          </button>
+          <button
+            class="icon-btn nav__menu"
+            type="button"
+            data-menu-toggle
+            aria-label="打开菜单"
+            aria-expanded="false"
+            aria-controls="site-nav"
+          >
+            <span class="menu-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ================= Hero ================= -->
+      <section class="hero" id="top">
+        <div class="hero__glow hero__glow--primary" aria-hidden="true"></div>
+        <div class="hero__glow hero__glow--warm" aria-hidden="true"></div>
+        <div class="hero__grid" aria-hidden="true"></div>
+
+        <div class="container hero__inner">
+          <div class="hero__copy">
+            <span class="eyebrow reveal">
+              <span class="eyebrow__dot" aria-hidden="true"></span>
+              微信小程序 · Web 管理后台 · Node.js 三端协同
+            </span>
+            <h1 class="reveal">
+              把服装店的<br />
+              <span class="grad">每一笔生意</span><br />
+              理得清清楚楚。
+            </h1>
+            <p class="hero__lede reveal">
+              裁间是一套面向小型服装零售门店的进销存与收银系统。从商品 SKU、开单收银、订单流转，到会员
+              CRM、蓝牙小票与多店经营，一套系统覆盖日常经营全流程。
+            </p>
+            <div class="hero__actions reveal">
+              <a
+                class="btn btn--primary"
+                href="https://github.com/Uneistuo/Clo-xHouse"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                查看源码
+                <span class="btn__arrow" aria-hidden="true">↗</span>
+              </a>
+              <a class="btn btn--ghost" href="#quickstart">快速开始</a>
+            </div>
+            <dl class="hero__meta reveal">
+              <div>
+                <dt>当前版本</dt>
+                <dd>v1.19.0</dd>
+              </div>
+              <div>
+                <dt>小程序页面</dt>
+                <dd>15 个</dd>
+              </div>
+              <div>
+                <dt>协同端</dt>
+                <dd>3 端</dd>
+              </div>
+              <div>
+                <dt>Web 构建</dt>
+                <dd>0 步骤</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="hero__visual reveal" aria-hidden="true">
+            <div class="stage">
+              <div class="stage__halo"></div>
+
+              <div class="mock-browser">
+                <div class="mock-browser__bar">
+                  <span class="dots"><i></i><i></i><i></i></span>
+                  <span class="mock-browser__url">uneistuo.github.io/Clo-xHouse</span>
+                  <span class="mock-browser__action"></span>
+                </div>
+                <div class="mock-browser__body">
+                  <aside class="mock-side">
+                    <div class="mock-brand"><span class="mock-brand__mark">裁</span><span>裁间</span></div>
+                    <div class="mock-nav">
+                      <span class="is-active">仪表盘</span>
+                      <span>商品</span>
+                      <span>开单</span>
+                      <span>订单</span>
+                      <span>会员</span>
+                      <span>店铺</span>
+                    </div>
+                    <div class="mock-user"><span class="mock-avatar">林</span><span>店主 · 林</span></div>
+                  </aside>
+                  <div class="mock-main">
+                    <div class="mock-head">
+                      <div><span class="mock-kicker">经营看板</span><strong>下午好，林店主</strong></div>
+                      <span class="mock-chip">今日</span>
+                    </div>
+                    <div class="mock-stats">
+                      <div class="mock-stat"><span>今日销售额</span><strong>¥12,860</strong><em>+18.2%</em></div>
+                      <div class="mock-stat"><span>订单数</span><strong>36</strong><em>+6</em></div>
+                      <div class="mock-stat"><span>待收款</span><strong>¥2,480</strong><em class="warn">7 单</em></div>
+                    </div>
+                    <div class="mock-chart">
+                      <div class="mock-chart__head"><span>近 7 天销售趋势</span><span>销售额</span></div>
+                      <div class="mock-bars">
+                        <i style="--h: 34%"></i>
+                        <i style="--h: 52%"></i>
+                        <i style="--h: 44%"></i>
+                        <i style="--h: 68%"></i>
+                        <i style="--h: 58%"></i>
+                        <i style="--h: 82%"></i>
+                        <i style="--h: 74%"></i>
+                      </div>
+                      <div class="mock-days">
+                        <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span
+                        ><span>周六</span><span>周日</span>
+                      </div>
+                    </div>
+                    <div class="mock-table">
+                      <div class="mock-row mock-row--head">
+                        <span>订单</span><span>商品</span><span>金额</span><span>状态</span>
+                      </div>
+                      <div class="mock-row">
+                        <span>#A1024</span><span>针织开衫</span><span>¥328</span><span class="mock-tag">待收款</span>
+                      </div>
+                      <div class="mock-row">
+                        <span>#A1023</span><span>直筒牛仔裤</span><span>¥259</span
+                        ><span class="mock-tag ok">已完成</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mock-phone">
+                <div class="mock-phone__screen">
+                  <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+                  <div class="phone-head"><span>裁间</span><span class="icon icon-menu"></span></div>
+                  <div class="phone-hero">
+                    <span>今日销售额</span>
+                    <strong>¥12,860</strong>
+                    <div class="phone-hero__row"><em>36 单</em><em>待收款 ¥2,480</em></div>
+                  </div>
+                  <div class="phone-actions">
+                    <span><span class="icon icon-receipt"></span>开单</span>
+                    <span><span class="icon icon-shirt"></span>商品</span>
+                    <span><span class="icon icon-clipboard"></span>待办</span>
+                  </div>
+                  <div class="phone-card">
+                    <div class="phone-card__head"><span>今日待办</span><span class="phone-badge">5</span></div>
+                    <div class="phone-line"><i class="dot dot--warn"></i>待收款 <b>3</b></div>
+                    <div class="phone-line"><i class="dot dot--danger"></i>低库存 <b>2</b></div>
+                    <div class="phone-line"><i class="dot dot--warm"></i>会员生日 <b>1</b></div>
+                  </div>
+                  <div class="phone-tabbar">
+                    <span class="is-active">首页</span><span>商品</span><span class="phone-fab">+</span><span>订单</span
+                    ><span>我的</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="float-card float-card--sales">
+                <span class="float-card__icon icon icon-cash-register"></span>
+                <div><small>今日销售额</small><strong>¥12,860</strong></div>
+                <em>+18.2%</em>
+              </div>
+              <div class="float-card float-card--print">
+                <span class="float-card__icon icon icon-printer"></span>
+                <div><small>蓝牙小票</small><strong>打印成功</strong></div>
+              </div>
+              <div class="float-card float-card--stock">
+                <span class="float-card__icon icon icon-hourglass"></span>
+                <div><small>低库存提醒</small><strong>3 个 SKU</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Tech strip ================= -->
+      <section class="tech-strip" aria-label="技术栈">
+        <div class="container tech-strip__inner">
+          <span class="tech-strip__label">技术栈</span>
+          <div class="tech-marquee">
+            <div class="tech-marquee__track">
+              <span>微信小程序</span><i></i><span>TypeScript</span><i></i><span>原生 ES Modules</span><i></i
+              ><span>Node.js</span><i></i><span>Express</span><i></i><span>MySQL</span><i></i><span>JWT</span><i></i
+              ><span>Docker</span><i></i><span>GitHub Actions</span><i></i><span>PWA</span><i></i>
+              <span>微信小程序</span><i></i><span>TypeScript</span><i></i><span>原生 ES Modules</span><i></i
+              ><span>Node.js</span><i></i><span>Express</span><i></i><span>MySQL</span><i></i><span>JWT</span><i></i
+              ><span>Docker</span><i></i><span>GitHub Actions</span><i></i><span>PWA</span><i></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Features ================= -->
+      <section class="section" id="features">
+        <div class="container">
+          <header class="section-head reveal">
+            <span class="section-kicker">核心能力</span>
+            <h2>一套系统，覆盖门店经营全流程</h2>
+            <p>不是功能的简单堆叠，而是围绕「进、销、存、客」串起来的工作流。每个模块都能独立使用，也能自然衔接。</p>
+          </header>
+
+          <div class="bento" data-stagger>
+            <article class="feature feature--span2 reveal">
+              <div class="feature__top">
+                <span class="feature__icon icon icon-store" aria-hidden="true"></span>
+                <span class="feature__tag">店主上限 3 家</span>
+              </div>
+              <h3>多店经营，一个账号管到底</h3>
+              <p>创建店铺、生成店铺码、邀请店员、一键切换。平台管理员还能按店铺控制开单授权时效。</p>
+              <div class="store-chips" aria-hidden="true">
+                <span class="is-active"><i></i>杭州湖滨店<em>营业中</em></span>
+                <span><i></i>上海静安店<em>营业中</em></span>
+                <span><i></i>线上集合店<em>待授权</em></span>
+              </div>
+            </article>
+
+            <article class="feature reveal">
+              <span class="feature__icon icon icon-shirt" aria-hidden="true"></span>
+              <h3>商品与 SKU</h3>
+              <p>颜色 / 尺码自由组合，库存精确到 SKU；分类拖拽排序、图片裁剪与懒加载。</p>
+              <div class="sku-pills" aria-hidden="true">
+                <span>米白 / M</span><span>米白 / L</span><span class="is-low">雾蓝 / S</span><span>雾蓝 / M</span>
+              </div>
+            </article>
+
+            <article class="feature reveal">
+              <span class="feature__icon icon icon-receipt" aria-hidden="true"></span>
+              <h3>开单收银</h3>
+              <p>规格组购物车、常用规格记忆、长按加 5；开单自动扣库存，取消 / 售后自动归还。</p>
+              <div class="mini-cart" aria-hidden="true">
+                <div><span>针织开衫 · 米白 / M</span><b>×1</b><em>¥328</em></div>
+                <div><span>直筒牛仔裤 · 雾蓝 / 28</span><b>×1</b><em>¥259</em></div>
+                <div class="mini-cart__total"><span>合计</span><strong>¥587</strong></div>
+              </div>
+            </article>
+
+            <article class="feature feature--span2 reveal">
+              <div class="feature__top">
+                <span class="feature__icon icon icon-layout" aria-hidden="true"></span>
+                <span class="feature__tag">今日待办</span>
+              </div>
+              <h3>经营看板，一屏掌握</h3>
+              <p>今日销售额、订单数、待收款、低库存与近 7 天趋势；待收款 / 低库存 / 会员生日集中处理。</p>
+              <div class="mini-dashboard" aria-hidden="true">
+                <div class="mini-dashboard__stats">
+                  <div><small>销售额</small><b>¥12,860</b></div>
+                  <div><small>订单</small><b>36</b></div>
+                  <div><small>待收款</small><b>¥2,480</b></div>
+                </div>
+                <div class="mini-dashboard__chart">
+                  <i style="--h: 34%"></i><i style="--h: 52%"></i><i style="--h: 44%"></i><i style="--h: 68%"></i
+                  ><i style="--h: 58%"></i><i style="--h: 82%"></i><i style="--h: 74%"></i>
+                </div>
+              </div>
+            </article>
+
+            <article class="feature reveal">
+              <span class="feature__icon icon icon-printer" aria-hidden="true"></span>
+              <h3>蓝牙小票打印</h3>
+              <p>ESC/POS 配对与补打，内置 UTF-8 → GBK 编码表，58 / 80mm 模板可选。</p>
+              <div class="receipt" aria-hidden="true">
+                <div class="receipt__head">裁间 · 湖滨店</div>
+                <div class="receipt__line"><span>针织开衫</span><span>¥328</span></div>
+                <div class="receipt__line"><span>直筒牛仔裤</span><span>¥259</span></div>
+                <div class="receipt__total"><span>合计</span><strong>¥587</strong></div>
+                <div class="receipt__barcode"></div>
+              </div>
+            </article>
+
+            <article class="feature reveal">
+              <span class="feature__icon icon icon-crown" aria-hidden="true"></span>
+              <h3>会员 CRM</h3>
+              <p>等级徽章、标签、生日提醒、快捷备注与消费记录，复购有迹可循。</p>
+              <div class="member-card" aria-hidden="true">
+                <div class="member-card__top">
+                  <span class="member-avatar">林</span>
+                  <div><strong>林女士</strong><small>金卡会员 · 加入 286 天</small></div>
+                  <span class="member-badge">金卡</span>
+                </div>
+                <div class="member-tags"><span>高频复购</span><span>偏好米白</span><span>生日 12-08</span></div>
+              </div>
+            </article>
+
+            <article class="feature reveal">
+              <span class="feature__icon icon icon-shield" aria-hidden="true"></span>
+              <h3>平台授权</h3>
+              <p>平台管理员统一查看全部店铺，按店铺设置开单授权时效，白名单到期自动收敛。</p>
+              <div class="auth-strip" aria-hidden="true">
+                <span class="is-on">湖滨店 · 剩余 28 天</span><span class="is-off">静安店 · 已到期</span>
+              </div>
+            </article>
+
+            <article class="feature feature--span3 feature--split reveal">
+              <div class="feature__split-copy">
+                <span class="feature__icon icon icon-swap" aria-hidden="true"></span>
+                <h3>Web 端零构建，也能像应用一样安装</h3>
+                <p>
+                  原生 ES Modules + 分层 CSS，无打包器、无框架依赖；Service Worker
+                  提供离线外壳，主题跟随系统，可安装到桌面。
+                </p>
+              </div>
+              <div class="terminal-mini" aria-hidden="true">
+                <div class="terminal-mini__bar"><span></span><span></span><span></span><em>web/</em></div>
+                <pre><code><span class="c"># 没有 build 步骤</span>
+<span class="k">$</span> npx serve web
+<span class="s">Serving!</span>  http://localhost:3000
+
+<span class="c"># 原生 ES Modules</span>
+<span class="k">import</span> { render } <span class="k">from</span> <span class="s">'./shell.js'</span></code></pre>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Preview ================= -->
+      <section class="section section--alt" id="preview">
+        <div class="container">
+          <header class="section-head reveal">
+            <span class="section-kicker">三端预览</span>
+            <h2>同一套业务，三种恰到好处的形态</h2>
+            <p>门店里用小程序，电脑前用 Web，后端把权限、库存与数据稳稳接住。</p>
+          </header>
+
+          <div class="tabs" data-tabs>
+            <div class="tablist" role="tablist" aria-label="三端预览切换">
+              <button
+                class="tab"
+                role="tab"
+                id="tab-mini"
+                aria-controls="panel-mini"
+                aria-selected="true"
+                type="button"
+              >
+                微信小程序
+              </button>
+              <button class="tab" role="tab" id="tab-web" aria-controls="panel-web" aria-selected="false" type="button">
+                Web 管理后台
+              </button>
+              <button class="tab" role="tab" id="tab-api" aria-controls="panel-api" aria-selected="false" type="button">
+                后端 API
+              </button>
+            </div>
+
+            <div class="tabpanels">
+              <div class="tabpanel is-active" role="tabpanel" id="panel-mini" aria-labelledby="tab-mini">
+                <div class="preview-grid">
+                  <div class="preview-copy">
+                    <span class="preview-copy__kicker">门店现场</span>
+                    <h3>一台手机，就是收银台</h3>
+                    <p>首页看板、规格组购物车、蓝牙小票与今日待办都在手边，店员上手几乎不需要培训。</p>
+                    <ul class="checklist">
+                      <li>规格组选品，常用规格自动记忆</li>
+                      <li>开单自动扣库存，取消 / 售后自动归还</li>
+                      <li>蓝牙小票配对、测试打印与补打</li>
+                      <li>云托管 <code>callContainer</code> 调用，免域名白名单</li>
+                    </ul>
+                  </div>
+                  <div class="preview-visual preview-visual--mini">
+                    <div class="phone-preview">
+                      <div class="phone-preview__status"><span>9:41</span><span>●●●</span></div>
+                      <div class="phone-preview__head"><span>开单收银</span><span class="icon icon-search"></span></div>
+                      <div class="phone-preview__search">搜索商品 / 货号</div>
+                      <div class="phone-preview__grid">
+                        <div class="product-tile">
+                          <div class="product-tile__img product-tile__img--1"></div>
+                          <strong>针织开衫</strong><span>¥328</span>
+                        </div>
+                        <div class="product-tile">
+                          <div class="product-tile__img product-tile__img--2"></div>
+                          <strong>直筒牛仔裤</strong><span>¥259</span>
+                        </div>
+                        <div class="product-tile">
+                          <div class="product-tile__img product-tile__img--3"></div>
+                          <strong>亚麻衬衫</strong><span>¥299</span>
+                        </div>
+                        <div class="product-tile">
+                          <div class="product-tile__img product-tile__img--4"></div>
+                          <strong>羊毛半裙</strong><span>¥368</span>
+                        </div>
+                      </div>
+                      <div class="phone-preview__cart">
+                        <span>2 件</span><strong>¥587</strong><button type="button" tabindex="-1">去结算</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tabpanel" role="tabpanel" id="panel-web" aria-labelledby="tab-web" hidden>
+                <div class="preview-grid">
+                  <div class="preview-copy">
+                    <span class="preview-copy__kicker">桌面经营</span>
+                    <h3>经营数据，一眼看到底</h3>
+                    <p>侧边栏分组导航、面包屑与快捷键，让日常高频操作更顺手；小票打印样式直接复用。</p>
+                    <ul class="checklist">
+                      <li>仪表盘、商品、开单、订单、会员、店铺、平台</li>
+                      <li>502 / 503 / 504 自动重试，应对云托管冷启动</li>
+                      <li>深色模式、侧边栏折叠与键盘快捷键</li>
+                      <li>PWA 可安装，离线回退应用外壳</li>
+                    </ul>
+                  </div>
+                  <div class="preview-visual preview-visual--web">
+                    <div class="web-preview">
+                      <div class="web-preview__bar">
+                        <span class="dots"><i></i><i></i><i></i></span>
+                        <span class="web-preview__url">裁间 · 管理后台</span>
+                      </div>
+                      <div class="web-preview__body">
+                        <aside class="web-preview__side">
+                          <div class="mock-brand"><span class="mock-brand__mark">裁</span><span>裁间</span></div>
+                          <span class="is-active">仪表盘</span><span>商品管理</span><span>开单收银</span
+                          ><span>订单管理</span><span>会员管理</span><span>店铺管理</span>
+                        </aside>
+                        <div class="web-preview__main">
+                          <div class="web-preview__head">
+                            <div><small>工作台 / 仪表盘</small><strong>经营概览</strong></div>
+                            <span class="mock-chip">本周</span>
+                          </div>
+                          <div class="web-preview__stats">
+                            <div><small>销售额</small><strong>¥68,420</strong><em>+12.6%</em></div>
+                            <div><small>订单</small><strong>186</strong><em>+23</em></div>
+                            <div><small>会员</small><strong>1,248</strong><em>+38</em></div>
+                          </div>
+                          <div class="web-preview__table">
+                            <div class="web-preview__row web-preview__row--head">
+                              <span>订单号</span><span>会员</span><span>金额</span><span>状态</span>
+                            </div>
+                            <div class="web-preview__row">
+                              <span>#A1024</span><span>林女士</span><span>¥587</span
+                              ><span class="mock-tag">待收款</span>
+                            </div>
+                            <div class="web-preview__row">
+                              <span>#A1023</span><span>周先生</span><span>¥259</span
+                              ><span class="mock-tag ok">已完成</span>
+                            </div>
+                            <div class="web-preview__row">
+                              <span>#A1022</span><span>陈女士</span><span>¥368</span
+                              ><span class="mock-tag ok">已完成</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tabpanel" role="tabpanel" id="panel-api" aria-labelledby="tab-api" hidden>
+                <div class="preview-grid">
+                  <div class="preview-copy">
+                    <span class="preview-copy__kicker">服务端</span>
+                    <h3>清晰的 API 与权限边界</h3>
+                    <p>Express + MySQL 连接池，三级中间件守卫把登录、店铺绑定与平台权限拆得干净。</p>
+                    <ul class="checklist">
+                      <li><code>auth</code> → <code>requireStore</code> → <code>requirePlatform</code></li>
+                      <li>开单与库存变更同事务提交，订单号唯一防重</li>
+                      <li>Swagger UI 在线接口文档 <code>/api-docs</code></li>
+                      <li>Jest + supertest 集成测试，CI 自动构建镜像</li>
+                    </ul>
+                  </div>
+                  <div class="preview-visual preview-visual--api">
+                    <div class="api-preview">
+                      <div class="api-preview__bar">
+                        <span class="api-preview__method">POST</span><span>/api/orders</span
+                        ><span class="api-preview__status">200 OK</span>
+                      </div>
+                      <pre><code>{
+  <span class="s">"code"</span>: 0,
+  <span class="s">"data"</span>: {
+    <span class="s">"orderNo"</span>: <span class="s">"20261122-0036"</span>,
+    <span class="s">"total"</span>: 587,
+    <span class="s">"status"</span>: <span class="s">"pending"</span>
+  }
+}</code></pre>
+                      <div class="api-preview__routes">
+                        <span><b>auth</b> 登录鉴权</span>
+                        <span><b>requireStore</b> 店铺绑定</span>
+                        <span><b>requirePlatform</b> 平台权限</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Architecture ================= -->
+      <section class="section" id="architecture">
+        <div class="container">
+          <header class="section-head reveal">
+            <span class="section-kicker">系统架构</span>
+            <h2>从门店到云端，一条清晰的数据链路</h2>
+            <p>客户端只负责体验，接入层负责通道，服务层守住权限与业务，数据层保证一致性与可恢复。</p>
+          </header>
+
+          <div class="arch reveal">
+            <div class="arch__col">
+              <span class="arch__label">客户端</span>
+              <div class="arch-node arch-node--primary">
+                <span class="icon icon-shirt" aria-hidden="true"></span>
+                <div><strong>微信小程序</strong><small>WXML / WXSS / TypeScript</small></div>
+              </div>
+              <div class="arch-node arch-node--primary">
+                <span class="icon icon-layout" aria-hidden="true"></span>
+                <div><strong>Web 管理后台</strong><small>原生 ES Modules · 零构建</small></div>
+              </div>
+            </div>
+            <div class="arch__arrow" aria-hidden="true">→</div>
+            <div class="arch__col">
+              <span class="arch__label">接入层</span>
+              <div class="arch-node">
+                <span class="icon icon-swap" aria-hidden="true"></span>
+                <div><strong>云托管 callContainer</strong><small>免域名白名单</small></div>
+              </div>
+              <div class="arch-node">
+                <span class="icon icon-shield" aria-hidden="true"></span>
+                <div><strong>HTTPS · CORS 白名单</strong><small>JWT 鉴权 · 限流</small></div>
+              </div>
+            </div>
+            <div class="arch__arrow" aria-hidden="true">→</div>
+            <div class="arch__col">
+              <span class="arch__label">服务层</span>
+              <div class="arch-node">
+                <span class="icon icon-document" aria-hidden="true"></span>
+                <div><strong>Express Routes</strong><small>auth / store / goods / orders</small></div>
+              </div>
+              <div class="arch-node">
+                <span class="icon icon-lock" aria-hidden="true"></span>
+                <div><strong>三级中间件守卫</strong><small>登录 → 店铺 → 平台</small></div>
+              </div>
+            </div>
+            <div class="arch__arrow" aria-hidden="true">→</div>
+            <div class="arch__col">
+              <span class="arch__label">数据层</span>
+              <div class="arch-node">
+                <span class="icon icon-folder" aria-hidden="true"></span>
+                <div><strong>MySQL 连接池</strong><small>事务 · 索引 · 自动迁移</small></div>
+              </div>
+              <div class="arch-node">
+                <span class="icon icon-package" aria-hidden="true"></span>
+                <div><strong>COS / 本地磁盘</strong><small>图片上传 · 5MB 限制</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-detail">
+            <div class="code-card reveal">
+              <div class="code-card__bar">
+                <span>backend / middleware chain</span>
+                <button class="copy-btn" type="button" data-copy>复制</button>
+              </div>
+              <pre><code><span class="c">// 登录鉴权 → 店铺绑定 → 平台权限</span>
+app.<span class="k">use</span>(<span class="s">'/api'</span>, auth);
+app.<span class="k">use</span>(<span class="s">'/api/store'</span>, requireStore);
+app.<span class="k">use</span>(<span class="s">'/api/platform'</span>, requirePlatform);
+
+<span class="c">// 开单：扣库存与写订单同事务</span>
+<span class="k">await</span> db.<span class="k">transaction</span>(<span class="k">async</span> (conn) => {
+  <span class="k">await</span> deductStock(conn, items);
+  <span class="k">await</span> createOrder(conn, order);
+});</code></pre>
+            </div>
+            <div class="arch-notes">
+              <div class="arch-note reveal">
+                <span class="icon icon-check-circle" aria-hidden="true"></span>
+                <div>
+                  <strong>事务保证库存一致</strong>
+                  <p>开单、取消、售后都在事务内完成，失败自动回滚。</p>
+                </div>
+              </div>
+              <div class="arch-note reveal">
+                <span class="icon icon-refresh" aria-hidden="true"></span>
+                <div>
+                  <strong>冷启动自动重试</strong>
+                  <p>Web 识别 502 / 503 / 504；小程序指数退避 1.5 / 3 / 6 / 10s。</p>
+                </div>
+              </div>
+              <div class="arch-note reveal">
+                <span class="icon icon-eye" aria-hidden="true"></span>
+                <div>
+                  <strong>可观测与可恢复</strong>
+                  <p>pino 结构化日志、健康检查、优雅关闭与自动建表迁移。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Engineering ================= -->
+      <section class="section section--alt" id="engineering">
+        <div class="container">
+          <header class="section-head reveal">
+            <span class="section-kicker">工程亮点</span>
+            <h2>决定长期可用的，是这些细节</h2>
+            <p>从库存一致性到权限边界，从冷启动韧性到可观测性，都是在真实门店场景里磨出来的。</p>
+          </header>
+
+          <div class="highlights" data-stagger>
+            <article class="highlight reveal">
+              <span class="highlight__no">01</span>
+              <h3>库存一致性</h3>
+              <p>开单、取消、售后同事务提交；订单号唯一约束防止重复开单。</p>
+              <code>BEGIN → 扣减 → COMMIT</code>
+            </article>
+            <article class="highlight reveal">
+              <span class="highlight__no">02</span>
+              <h3>权限边界</h3>
+              <p>三级中间件守卫逐层收敛权限，平台、店主、店员各司其职。</p>
+              <code>auth → store → platform</code>
+            </article>
+            <article class="highlight reveal">
+              <span class="highlight__no">03</span>
+              <h3>冷启动韧性</h3>
+              <p>Web 自动重试 5xx；小程序指数退避覆盖云托管冷启动窗口。</p>
+              <code>1.5s → 3s → 6s → 10s</code>
+            </article>
+            <article class="highlight reveal">
+              <span class="highlight__no">04</span>
+              <h3>打印编码</h3>
+              <p>ESC/POS 指令封装与内置 GBK 编码表，中文小票稳定输出。</p>
+              <code>UTF-8 → GBK</code>
+            </article>
+            <article class="highlight reveal">
+              <span class="highlight__no">05</span>
+              <h3>零构建前端</h3>
+              <p>16 个原生 ES Module + 7 层 CSS，GitHub Pages 直接托管。</p>
+              <code>0 bundler</code>
+            </article>
+            <article class="highlight reveal">
+              <span class="highlight__no">06</span>
+              <h3>可观测与测试</h3>
+              <p>pino 结构化日志、健康检查、优雅关闭，Jest + supertest 覆盖关键链路。</p>
+              <code>healthz · jest</code>
+            </article>
+          </div>
+
+          <div class="stack reveal">
+            <div class="stack__group">
+              <span class="stack__label">小程序</span>
+              <div class="chips">
+                <span>WXML</span><span>WXSS</span><span>TypeScript</span><span>自定义 TabBar</span>
+              </div>
+            </div>
+            <div class="stack__group">
+              <span class="stack__label">Web</span>
+              <div class="chips">
+                <span>原生 ES Modules</span><span>分层 CSS</span><span>PWA</span><span>Service Worker</span>
+              </div>
+            </div>
+            <div class="stack__group">
+              <span class="stack__label">后端</span>
+              <div class="chips">
+                <span>Node.js</span><span>Express</span><span>MySQL</span><span>JWT</span><span>pino</span
+                ><span>multer</span>
+              </div>
+            </div>
+            <div class="stack__group">
+              <span class="stack__label">工程</span>
+              <div class="chips">
+                <span>Docker</span><span>微信云托管</span><span>COS</span><span>GitHub Actions</span><span>Jest</span
+                ><span>Swagger</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="refs reveal">
+            设计参考自 GitHub 开源社区：
+            <a href="https://github.com/Tencent/tdesign-miniprogram" target="_blank" rel="noopener noreferrer"
+              >TDesign</a
+            >
+            <a href="https://github.com/wechat-miniprogram/weui-miniprogram" target="_blank" rel="noopener noreferrer"
+              >WeUI</a
+            >
+            <a href="https://github.com/themesberg/glass-ui" target="_blank" rel="noopener noreferrer">Glass UI</a>
+            <a href="https://github.com/wechat-miniprogram/awesome-skyline" target="_blank" rel="noopener noreferrer"
+              >Awesome Skyline</a
+            >
+            <a href="https://github.com/wechat-miniprogram/recycle-view" target="_blank" rel="noopener noreferrer"
+              >recycle-view</a
+            >
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= Quick start ================= -->
+      <section class="section" id="quickstart">
+        <div class="container">
+          <header class="section-head reveal">
+            <span class="section-kicker">快速开始</span>
+            <h2>五分钟，把项目跑起来</h2>
+            <p>三端都可以独立启动。先跑 Web 展示页最快，后端需要本地 MySQL。</p>
+          </header>
+
+          <div class="tabs tabs--code" data-tabs>
+            <div class="tablist" role="tablist" aria-label="启动方式切换">
+              <button
+                class="tab"
+                role="tab"
+                id="tab-start-mini"
+                aria-controls="panel-start-mini"
+                aria-selected="true"
+                type="button"
+              >
+                微信小程序
+              </button>
+              <button
+                class="tab"
+                role="tab"
+                id="tab-start-web"
+                aria-controls="panel-start-web"
+                aria-selected="false"
+                type="button"
+              >
+                Web 展示页
+              </button>
+              <button
+                class="tab"
+                role="tab"
+                id="tab-start-api"
+                aria-controls="panel-start-api"
+                aria-selected="false"
+                type="button"
+              >
+                后端服务
+              </button>
+            </div>
+
+            <div class="tabpanels">
+              <div class="tabpanel is-active" role="tabpanel" id="panel-start-mini" aria-labelledby="tab-start-mini">
+                <div class="start-grid">
+                  <div class="code-card">
+                    <div class="code-card__bar">
+                      <span>微信开发者工具</span>
+                      <button class="copy-btn" type="button" data-copy>复制</button>
+                    </div>
+                    <pre><code><span class="c"># 1. 微信开发者工具导入项目根目录</span>
+<span class="c"># 2. 安装依赖并做类型检查</span>
+npm install
+npm run typecheck
+
+<span class="c"># 3. 开发者工具通过 useCompilerPlugins 编译 TypeScript</span></code></pre>
+                  </div>
+                  <ul class="checklist">
+                    <li>需要微信开发者工具与一个小程序 AppID</li>
+                    <li><code>utils/api.ts</code> 自动切换本地 / 云托管请求地址</li>
+                    <li>蓝牙打印需真机调试，模拟器无法配对</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="tabpanel" role="tabpanel" id="panel-start-web" aria-labelledby="tab-start-web" hidden>
+                <div class="start-grid">
+                  <div class="code-card">
+                    <div class="code-card__bar">
+                      <span>零构建静态站点</span>
+                      <button class="copy-btn" type="button" data-copy>复制</button>
+                    </div>
+                    <pre><code><span class="c"># 任选一种静态服务器</span>
+<span class="k">$</span> npx serve web
+<span class="k">$</span> python -m http.server 8000
+
+<span class="c"># 浏览器打开 http://localhost:3000</span></code></pre>
+                  </div>
+                  <ul class="checklist">
+                    <li>无需 npm install，也没有 build 步骤</li>
+                    <li>ES Modules 需通过 HTTP 访问，不能直接双击 HTML</li>
+                    <li>部署：推送到 <code>master</code> 后由 GitHub Actions 发布</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="tabpanel" role="tabpanel" id="panel-start-api" aria-labelledby="tab-start-api" hidden>
+                <div class="start-grid">
+                  <div class="code-card">
+                    <div class="code-card__bar">
+                      <span>Node.js + MySQL</span>
+                      <button class="copy-btn" type="button" data-copy>复制</button>
+                    </div>
+                    <pre><code><span class="k">cd</span> backend
+npm install
+npm run start:dev
+
+<span class="c"># 集成测试（无需真实 MySQL）</span>
+npm test
+
+<span class="c"># 接口文档 http://127.0.0.1:3000/api-docs</span></code></pre>
+                  </div>
+                  <ul class="checklist">
+                    <li>Node.js 18+ 与 MySQL 8，首次启动自动建库建表</li>
+                    <li>生产环境必须配置 <code>JWT_SECRET</code></li>
+                    <li>健康检查：<code>GET /api/health</code></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-links reveal">
+            <a href="https://github.com/Uneistuo/Clo-xHouse#readme" target="_blank" rel="noopener noreferrer">
+              <span class="icon icon-document" aria-hidden="true"></span>项目 README
+            </a>
+            <a
+              href="https://github.com/Uneistuo/Clo-xHouse/blob/master/docs/DESIGN-SPEC-V2.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="icon icon-star" aria-hidden="true"></span>设计规范
+            </a>
+            <a
+              href="https://github.com/Uneistuo/Clo-xHouse/blob/master/docs/OPTIMIZATION-PLAN-WEB.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="icon icon-refresh" aria-hidden="true"></span>Web 优化方案
+            </a>
+            <a
+              href="https://github.com/Uneistuo/Clo-xHouse/tree/master/archive/web-admin-v1.19.0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="icon icon-folder" aria-hidden="true"></span>归档的 Web 后台
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Roadmap ================= -->
+      <section class="section section--alt" id="roadmap">
+        <div class="container">
+          <header class="section-head reveal">
+            <span class="section-kicker">版本演进</span>
+            <h2>从能用到好用，持续迭代</h2>
+            <p>项目按真实门店反馈迭代，每个版本都围绕一个明确的使用场景。</p>
+          </header>
+
+          <ol class="timeline" data-stagger>
+            <li class="reveal">
+              <span class="timeline__ver">v1.11</span>
+              <div>
+                <h3>打印与多店</h3>
+                <p>蓝牙小票打印上线，店主支持创建多家店铺并凭店铺码加入。</p>
+              </div>
+            </li>
+            <li class="reveal">
+              <span class="timeline__ver">v1.12</span>
+              <div>
+                <h3>Web 管理后台</h3>
+                <p>GitHub Pages 部署的纯静态管理后台，平台管理页与权限探测兜底。</p>
+              </div>
+            </li>
+            <li class="reveal">
+              <span class="timeline__ver">v1.14.1</span>
+              <div>
+                <h3>安全与工程化</h3>
+                <p>JWT 强制、登录限流、CORS 白名单、结构化日志、Jest 测试与 Swagger 文档。</p>
+              </div>
+            </li>
+            <li class="reveal">
+              <span class="timeline__ver">v1.17</span>
+              <div>
+                <h3>商品、会员与打印体验</h3>
+                <p>图片裁剪、订单状态时间线、会员 CRM、打印设置与常用规格记忆。</p>
+              </div>
+            </li>
+            <li class="reveal">
+              <span class="timeline__ver">v1.18</span>
+              <div>
+                <h3>零构建模块化</h3>
+                <p>Web 端拆分为 16 个原生 ES Module 与 7 层 CSS，接入 PWA 与共享图标源。</p>
+              </div>
+            </li>
+            <li class="reveal is-current">
+              <span class="timeline__ver">v1.19.0</span>
+              <div>
+                <h3>今日待办与光雾动效</h3>
+                <p>待办集中到居中模态框，开单成功光雾确认动效，主题切换图标旋转。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ================= FAQ ================= -->
+      <section class="section" id="faq">
+        <div class="container container--narrow">
+          <header class="section-head reveal">
+            <span class="section-kicker">常见问题</span>
+            <h2>你可能想知道的</h2>
+          </header>
+
+          <div class="faq" data-stagger>
+            <details class="reveal">
+              <summary>为什么 Web 端坚持零构建？<span class="faq__icon" aria-hidden="true"></span></summary>
+              <p>
+                项目部署在 GitHub Pages，目标是推送即可发布。原生 ES Modules 与分层 CSS
+                足以支撑当前规模，省掉打包器、依赖升级与构建缓存，也让代码在浏览器里更透明。
+              </p>
+            </details>
+            <details class="reveal">
+              <summary>开单时库存如何保证一致？<span class="faq__icon" aria-hidden="true"></span></summary>
+              <p>
+                开单、取消与售后都在数据库事务中完成：先校验库存，再扣减
+                SKU，最后写入订单。任一步失败都会回滚；订单号唯一约束避免重复提交造成二次扣减。
+              </p>
+            </details>
+            <details class="reveal">
+              <summary>小程序如何调用后端？<span class="faq__icon" aria-hidden="true"></span></summary>
+              <p>
+                正式环境通过
+                <code>wx.cloud.callContainer</code> 走微信云托管，免服务器域名白名单；没有云开发环境时回退到
+                <code>wx.request</code>。请求失败按 1.5 / 3 / 6 / 10 秒指数退避重试。
+              </p>
+            </details>
+            <details class="reveal">
+              <summary>
+                展示页和原来的 Web 管理后台是什么关系？<span class="faq__icon" aria-hidden="true"></span>
+              </summary>
+              <p>
+                当前 <code>web/</code> 是项目展示页；原 Web 管理后台已完整归档在
+                <code>archive/web-admin-v1.19.0/</code>，需要恢复时把归档内容移回 <code>web/</code> 即可。
+              </p>
+            </details>
+            <details class="reveal">
+              <summary>如何部署？<span class="faq__icon" aria-hidden="true"></span></summary>
+              <p>
+                展示页推送 <code>master</code> 后由 <code>deploy-web.yml</code> 自动发布到 GitHub Pages；后端推送后由
+                <code>docker-image.yml</code> 构建镜像，再部署到微信云托管。部署前记得配置 <code>JWT_SECRET</code>。
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= Footer CTA ================= -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__cta reveal">
+          <div>
+            <span class="section-kicker">开源项目</span>
+            <h2>把下一家店，交给裁间。</h2>
+            <p>如果这个项目对你有帮助，欢迎在 GitHub 点一个 Star，或者直接 Fork 改成自己的版本。</p>
+          </div>
+          <div class="footer__actions">
+            <a
+              class="btn btn--primary"
+              href="https://github.com/Uneistuo/Clo-xHouse"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub 仓库 <span class="btn__arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="btn btn--ghost" href="#quickstart">快速开始</a>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <a class="brand brand--sm" href="#top">
+            <img class="brand__logo" src="assets/favicon.svg" alt="" width="30" height="30" />
+            <span class="brand__text"><strong>裁间</strong><small>Clo-xHouse</small></span>
+          </a>
+          <p>© <span data-year>2026</span> 裁间 · 服装店进销存与收银系统</p>
+          <div class="footer__links">
+            <a href="https://github.com/Uneistuo/Clo-xHouse" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://uneistuo.github.io/Clo-xHouse/" target="_blank" rel="noopener noreferrer">Pages</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+      <span aria-hidden="true">↑</span>
     </button>
-    <script type="module" src="js/app.js"></script>
+
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>

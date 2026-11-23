@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="裁间">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a9bf9"/>
+      <stop offset="1" stop-color="#b3a1fb"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.26" cy="0.2" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="neck">
+      <rect width="512" height="512" fill="#fff"/>
+      <circle cx="256" cy="213.6" r="35.3" fill="#000"/>
+    </mask>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#glow)"/>
+  <g mask="url(#neck)" fill="#ffffff">
+    <rect x="175.9" y="213.6" width="160.2" height="169.6" rx="16.5"/>
+    <polygon points="185.3,223 110,260.7 133.5,303.1 185.3,279.6"/>
+    <polygon points="326.7,223 402,260.7 378.5,303.1 326.7,279.6"/>
+  </g>
+</svg>

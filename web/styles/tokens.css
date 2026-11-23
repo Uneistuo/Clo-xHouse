@@ -1,0 +1,120 @@
+/* ============================================================
+   web/styles/tokens.css —— 设计 Token（浅色 / 深色）
+   与「裁间」小程序、原管理后台共用同一套品牌语言：
+   蓝紫主色 + 暖橙点缀 + 清透玻璃质感
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* 基底 */
+  --bg: #f6f7fb;
+  --bg-soft: #eef1f8;
+  --bg-elev: #ffffff;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-strong: rgba(255, 255, 255, 0.92);
+
+  /* 描边 */
+  --line: rgba(20, 24, 36, 0.09);
+  --line-strong: rgba(20, 24, 36, 0.16);
+
+  /* 文字 */
+  --ink: #141824;
+  --ink-2: #4b5366;
+  --ink-3: #616b7e;
+
+  /* 品牌 */
+  --primary: #5a6ae6;
+  --primary-2: #755ed6;
+  --primary-ink: #4654cc;
+  --primary-tint: rgba(107, 123, 242, 0.12);
+  --on-primary: #ffffff;
+  --warm: #ef9a6d;
+  --warm-ink: #a85a2c;
+  --on-warm: #141824;
+  --warm-tint: rgba(239, 154, 109, 0.14);
+
+  /* 语义色 */
+  --success: #2f9e6b;
+  --success-ink: #1b6f48;
+  --success-tint: rgba(47, 158, 107, 0.12);
+  --warning: #c98a2e;
+  --warning-ink: #86551a;
+  --warning-tint: rgba(201, 138, 46, 0.12);
+  --danger: #d9534f;
+  --danger-ink: #a8302c;
+  --danger-tint: rgba(217, 83, 79, 0.12);
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(20, 24, 36, 0.04), 0 8px 24px rgba(20, 24, 36, 0.05);
+  --shadow-md: 0 18px 50px rgba(20, 24, 36, 0.12);
+  --shadow-lg: 0 30px 80px rgba(20, 24, 36, 0.18);
+  --glow-primary: rgba(107, 123, 242, 0.3);
+  --glow-warm: rgba(239, 154, 109, 0.26);
+
+  /* 圆角 */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* 尺寸 */
+  --container: 1180px;
+  --nav-h: 68px;
+
+  /* 字体 */
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
+  --font-mono: 'SFMono-Regular', 'Cascadia Code', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* 动效 */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-slow: 400ms;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0b0e16;
+  --bg-soft: #10141f;
+  --bg-elev: #141926;
+  --card: rgba(22, 27, 40, 0.66);
+  --card-strong: rgba(24, 30, 44, 0.92);
+
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.18);
+
+  --ink: #eef1f8;
+  --ink-2: #b4bccd;
+  --ink-3: #7f899d;
+
+  --primary: #8e9bff;
+  --primary-2: #b3a1fb;
+  --primary-ink: #aab4ff;
+  --primary-tint: rgba(142, 155, 255, 0.14);
+  --on-primary: #0b0e16;
+  --warm: #f2a57c;
+  --warm-ink: #f2b28f;
+  --on-warm: #141824;
+  --warm-tint: rgba(242, 165, 124, 0.14);
+
+  --success: #4cc78a;
+  --success-ink: #7ee2b8;
+  --success-tint: rgba(76, 199, 138, 0.14);
+  --warning: #e2ac54;
+  --warning-ink: #f0c674;
+  --warning-tint: rgba(226, 172, 84, 0.14);
+  --danger: #ef7670;
+  --danger-ink: #f08a85;
+  --danger-tint: rgba(239, 118, 112, 0.14);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 22px 60px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.55);
+  --glow-primary: rgba(108, 124, 255, 0.32);
+  --glow-warm: rgba(255, 150, 110, 0.22);
+}

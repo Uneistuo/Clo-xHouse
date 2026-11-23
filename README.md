@@ -1,6 +1,23 @@
 # 服装店管理系统
 
+简体中文 | [English](README.en.md)
+
 服装零售门店进销存 / 收银管理系统，包含 **微信小程序客户端**、**Web 管理后台** 与 **Node.js 后端服务** 三部分。
+
+> 在线展示页：<https://uneistuo.github.io/Clo-xHouse/>
+
+## 页面预览
+
+<p align="center">
+  <img src="docs/screenshots/desktop-light.png" alt="桌面端展示页，浅色主题" width="420" />
+  <img src="docs/screenshots/desktop-dark.png" alt="桌面端展示页，深色主题" width="420" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/mobile-light.png" alt="移动端展示页，浅色主题" width="200" />
+  <img src="docs/screenshots/mobile-dark.png" alt="移动端展示页，深色主题" width="200" />
+</p>
+
+![功能 Bento 布局](docs/screenshots/desktop-features.png)
 
 ## 功能特性
 
@@ -14,9 +31,9 @@
 - **蓝牙打印**：ESC/POS 小票打印机配对、连接、测试打印与补打小票（内置 UTF-8 → GBK 编码表支持中文）
 - **平台管理**：平台管理员控制各店铺"开单"功能的授权时效（白名单）
 
-### Web 管理后台（GitHub Pages）
+### 项目展示页（GitHub Pages）
 
-纯静态单页应用，与小程序功能对齐：登录注册、店铺绑定、仪表盘、商品 / 分类 / 开单 / 订单管理、平台管理页，支持 502/503/504 自动重试（应对云托管冷启动）。
+`web/` 现为项目介绍展示页：Hero 产品预览、功能 Bento、三端预览、系统架构、工程亮点、快速开始与版本路线图。纯静态、零构建、支持明暗主题与 PWA 安装。原 Web 管理后台已完整归档至 `archive/web-admin-v1.19.0/`。
 
 ### 后端服务
 
@@ -55,12 +72,13 @@
 │   ├── escpos.js gbk.js printer.js receipt.js   # ESC/POS 蓝牙打印
 │   └── theme.js                    # 主题换肤
 ├── components/navigation-bar/      # 自定义导航栏组件
-├── web/                            # Web 管理后台（静态 SPA，零构建）
-│   ├── index.html                  # 入口（加载 js/app.js 模块）
+├── web/                            # 项目展示页（静态单页，零构建）
+│   ├── index.html                  # 展示页入口（Hero / 功能 / 预览 / 架构 / 路线图）
 │   ├── manifest.json sw.js         # PWA 清单与 Service Worker
-│   ├── js/                         # 原生 ES Modules（shell/store/ui/pages/...）
-│   ├── styles/                     # 拆分样式（base/theme/layout/components/pages/responsive/print）
+│   ├── js/main.js                  # 主题、导航、Tabs、滚动进场与复制
+│   ├── styles/                     # tokens/base/layout/components/animations 五层样式
 │   └── assets/                     # PWA 图标与 favicon
+├── archive/web-admin-v1.19.0/      # 原 Web 管理后台完整备份（不参与部署）
 ├── styles/icons.source.json        # Web 与小程序共享的图标源
 ├── scripts/build-icons.js          # 图标生成 / 校验脚本
 ├── scripts/build-pwa-icons.js      # PWA 图标生成脚本
@@ -74,6 +92,7 @@
 │   ├── test/                       # jest + supertest 集成测试
 │   └── Dockerfile                  # 云托管部署镜像
 ├── docs/optimization-plan.md       # 项目优化方案与完成情况
+├── docs/screenshots/               # README 展示截图（桌面 / 移动 / 明暗）
 └── .github/workflows/              # CI/CD 工作流
 ```
 
@@ -128,24 +147,21 @@ npm run format         # Prettier 全量格式化（含 TS / JSON / Markdown）
 
 Git 提交前由 Husky + lint-staged 自动对暂存文件执行 ESLint/Prettier 修复，格式不合格的提交无法通过。
 
-### Web 管理后台
+### 项目展示页
 
 `web/` 目录变更时由 GitHub Actions 自动发布到 GitHub Pages，无需手动部署。
 
-- **样式拆分**：`web/styles/` 按 `base` / `theme` / `layout` / `components` / `pages` / `responsive` / `print` 分层，页面只引用汇总入口。
-- **JS 模块化**：`web/js/` 使用原生 ES Modules（无打包器），入口 `app.js`；`bus.js` 事件总线解除 store → shell 循环依赖，页面通过 `requestRender()` 触发重渲染。
-- **图标共享**：图标统一收敛到 `styles/icons.source.json`，由 `npm run icons:build` 生成 `web/icons.css` 与小程序 `styles/icons.wxss` / `styles/icons-extra.wxss`；`npm run icons:check` 校验生成物是否同步。
-- **深色模式**：`data-theme="dark"` 覆盖语义 Token，首屏内联脚本提前应用避免闪白，可在侧边栏 / 登录页切换并记忆。
-- **侧边栏折叠**：桌面端可收起为图标模式（移动端保持横向导航），状态持久化到 `localStorage`。
-- **效率增强**：面包屑导航、键盘快捷键（`Ctrl/Cmd+K`、`S`、`N`、`Alt+1~7`、`?`、`Esc`）、订单小票打印（`styles/print.css`）、全局错误边界（异常不白屏）。
-- **性能**：开单页商品按 30 条/页加载并提供「加载更多」，商品与开单图片使用原生 `loading="lazy"` 懒加载。
-- **PWA**：`manifest.json` + `sw.js`（缓存版本 `cj-admin-v5`），可安装到桌面；导航与脚本 / 样式网络优先（离线回退缓存），图片 / 字体 Stale-While-Revalidate，`/api/` 与跨域请求不缓存。PWA 图标由 `node scripts/build-pwa-icons.js` 生成。
+- **展示内容**：Hero 产品预览、功能 Bento、三端预览、系统架构、工程亮点、快速开始、版本路线图与 FAQ。
+- **零构建**：原生 HTML / CSS / ES Module，无打包器与框架依赖；本地用任意静态服务器即可预览。
+- **主题与动效**：浅色 / 深色主题跟随系统并可记忆；滚动进场、Tabs 切换、代码复制均对 `prefers-reduced-motion` 降级。
+- **PWA**：`manifest.json` + `sw.js`（缓存版本 `cj-site-v1`），可安装到桌面，导航与静态资源网络优先、离线回退缓存。
+- **归档说明**：原 Web 管理后台完整保存在 `archive/web-admin-v1.19.0/`，恢复方法见该目录的 `README.md`；归档目录不会被 GitHub Pages 发布。
 
 ## CI / CD 工作流
 
 | 工作流                            | 触发条件                  | 作用                                    |
 | --------------------------------- | ------------------------- | --------------------------------------- |
-| `deploy-web.yml`                  | push 修改 `web/**` 或手动 | 发布 Web 后台到 GitHub Pages            |
+| `deploy-web.yml`                  | push 修改 `web/**` 或手动 | 发布项目展示页到 GitHub Pages           |
 | `docker-image.yml`                | push master / PR          | 构建后端 Docker 镜像验证                |
 | `npm-publish-github-packages.yml` | 创建 Release              | 测试通过后发布 npm 包到 GitHub Packages |
 

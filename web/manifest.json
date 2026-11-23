@@ -1,14 +1,14 @@
 {
-  "name": "裁间 · 管理后台",
+  "name": "裁间 · Clo-xHouse 项目展示",
   "short_name": "裁间",
-  "description": "裁间服装店管理后台：商品、开单、订单与会员管理",
+  "description": "服装零售门店进销存与收银系统：微信小程序 + Web 管理后台 + Node.js 后端",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#F3F5FA",
-  "theme_color": "#F3F5FA",
+  "background_color": "#f6f7fb",
+  "theme_color": "#6b7bf2",
   "icons": [
     {
       "src": "assets/icon-192.png",
